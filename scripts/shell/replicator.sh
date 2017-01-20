@@ -45,8 +45,8 @@ secondary_snapshot
 if [[ -z "${secondary_last_snapshot[1]}" ]]; then
   # Sync the initial snapshot
   echo "No snapshots on the destination so performing a complete send of the earliest source snapshot $source@${primary_initial_snapshot[1]}"
-  sudo zfs send -vD $source@${primary_initial_snapshot[1]} | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs receive -Fdv $destination"
-  #sudo zfs send -vD $source@${primary_initial_snapshot[1]} | mbuffer -s 128k -m 1G 2>/dev/null | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "mbuffer -s 128k -m 1G | sudo zfs receive -Fdv $destination"
+  sudo zfs send -v $source@${primary_initial_snapshot[1]} | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs receive -Fdv $destination"
+  #sudo zfs send -v $source@${primary_initial_snapshot[1]} | mbuffer -s 128k -m 1G 2>/dev/null | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "mbuffer -s 128k -m 1G | sudo zfs receive -Fdv $destination"
   rc=$?
   echo "Return code from the initial send command : $rc"
   exit $rc
@@ -56,8 +56,8 @@ else
     echo "The destination has some snapshots already so performing a differential send from $source@${secondary_last_snapshot[1]} to $source@${primary_last_snapshot[1]}"
     #If the destination and the source last snapshots are the not the same, then incremental sync of snapshots
     #echo "${secondary_last_snapshot} ${primary_last_snapshot}"
-    sudo zfs send -vDI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} |  ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs receive -Fdv $destination"
-    #sudo zfs send -vDI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} | mbuffer -s 128k -m 1G 2>/dev/null | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "mbuffer -s 128k -m 1G | sudo zfs receive -Fdv $destination"
+    sudo zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} |  ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs receive -Fdv $destination"
+    #sudo zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} | mbuffer -s 128k -m 1G 2>/dev/null | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "mbuffer -s 128k -m 1G | sudo zfs receive -Fdv $destination"
     rc=$?
     echo "Return code from the differential send command : $rc"
     exit $rc
