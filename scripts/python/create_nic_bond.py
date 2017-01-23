@@ -11,7 +11,7 @@ def create_bond ():
       raise Exception ('No interfaces detected')
 
     print '\n\nIntegralstor Unicell NIC Bonding'
-    print '------------------------------------\n\n'
+    print '---------------------------------\n\n'
     print 'Available interfaces: \n'
 
     bm, err = networking.get_bonding_masters ()
@@ -23,6 +23,9 @@ def create_bond ():
     
     avail_if = []
     for if_name, iface in interfaces.items():
+      ret, err = networking.get_ip_info (if_name)
+      if ret:
+        continue
       if if_name.startswith('lo') or if_name in bm or if_name in bid['by_slave']:
         continue
       print '\t- %s'%if_name
