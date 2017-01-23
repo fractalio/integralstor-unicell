@@ -527,8 +527,6 @@ def edit_hostname(request):
         raise Exception(err)
 
       ret, err = command.get_command_output("python %s/generate_status.py %s"%(common_python_scripts_path, ss_path))
-      if err:
-        raise Exception(err)
 
       audit_str = "Hostname set to %s."%cd['hostname']
       if 'domain_name' in cd:
