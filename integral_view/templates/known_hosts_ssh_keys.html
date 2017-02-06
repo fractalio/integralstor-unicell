@@ -1,0 +1,69 @@
+{% extends  'key_management_base.html' %}
+
+{% block tab_header %}
+   Known hosts SSH keys for {{selected_user}}
+{% endblock%}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right">
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">       <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> 
+    </a>
+
+    <ul class="dropdown-menu">
+
+      <li><a class="action-dropdown" href="/static/{{host_key}}" ><i class="fa fa-download fa-fw"></i>&nbsp;Download this system's SSH fingerprint</a></li>
+
+      <hr style="margin-top: 2px; margin-bottom: 2px; border: 0; border-top: 1px solid #7d7676;">
+      <li><a class="action-dropdown" href="/upload_ssh_host_key/?user={{selected_user}}" ><i class="fa fa-upload fa-fw"></i>&nbsp;Add SSH fingerprint to {{selected_user}} </a></li>
+
+    </ul>
+  </div>
+
+{% endblock  %}
+
+{% block inside_content %}
+  <table class="table" style="width:800px">
+    <tr>
+      <th> Select User :</th>
+      <td> 
+        <select name="user" id="id_user" class="form-control">
+<!--          {% for user in users %}
+            <option value="{{user.username}}" {% if user.username == selected_user%} selected="selected" {% endif %}>{{user.username}}</option>
+          {%endfor%}
+-->
+            <option value="replicator" {% if "replicator" == selected_user%} selected="selected" {% endif %}>replicator</option>
+        </select>
+      </td>
+    </tr>
+
+  </table>
+
+  {%if hosts_keys %}
+    User's known host key(s) 
+    <table class="table">
+      <tbody>
+        {% for key in hosts_keys %}    
+          <form action="/upload_ssh_host_key/" method="POST" class="form-horizontal">      
+            <tr>
+              <td >
+                <input type="text" value="{{selected_user}}" name="selected_user" readonly class="form-control" style="display:none"/>
+                <input type="text" value="{{key}}" name="authorized_key" readonly class="form-control" style="display:none"/>
+                <textarea cols=100 rows=4 readonly> {{key}} </textarea>
+              </td>
+              <td><button class="btn btn-danger">Remove Access </button></td>
+            </tr>
+          </form>
+        {% endfor %}
+      </tbody>
+    </table>
+  {%endif%}
+
+
+  <script>
+    document.getElementById("id_user").onchange = function () {
+      var user = $("#id_user").val()
+      location.href = "/known_hosts_ssh_keys/?user="+user
+    }
+  </script>
+{% endblock %}
+

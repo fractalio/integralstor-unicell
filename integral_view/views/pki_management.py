@@ -153,7 +153,7 @@ def upload_ssh_user_key(request):
         if err:
           raise Exception(err)
         ack_message = "key_added"
-      return django.http.HttpResponseRedirect("/download_ssh_keys/?ack=%s&user=%s"%(ack_message,user))
+      return django.http.HttpResponseRedirect("/user_ssh_keys/?ack=%s&user=%s"%(ack_message,user))
     except Exception,e:
       return_dict['base_template'] = "key_management_base.html"
       return_dict["page_title"] = 'Upload a Public Key'
@@ -207,7 +207,7 @@ def upload_ssh_host_key(request):
         if err:
           raise Exception(err)
         ack_message = "host_added"
-      return django.http.HttpResponseRedirect("/download_ssh_keys/?ack=%s&user=%s"%(ack_message,user))
+      return django.http.HttpResponseRedirect("/known_hosts_ssh_keys/?ack=%s&user=%s"%(ack_message,user))
     except Exception,e:
       return_dict['base_template'] = "key_management_base.html"
       return_dict["page_title"] = 'Upload a Host Key'
@@ -219,7 +219,7 @@ def upload_ssh_host_key(request):
   elif request.method == 'GET':
     return django.shortcuts.render_to_response("upload_ssh_host_key.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def download_ssh_keys(request):
+def user_ssh_keys(request):
   return_dict = {}
   try:
     """
@@ -241,33 +241,31 @@ def download_ssh_keys(request):
       raise Exception(err)
     return_dict['ssh_key'] = key
 
-    host_key,err = pki.get_ssh_host_identity_key()
+    """host_key,err = pki.get_ssh_host_identity_key()
     if err:
       raise Exception(err)
-    return_dict['host_key'] = host_key
+    return_dict['host_key'] = host_key"""
 
     # Get all the users authorized key files
     authorized_keys_file = pki._get_authorized_file(user)
     if os.path.isfile(authorized_keys_file):
       return_dict["authorized_keys"] = open(authorized_keys_file,'r').readlines()
 
+    """
     # Get users host key files
     hosts_keys_file = pki._get_known_hosts(user)
     if os.path.isfile(hosts_keys_file):
       return_dict["hosts_keys"] = open(hosts_keys_file,'r').readlines()
+    """
 
     if "ack" in request.GET:
-      if request.GET["ack"] == "host_deleted":
-        return_dict['ack_message'] = "The Host Key has been successfully deleted"
       if request.GET["ack"] == "key_deleted":
         return_dict['ack_message'] = "The Public Key has been successfully deleted"
-      if request.GET["ack"] == "host_added":
-        return_dict['ack_message'] = "The Host Key has been successfully added"
       if request.GET["ack"] == "key_added":
         return_dict['ack_message'] = "The Public Key has been successfully added"
 
 
-    return django.shortcuts.render_to_response("download_ssh_keys.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    return django.shortcuts.render_to_response("user_ssh_keys.html", return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception,e:
     return_dict['base_template'] = "key_management_base.html"
     return_dict["page_title"] = 'My Keys'
@@ -275,3 +273,63 @@ def download_ssh_keys(request):
     return_dict["error"] = 'Error fetching public keys'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def known_hosts_ssh_keys(request):
+  return_dict = {}
+  try:
+    """
+    # This gets the users in the local account. Commented since, we dont have a need yet.
+    user_list, err = local_users.get_local_users()
+    if err:
+      raise Exception(err)
+    if len(user_list) == 0:
+      raise Exception("No users exists. Create a user")
+
+    return_dict["users"] = user_list
+    """
+
+    user = request.GET.get('user','replicator')
+    return_dict["selected_user"] = user
+
+    """
+    key,err = pki.get_ssh_key(user) 
+    if err:
+      raise Exception(err)
+    return_dict['ssh_key'] = key
+    """
+
+    host_key,err = pki.get_ssh_host_identity_key()
+    if err:
+      raise Exception(err)
+    return_dict['host_key'] = host_key
+
+    """
+    # Get all the users authorized key files
+    authorized_keys_file = pki._get_authorized_file(user)
+    if os.path.isfile(authorized_keys_file):
+      return_dict["authorized_keys"] = open(authorized_keys_file,'r').readlines()
+    """
+    
+    # Get users host key files
+    hosts_keys_file = pki._get_known_hosts(user)
+    if os.path.isfile(hosts_keys_file):
+      return_dict["hosts_keys"] = open(hosts_keys_file,'r').readlines()
+    
+
+    if "ack" in request.GET:
+      if request.GET["ack"] == "host_deleted":
+        return_dict['ack_message'] = "The Host Key has been successfully deleted"
+      if request.GET["ack"] == "host_added":
+        return_dict['ack_message'] = "The Host Key has been successfully added"
+
+
+    return django.shortcuts.render_to_response("known_hosts_ssh_keys.html", return_dict, context_instance=django.template.context.RequestContext(request))
+  except Exception,e:
+    return_dict['base_template'] = "key_management_base.html"
+    return_dict["page_title"] = 'My Keys'
+    return_dict['tab'] = 'my_public_key_tab'
+    return_dict["error"] = 'Error fetching public keys'
+    return_dict["error_details"] = str(e)
+    return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+

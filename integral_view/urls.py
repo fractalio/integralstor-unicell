@@ -6,7 +6,7 @@ from integral_view.views.ntp_management import configure_ntp_settings, view_ntp_
 
 from integral_view.views.admin_auth  import login, logout, change_admin_password, view_email_settings, configure_email_settings, view_https_mode, edit_https_mode, reboot_or_shutdown, reload_manifest, reset_to_factory_defaults, flag_node, view_system_info
 
-from integral_view.views.pki_management  import view_ssl_certificates, delete_ssl_certificate, create_self_signed_ssl_certificate, upload_ssl_certificate, download_ssh_keys, upload_ssh_user_key,upload_ssh_host_key
+from integral_view.views.pki_management  import view_ssl_certificates, delete_ssl_certificate, create_self_signed_ssl_certificate, upload_ssl_certificate, known_hosts_ssh_keys, user_ssh_keys, upload_ssh_user_key, upload_ssh_host_key
 
 from integral_view.views.common import show, dashboard,shell_access, view_backup
 
@@ -203,7 +203,8 @@ urlpatterns = patterns('',
     url(r'^create_ftp_user_dirs', login_required(create_ftp_user_dirs)),
     url(r'^view_ftp_configuration', login_required(view_ftp_configuration)),
     url(r'^reboot_or_shutdown',login_required(reboot_or_shutdown)), 
-    url(r'^download_ssh_keys',login_required(download_ssh_keys)),
+    url(r'^user_ssh_keys',login_required(user_ssh_keys)),
+    url(r'^known_hosts_ssh_keys',login_required(known_hosts_ssh_keys)),
     url(r'^upload_ssh_user_key',login_required(upload_ssh_user_key)),
     url(r'^upload_ssh_host_key',login_required(upload_ssh_host_key)),
     url(r'^create_rsync_share',login_required(create_rsync_share)),

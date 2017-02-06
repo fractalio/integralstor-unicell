@@ -1,8 +1,11 @@
 {% extends 'logged_in_base.html' %}
 
 {%block tab_items %}
-  <li id="download_ssh_keys_tab">
-    <a href="/download_ssh_keys/">SSH keys</a>
+  <li id="user_ssh_keys_tab">
+    <a href="/user_ssh_keys/">User SSH keys</a>
+  </li> 
+  <li id="host_ssh_keys_tab">
+    <a href="/known_hosts_ssh_keys/">Known Hosts SSH keys</a>
   </li>
   <li id="ssl_certs_tab">
     <a href="/view_ssl_certificates" >SSL certificates and keys</a>
