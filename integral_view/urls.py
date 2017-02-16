@@ -10,11 +10,12 @@ from integral_view.views.pki_management  import view_ssl_certificates, delete_ss
 
 from integral_view.views.common import show, dashboard,shell_access, view_backup
 
-from integral_view.views.log_management import  download_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info, refresh_alerts, raise_alert, internal_audit, view_alerts, view_audit_trail, view_hardware_logs, view_log
+from integral_view.views.log_management import  download_log, rotate_log, view_rotated_log_list, view_rotated_log_file, edit_integral_view_log_level,download_sys_info,upload_sys_info, refresh_alerts, raise_alert, internal_audit, view_alerts, view_audit_trail, view_hardware_logs, view_log, view_virus_scan_logs
 
 from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, samba_server_settings, save_samba_server_settings, view_cifs_share, edit_cifs_share, delete_cifs_share, edit_auth_method 
 
 from integral_view.views.folder_management import delete_ace, add_aces, edit_aces, modify_dir_permissions, create_dir, delete_dir, dir_manager, modify_dir_owner, get_dir_listing, view_dir_ownership_permissions, dir_contents, modify_sticky_bit
+
 
 from integral_view.views.local_user_management import view_local_users, create_local_user, change_local_user_password, delete_local_user, view_local_user, edit_local_user_gid, view_local_groups, edit_local_user_group_membership, view_local_group, create_local_group, delete_local_group, modify_group_membership
 
@@ -35,6 +36,9 @@ from integral_view.views.stgt_iscsi_management import view_targets, view_target,
 from integral_view.views.rsync_share_management import create_rsync_share,edit_rsync_share,view_rsync_shares,delete_rsync_share
 
 from django.contrib.auth.decorators import login_required
+
+from integral_view.views.clamav_management import view_clamav_configuration, configure_clamav , change_av_status, view_quarantine, upload_update, del_all_virus
+
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -212,5 +216,12 @@ urlpatterns = patterns('',
     url(r'^edit_rsync_share',login_required(edit_rsync_share)),
     url(r'^view_rsync_shares',login_required(view_rsync_shares)),
     url(r'^delete_rsync_share',login_required(delete_rsync_share)),
+    url(r'^view_clamav_configuration', login_required(view_clamav_configuration)),
+    url(r'^configure_clamav', login_required(configure_clamav)),
+    #url(r'^schedule_clamav_scan', schedule_clamav_scan),
+    url(r'^change_av_status', login_required(change_av_status)),
+    url(r'^view_virus_scan_logs',login_required(view_virus_scan_logs)),
+    url(r'^view_quarantine', login_required(view_quarantine)),
+    url(r'^upload_update', login_required(upload_update)),
+    url(r'^del_all_virus', login_required(del_all_virus)),
 )
-

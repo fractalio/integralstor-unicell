@@ -1,0 +1,62 @@
+{% extends 'services_base.html'%}
+
+{% block tab_header %}
+  View ClamAV configuration
+{% endblock %}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/configure_clamav" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;Modify configuration</a></li>
+      <li><a class="action-dropdown" href="/view_quarantine" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;View Quarantine</a></li>
+      <li><a class="action-dropdown" href="/upload_update" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;Upload Update File</a></li>
+      <!--li><a class="action-dropdown" href="/schedule_clamav_scan"
+          class="cover-page"><i class="fa fa-plus fa-fw"></i>&nbsp;Schedule Scan</a></li-->
+    </ul>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+  {%if not config %}
+    There seems to be a problem in retrieving the ClamAV configuration. Does clamd.conf exists?<br><br>
+  {%else%}
+    <table class="table table-bordered" style="width:60%" >
+      <tr>
+        <th> MaxFiles </th>
+        <td> {{config.MaxFiles}} </td>
+      </tr>
+      <tr>
+        <th> MaxScanSize  </th>
+        <td> {{config.MaxScanSize}} </td>
+      </tr>
+      <tr>
+        <th> MaxFileSize </th>
+        <td> {{config.MaxFileSize}} </td>
+    </tr>
+    {%if schedule%} 
+    <tr>
+       <th> Schedule </th>
+       <td> {{schedule}} </td>
+    </tr>
+    {%endif%} 
+    <tr>
+       <th> Checks for update in a day </th>
+       <td> {{update_check.Checks}} </td>
+    </tr>
+    
+    <tr>
+       <th> Auto Update </th>
+       <td> {% if update_check.Checks == '0' %} Off {% else %} On {% endif %} </td>
+    </tr>
+    </table>
+  {%endif%}
+
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("clamav_configuration")
+  </script>
+{% endblock %}
+
