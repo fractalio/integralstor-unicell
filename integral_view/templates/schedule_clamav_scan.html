@@ -1,0 +1,31 @@
+{% extends 'services_base.html'%}
+
+{% block tab_header %}
+  Configure ClamAv
+{% endblock %}
+
+{% block inside_content %}
+    
+
+
+<div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_clamav_configuration" role="button" class="btn btn-default "> Cancel</a>
+      <button type="submit" class="btn btn-primary cover-page">Save</button>
+  </div><br><br>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        <button type="submit" action="/restore_default/" class="btn btn-primary">Restore Default</button>
+    </div>
+  </form>
+
+  <script>
+    window.onload = select_field("id_ssl_enabled");
+    </script>
+	
+{% endblock %}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("clamav_settings")
+  </script>
+{% endblock %}
+

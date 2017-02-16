@@ -6,6 +6,7 @@ from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 
 from integralstor_common import common, audit, alerts,command, db
+from integralstor_common.clamav import vs_log
 
 from integralstor_unicell import system_info
 
@@ -21,7 +22,7 @@ def view_log(request):
       if form.is_valid():
         cd = form.cleaned_data
         log_type = cd['log_type']
-        if log_type not in ['alerts', 'audit', 'hardware']:
+        if log_type not in ['alerts', 'audit', 'hardware', 'av']:
           raise Exception('Invalid log type specified')
         if log_type == 'alerts':
           alerts_list, err = alerts.load_alerts()
@@ -35,6 +36,16 @@ def view_log(request):
             raise Exception(err)
           return_dict["audit_list"] = al
           return django.shortcuts.render_to_response('view_audit_trail.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        ################
+        elif log_type == 'av':
+            vs_log_list,err = vs_log()
+            if err:
+                raise Exception(err)
+            return_dict['vs_log_list'] = vs_log_list
+            return django.shortcuts.render_to_response('view_virus_scan_logs.html', return_dict, context_instance=django.template.context.RequestContext(request))
+
+        ################
+        
         elif log_type == 'hardware':
           hw_platform, err = common.get_hardware_platform()
           if err:
@@ -58,6 +69,23 @@ def view_log(request):
     return_dict["error"] = 'Error loading system alerts'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def view_virus_scan_logs(request):
+    return_dict = {}
+    try:
+        vs_log_list,err = vs_log()
+        if err:
+            raise Exception(err)
+        return_dict['vs_log_list'] = vs_log_list
+        return django.shortcuts.render_to_response('view_virus_scan_logs.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    except Exception, e:
+        return_dict['base_template'] = "logging_base.html"
+        return_dict["page_title"] = 'System alerts'
+        return_dict['tab'] = 'view_current_alerts_tab'
+        return_dict["error"] = 'Error loading system alerts'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def view_alerts(request):
   return_dict = {}
@@ -545,3 +573,12 @@ def internal_audit(request):
       audit.audit(request.POST["audit_action"], request.POST["audit_str"], "0.0.0.0")
     response.write("Success")
   return response
+import zipfile, datetime,os,shutil
+
+import django, django.template
+from  django.contrib import auth
+from django.core.files.storage import default_storage
+from django.contrib.auth.decorators import login_required
+
+from integralstor_common import common, audit, alerts,command, db
+from integralstor_common.clamav import vs_log
