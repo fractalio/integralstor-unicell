@@ -1040,7 +1040,7 @@ def view_zfs_dataset(request):
 
     avscan,err = clamav.check_scan_file(dataset_name)####################################
     if err:
-        raise Exception(err)
+      raise Exception(err)
     return_dict['avscan'] = avscan ###################################
     properties, err = zfs.get_properties(dataset_name)
     if err:
@@ -1099,7 +1099,7 @@ def edit_zfs_dataset(request):
     properties, err = zfs.get_properties(name)
     avscan,err = clamav.check_scan_file(name)
     if err:
-        raise Exception(err)
+      raise Exception(err)
     if not properties and err:
       raise Exception(err)
     elif not properties:
@@ -1117,9 +1117,9 @@ def edit_zfs_dataset(request):
 
 #############################################
       if avscan == 'on':
-          initial['avscan'] = True
+        initial['avscan'] = True
       else :
-          initial['avscan'] = False
+        initial['avscan'] = False
 #############################################
       return_dict['type'] = properties['type']
       form = zfs_forms.DatasetForm(initial=initial)
@@ -1160,14 +1160,14 @@ def edit_zfs_dataset(request):
                 
 ###########################################      
       if cd['avscan']:
-          changed = 'on'
+        changed = 'on'
       else:
-          changed = 'off'
+        changed = 'off'
       result,err = clamav.change_scan_file(name, changed)
       if err:
-          raise Exception(err)
+        raise Exception(err)
       if result == 'on' or result == 'off':
-          result_str += ' Successfully set property avscan to %s'%(changed)
+        result_str += ' Successfully set property avscan to %s'%(changed)
 ###########################################
       return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=modified_dataset_properties'%name)
   except Exception, e:
@@ -1233,7 +1233,7 @@ def delete_zfs_dataset(request):
           raise Exception(err)
       result,err = clamav.change_scan_file(name, 'off')
       if err:
-          raise Exception(err)
+        raise Exception(err)
  
       if type == 'dataset':
         audit_str = "Deleted ZFS dataset %s"%name
@@ -1291,10 +1291,10 @@ def create_zfs_dataset(request):
  
 ############################################
       if cd['avscan']:
-          entry = cd['pool']+'/'+cd['name']
-          result,err = clamav.change_scan_file(entry, 'on')
-          if err:
-             raise Exception(err)
+        entry = cd['pool']+'/'+cd['name']
+        result,err = clamav.change_scan_file(entry, 'on')
+        if err:
+          raise Exception(err)
 ############################################
       audit_str = "Created a ZFS dataset named %s/%s"%(cd['pool'], cd['name'])
       audit.audit("create_zfs_dataset", audit_str, request.META)
