@@ -14,7 +14,7 @@ class DownloadLogsForm(forms.Form):
 class ViewLogsForm(forms.Form):
   """ Form to get the info about which log to view"""
 
-  ch = [('alerts', 'Alerts log'), ('audit', 'Audit log')]
+  ch = [('alerts', 'Alerts log'), ('audit', 'Audit log'), ('av', 'Virus scan')]
   hw_platform, err = common.get_hardware_platform()
   if hw_platform and hw_platform == 'dell':
     ch.append(('hardware', 'Hardware log'))

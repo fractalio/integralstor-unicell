@@ -15,6 +15,17 @@
         {%if properties.type.value == 'filesystem'%}
           <li><a href="/view_dir_ownership_permissions?path={{properties.mountpoint.value}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Change ownership and permissions</a></li>
         {%endif%}
+
+        {% if avscan == 'on' %}
+        <!-- ############################# -->
+        <li><a href="/change_av_status?name={{name}}&avscan=off" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn off virus scan </a> </li>
+
+        {% elif avscan == 'off' %}
+        <!-- ############################# -->
+        <li><a href="/change_av_status?name={{name}}&avscan=on" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn on virus scan </a> </li>
+        {% endif %}
+
+
         <li class="divider"></li>
         {%if properties.type.value == 'filesystem'%}
           <li><a href="/set_zfs_quota?path={{name}}&path_type=dataset&ug_type=user&pool_name={{pool}}"><i class="fa fa-plus fa-fw"></i>&nbsp;Add user quota</a></li>
@@ -62,8 +73,18 @@
             </tr>
           {%endif%}
         {%endfor%}
+        <!-- ################################################### -->
+        <tr>
+            <td>
+            Virus Scan 
+            </td>
+            <td> {%if avscan == 'on' %} On {%elif avscan == 'off' %} Off {%endif%} </td>
+            <td>{%if avscan == 'on' %} Explicitly set {%elif avscan == 'off' %} Default {%endif%}</td>
+        </tr>
+                                                                                                                                      <!-- ###################################################
+                                                                                                                                      -->
       </table>
-
+      
       {%if properties.type.value == 'filesystem' and quotas %}
         <hr>
         <h5> Dataset quotas </h5>
@@ -131,7 +152,6 @@
 
     </div>
   {%endif%}
-
 {%endblock%}
 
 {%block help_header%}
