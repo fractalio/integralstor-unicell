@@ -1038,7 +1038,7 @@ def view_zfs_dataset(request):
       pool = dataset_name
     return_dict['pool'] = pool
 
-    avscan,err = clamav.check_scan_file(dataset_name)####################################
+    avscan,err = clamav.check_dataset_scan_list(dataset_name)####################################
     if err:
       raise Exception(err)
     return_dict['avscan'] = avscan ###################################
@@ -1097,7 +1097,7 @@ def edit_zfs_dataset(request):
       raise Exception('Dataset name not specified. Please use the menus.')
     name = request.REQUEST["name"]
     properties, err = zfs.get_properties(name)
-    avscan,err = clamav.check_scan_file(name)
+    avscan,err = clamav.check_dataset_scan_list(name)
     if err:
       raise Exception(err)
     if not properties and err:
@@ -1116,7 +1116,7 @@ def edit_zfs_dataset(request):
           initial[p] = True
 
 #############################################
-      if avscan == 'on':
+      if avscan:
         initial['avscan'] = True
       else :
         initial['avscan'] = False
@@ -1156,18 +1156,15 @@ def edit_zfs_dataset(request):
             audit_str += " property '%s' set to '%s'"%(p, changed)
             success = True
       if success:
-        audit.audit("edit_zfs_dataset", audit_str, request.META)
-                
+        audit.audit("edit_zfs_dataset", audit_str, request.META)          
 ###########################################      
       if cd['avscan']:
-        changed = 'on'
+        changed = True
       else:
-        changed = 'off'
-      result,err = clamav.change_scan_file(name, changed)
+        changed = False
+      result,err = clamav.change_dataset_scan_list(name, changed)
       if err:
         raise Exception(err)
-      if result == 'on' or result == 'off':
-        result_str += ' Successfully set property avscan to %s'%(changed)
 ###########################################
       return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=modified_dataset_properties'%name)
   except Exception, e:
@@ -1231,7 +1228,7 @@ def delete_zfs_dataset(request):
           raise Exception('Unknown error!')
         else:
           raise Exception(err)
-      result,err = clamav.change_scan_file(name, 'off')
+      result,err = clamav.change_dataset_scan_list(name, False)
       if err:
         raise Exception(err)
  
@@ -1291,8 +1288,8 @@ def create_zfs_dataset(request):
  
 ############################################
       if cd['avscan']:
-        entry = cd['pool']+'/'+cd['name']
-        result,err = clamav.change_scan_file(entry, 'on')
+        entry = '%s/%s'%(cd['pool'],cd['name'])
+        result,err = clamav.change_dataset_scan_list(entry, True)
         if err:
           raise Exception(err)
 ############################################

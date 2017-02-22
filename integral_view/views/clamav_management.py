@@ -4,6 +4,7 @@ from commands import getstatusoutput
 from integral_view.forms import clamav_management_forms 
 from integralstor_unicell import local_users
 from integralstor_common import scheduler_utils, clamav
+from integralstor_common.common import clamav_virus_definations_directory
 from os import listdir
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render
@@ -12,16 +13,14 @@ from django.shortcuts import render
 
 def change_av_status(request):
   try:
-    if 'name' not in request.REQUEST and 'avscan' not in request.REQUEST:
+    if 'avscan' not in request.REQUEST and 'name' not in request.REQUEST:
       raise Exception("Malformed request. Please use the menus.")
     name = request.REQUEST['name']
     avscan = request.REQUEST['avscan']
-    result,err = clamav.change_scan_file(name, str(avscan))
+    result,err = clamav.change_dataset_scan_list(name, eval(avscan))
     if err:
       raise Exception(err)
-    if result not in ['on','off']:
-      raise Exception(result)
-    return django.http.HttpResponseRedirect('/view_zfs_dataset?name={0}&ack=virus_scan_{1}'.format(name,result))
+    return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=virus_scan_%s'%(name,result))
   except Exception, e:
     return_dict={}
     return_dict['base_template'] = "storage_base.html"
@@ -36,10 +35,10 @@ def change_av_status(request):
 def configure_clamav(request):
   return_dict = {}
   try:
-    config,err = clamav.get_file()
+    config,err = clamav.get_clamav_conf_file('clamd')
     if err:
       raise Exception(err)
-    update_config,err = clamav.get_file_updater()
+    update_config,err = clamav.get_clamav_conf_file('freshclam')
     if err:
       raise Exception(err)
     if request.method == 'GET':
@@ -48,7 +47,7 @@ def configure_clamav(request):
         return_dict['form'] = form
         return_dict['config'] = config
         return_dict['update_check'] = update_config
-        cron_task_id,err = clamav.get_cron_id()
+        cron_task_id,err = clamav.get_clamav_cron_id()
         if err:
           raise Exception(err)
         crons = scheduler_utils.get_cron_tasks(cron_task_id)
@@ -66,20 +65,23 @@ def configure_clamav(request):
         config['MaxScanSize'] = MaxScanSize
         MaxFileSize = form.cleaned_data['MaxFileSize']
         config['MaxFileSize'] = MaxFileSize
-        response,err = clamav.write_conf(config)
+        response,err = clamav.write_clamav_conf_file(config, 'clamd')
         if err:
           raise Exception(err)
                 ###############################
         Checks = form.cleaned_data['Checks']
         update_config['Checks'] = Checks
-        response,err = clamav.write_conf_updater(update_config)
+        response,err = clamav.write_clamav_conf_file(update_config, 'freshclam')
         if err:
           raise Exception(err)
 ################################################################
         scheduler = request.POST.get('scheduler')
         schedule = scheduler.split()
         return_dict['schedule'] = schedule
-        cron_task_id,err = clamav.add_cron(schedule)
+        old_cron_id,err = clamav.get_clamav_cron_id()
+        if err:
+          raise Exception(err)
+        cron_task_id,err = clamav.add_clamav_cron(schedule,old_cron_id)
         if err:
           raise Exception(err)
         return django.http.HttpResponseRedirect('/view_clamav_configuration?ack=saved')
@@ -98,21 +100,19 @@ def upload_update(request):
   try:
     if request.method == 'POST' and request.FILES['update_file']:
       update_file = request.FILES['update_file']
-      fs = FileSystemStorage(location='/opt/integralstor/integralstor_unicell/config/clamav/virus_definations/')
-      if update_file.name not in ['daily.cvd', 'main.cvd', 'bytecode.cvd']:
-        raise Exception('Only clamav update files allowed')
-      getstatusoutput('rm -f /opt/integralstor/integralstor_unicell/config/clamav/virus_definations/'+update_file.name)
-      getstatusoutput('rm -f /var/lib/clamav/'+update_file.name)
-      filename = fs.save(update_file.name, update_file)
-      confirm,err = clamav.match_date(update_file.name)
+      root,err = clamav_virus_definations_directory()
       if err:
         raise Exception(err)
-      if confirm == 'invalid':
-        raise Exception('Update file is not downloaded today. Use the update file downloaded today')
-      st,cm = getstatusoutput('ln -s /opt/integralstor/integralstor_unicell/config/clamav/virus_definations/'+update_file.name+' /var/lib/clamav/'+update_file.name)
-      if st != 0:
-		    raise Exception(cm)
-      getstatusoutput('sytemctl restart clamd@scan')
+      fs = FileSystemStorage(location='%s/'%root)
+      if update_file.name not in ['daily.cvd', 'main.cvd', 'bytecode.cvd']:
+        raise Exception('Only clamav update files allowed')
+      status,err = clamav.virus_definations(update_file.name)
+      if err:
+        raise Exception(err)
+      filename = fs.save(update_file.name, update_file)
+      status,err = clamav.virus_definations(update_file.name,True)
+      if err:
+        raise Exception(err)
       return django.http.HttpResponseRedirect('/view_clamav_configuration?ack=uploaded')
     return render(request, 'upload_update.html')
   except Exception,e:
@@ -126,8 +126,8 @@ def upload_update(request):
 
 def restore_default(request):
   try:
-    status,op = getstatusoutput('cp /usr/local/etc/clamd.conf.default /usr/local/etc/clamd.conf')
-    if status !=0:
+    status,err = clamav.restore_default_clamav_conf()
+    if err:
       raise Exception(err)
     return django.http.HttpResponse('/view_clamav_configuration?ack=restored')
   except Excepttion,e:
@@ -150,16 +150,16 @@ def view_clamav_configuration(request):
         return_dict['ack_message'] = "Configuration restored to Default"
       if request.GET["ack"] == "uploaded":
     	return_dict['ack_message'] = "Update file uploaded"
-    config,err = clamav.get_file()
+    config,err = clamav.get_clamav_conf_file('clamd')
     if err:
       raise Exception(err)
-    update_check,err = clamav.get_file_updater()
+    update_check,err = clamav.get_clamav_conf_file('freshclam')
     if err:
       raise Exception(err)
     return_dict['config'] = config
     return_dict['update_check'] = update_check
         #################
-    cron_task_id,err = clamav.get_cron_id()
+    cron_task_id,err = clamav.get_clamav_cron_id()
     if err:
       raise Exception(err)
     crons = scheduler_utils.get_cron_tasks(cron_task_id)
@@ -183,7 +183,7 @@ def view_quarantine(request):
     if request.method == 'GET':
       form = clamav_management_forms.QuarantineList()
       return_dict['form'] = form
-      virus_list = listdir('/opt/integralstor/integralstor_unicell/config/clamav/quarantine/')
+      virus_list = clamav.quarantine_list()
       if virus_list == []:
         return_dict['virus_list'] = ['There are no Files in the quarentine',]
       else:
@@ -194,16 +194,18 @@ def view_quarantine(request):
       return_dict['form'] = form
       if form.is_valid():
         cl = form.cleaned_data
-        virus_list = listdir('/opt/integralstor/integralstor_unicell/config/clamav/quarantine/')
+        virus_list,err = clamav.quarantine_list()
+        if err:
+          raise Exception(err)
         if virus_list == []:
-          return_dict['virus_list'] = ['There are no Files in the quarentine',]
+          return_dict['virus_list'] = ['There are no Files in the quarantine',]
         else:
           return_dict['virus_list'] = virus_list
         for virus_file in virus_list:
           if cl[virus_file]:
-            status,cm = getstatusoutput('rm -rf /opt/integralstor/integralstor_unicell/config/clamav/quarantine/%s' %virus_file)
-            if status != 0:
-              raise Exception('Error Deleting File')
+            status,err = clamav.del_virus(virus_file)
+            if err:
+              raise Exception(err)
         return django.http.HttpResponseRedirect('/view_quarantine.html')
       else :
           return django.shortcuts.render_to_response("view_quarantine.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -217,9 +219,9 @@ def view_quarantine(request):
 
 def del_all_virus(request):
   try:
-    status,cm = getstatusoutput('rm -rf /opt/integralstor/integralstor_unicell/config/clamav/quarantine/*')
-    if status != 0:
-      raise Exception('Error Deleting File')
+    status,err = clamav.del_all_virus()
+    if err:
+      raise Exception(err)
     return django.http.HttpResponseRedirect('/view_quarantine.html')
   except Exception,e :
     return_dict['base_template'] = "services_base.html"

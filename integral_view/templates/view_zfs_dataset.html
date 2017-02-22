@@ -16,13 +16,13 @@
           <li><a href="/view_dir_ownership_permissions?path={{properties.mountpoint.value}}" > <i class="fa fa-cog fa-fw"></i>&nbsp;Change ownership and permissions</a></li>
         {%endif%}
 
-        {% if avscan == 'on' %}
+        {% if avscan %}
         <!-- ############################# -->
-        <li><a href="/change_av_status?name={{name}}&avscan=off" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn off virus scan </a> </li>
+        <li><a href="/change_av_status?name={{name}}&avscan=False" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn off virus scan </a> </li>
 
-        {% elif avscan == 'off' %}
+        {% elif not avscan %}
         <!-- ############################# -->
-        <li><a href="/change_av_status?name={{name}}&avscan=on" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn on virus scan </a> </li>
+        <li><a href="/change_av_status?name={{name}}&avscan=True" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn on virus scan </a> </li>
         {% endif %}
 
 
@@ -78,8 +78,8 @@
             <td>
             Virus Scan 
             </td>
-            <td> {%if avscan == 'on' %} On {%elif avscan == 'off' %} Off {%endif%} </td>
-            <td>{%if avscan == 'on' %} Explicitly set {%elif avscan == 'off' %} Default {%endif%}</td>
+            <td> {%if avscan %} On {%elif not avscan %} Off {%endif%} </td>
+            <td>{%if avscan %} Explicitly set {%elif not avscan %} Default {%endif%}</td>
         </tr>
                                                                                                                                       <!-- ###################################################
                                                                                                                                       -->
