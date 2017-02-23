@@ -18,11 +18,11 @@
 
         {% if avscan %}
         <!-- ############################# -->
-        <li><a href="/change_av_status?name={{name}}&avscan=False" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn off virus scan </a> </li>
+        <li><a href="/change_av_status?name={{name}}&avscan=remove" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn off virus scan </a> </li>
 
         {% elif not avscan %}
         <!-- ############################# -->
-        <li><a href="/change_av_status?name={{name}}&avscan=True" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn on virus scan </a> </li>
+        <li><a href="/change_av_status?name={{name}}&avscan=add" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn on virus scan </a> </li>
         {% endif %}
 
 

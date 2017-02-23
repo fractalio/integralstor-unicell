@@ -5,8 +5,7 @@ from  django.contrib import auth
 from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 
-from integralstor_common import common, audit, alerts,command, db
-from integralstor_common.clamav import virus_scan_log
+from integralstor_common import common, audit, alerts,command, db, clamav
 
 from integralstor_unicell import system_info
 
@@ -38,7 +37,7 @@ def view_log(request):
           return django.shortcuts.render_to_response('view_audit_trail.html', return_dict, context_instance=django.template.context.RequestContext(request))
         ################
         elif log_type == 'av':
-          vs_log_list,err = virus_scan_log()
+          vs_log_list,err = clamav.get_virus_scan_log()
           if err:
             raise Exception(err)
           return_dict['vs_log_list'] = vs_log_list
@@ -74,7 +73,7 @@ def view_log(request):
 def view_virus_scan_logs(request):
   return_dict = {}
   try:
-    vs_log_list,err = virus_scan_log()
+    vs_log_list,err = clamav.get_virus_scan_log()
     if err:
       raise Exception(err)
     return_dict['vs_log_list'] = vs_log_list

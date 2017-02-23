@@ -1038,7 +1038,7 @@ def view_zfs_dataset(request):
       pool = dataset_name
     return_dict['pool'] = pool
 
-    avscan,err = clamav.check_dataset_scan_list(dataset_name)####################################
+    avscan,err = clamav.in_scan_list(dataset_name)####################################
     if err:
       raise Exception(err)
     return_dict['avscan'] = avscan ###################################
@@ -1097,7 +1097,7 @@ def edit_zfs_dataset(request):
       raise Exception('Dataset name not specified. Please use the menus.')
     name = request.REQUEST["name"]
     properties, err = zfs.get_properties(name)
-    avscan,err = clamav.check_dataset_scan_list(name)
+    avscan,err = clamav.in_scan_list(name)
     if err:
       raise Exception(err)
     if not properties and err:
@@ -1158,13 +1158,15 @@ def edit_zfs_dataset(request):
       if success:
         audit.audit("edit_zfs_dataset", audit_str, request.META)          
 ###########################################      
+      ''' 
       if cd['avscan']:
-        changed = True
+        changed = 'add'
       else:
-        changed = False
-      result,err = clamav.change_dataset_scan_list(name, changed)
+        changed = 'remove'
+      result,err = clamav.update_scan_list(name, changed)
       if err:
         raise Exception(err)
+      '''
 ###########################################
       return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=modified_dataset_properties'%name)
   except Exception, e:
@@ -1228,7 +1230,7 @@ def delete_zfs_dataset(request):
           raise Exception('Unknown error!')
         else:
           raise Exception(err)
-      result,err = clamav.change_dataset_scan_list(name, False)
+      result,err = clamav.update_scan_list(name, 'remove')
       if err:
         raise Exception(err)
  
@@ -1289,7 +1291,7 @@ def create_zfs_dataset(request):
 ############################################
       if cd['avscan']:
         entry = '%s/%s'%(cd['pool'],cd['name'])
-        result,err = clamav.change_dataset_scan_list(entry, True)
+        result,err = clamav.update_scan_list(entry, 'add')
         if err:
           raise Exception(err)
 ############################################
