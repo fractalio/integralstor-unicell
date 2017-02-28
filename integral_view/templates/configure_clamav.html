@@ -1,0 +1,73 @@
+{% extends 'services_base.html'%}
+
+{% block tab_header %}
+  Configure ClamAv
+{% endblock %}
+
+{% block inside_content %}
+{% csrf_token %}
+  <form id="create_form" name="create_form" action="/configure_clamav/" method="post">
+    <table class="table" style="width:800px"
+        <tr><th> MaxFiles </th><td><input name="max_files" type="text" class="form-control"  value="{{ config.MaxFiles }}" /></td></tr>
+        <tr><th> MaxScanSize </th><td><input name="max_scan_size" type="text" class="form-control"  value="{{ config.MaxScanSize }}" /></td></tr>
+        <tr><th> MaxFileSize </th><td><input name="max_file_size" type="text" class="form-control"  value="{{ config.MaxFileSize }}" /></td></tr>
+      
+        <tr><th>Select update method</th><td> 
+        <INPUT TYPE="Radio" Name="update_option" checked=true id="a" onchange="if(this.checked){document.getElementById('update_value_auto').value = '{{ update_check.Checks }}'; document.getElementById('update_value_auto').readOnly=false; document.getElementById('ck_daily').style.visiblity = 'visible';}">&nbsp&nbspAutomatic&nbsp&nbsp&nbsp
+
+
+        <INPUT TYPE="Radio" Name="update_option"  id="m" onchange="if(this.checked){document.getElementById('update_value_auto').value = '0'; document.getElementById('update_value_auto').readOnly=true; document.getElementById('cd_daily').style.visiblity = 'hidden';}">&nbsp&nbspManual
+
+    </td></tr>
+
+        <tr ><th> Checks for update in a day </th><td><input name="checks" type="text" class="form-control" id="update_value_auto" value="{{ update_check.Checks }}" /></td></tr>
+
+
+        <tr><th> Current schedule </th><td>{{ current_schedule }}</td></tr>
+        <tr><th> Select new scan schedule</th><td><div id="scheduler" class="form-control" style="border:0px "></div>
+        <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="hidden" required readonly></td></tr>
+
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_clamav_configuration" role="button" class="btn btn-default "> Cancel</a>
+      <button type="submit" class="btn btn-primary cover-page">Save</button>
+  </div><br><br>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        <button type="submit" action="/restore_default" class="btn btn-primary">Restore Default</button>
+    </div>
+  </form>
+
+{% endblock %}
+
+
+{%block help_header%}
+  Change ClamAV configuration
+{%endblock%}
+
+{%block help_body%}
+  <p> ClamAV configuration and scans can be scheduled from here.</p>
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+    make_tab_active("clamav_configuration")
+  </script>
+{% endblock %}
+
+
+{% block js %}
+    <script type="text/javascript" src="/static/js/jquery-cron-min.js"></script>
+    <link type="text/css" href="/static/css/jquery-cron.css" rel="stylesheet" />
+    <script>
+        $('#scheduler').cron({
+            onChange: function() {
+                $('#id_scheduler').val($(this).cron("value"));
+            },
+            customValues: {
+                "20 Minutes" : "*/20 * * * *",
+                "30 Minutes" : "*/30 * * * *",
+            }
+        });
+    </script>
+    {% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'services_base.html'%}
+
+{% block tab_header %}
+  View Quarantine
+{% endblock %}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/delete_all_virus" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;Delete all virus files</a></li>
+      <!--li><a class="action-dropdown" href="/schedule_clamav_scan"
+          class="cover-page"><i class="fa fa-plus fa-fw"></i>&nbsp;Schedule Scan</a></li-->
+    </ul>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+  {%if not form %}
+    There seems to be a problem in retrieving the virus list.<br><br>
+  {%else %}
+    <form id="create_form" name="create_form" action="/view_quarantine" method="post">
+    <table class="table table-bordered" style="width:50%" >
+    {% for f in form %}
+      <tr>
+          <td>{{f}}&nbsp&nbsp{{f.name}}</td>
+          <!--td><input type="checkbox" name="{{f}}" value= /></td-->
+          <!--td> {{f}} </td-->
+        <!--td> {{f}} </td-->
+      </tr>
+    {%endfor%}
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <button type="submit" class="btn btn-primary cover-page">Delete</button>
+    </div>
+    </form>
+  {%endif%}
+
+{% endblock %}
+
+{%block help_header%}
+  View Quarantine list
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen displays the list of files containing virus found during AntiVirus scan. Unwanted files ca be deleted.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("clamav_configuration")
+  </script>
+{% endblock %}
+

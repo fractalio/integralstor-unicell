@@ -1,0 +1,42 @@
+{% extends 'logging_base.html' %}
+
+{%block tab_header %}
+    Virus scan logs
+{%endblock%}
+
+
+{% block inside_content %}
+
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th> log </th>
+      </tr>
+    </thead>
+    {% if vs_log_list %}
+      {% for a in vs_log_list %}
+        <tr>
+          <td>
+            {{a}}
+          </td>
+        </tr>
+      {%endfor%}
+    {%endif%}
+  </table>
+
+
+{%endblock%}
+
+{%block help_header%}
+View virus scan logs 
+{%endblock%}
+
+{%block help_body%}
+<p>The IntegralStor system constantly monitors the virus scan logs.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+      make_tab_active("view_logs_tab")
+  </script>
+{% endblock %}

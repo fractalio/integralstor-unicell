@@ -6,6 +6,7 @@ class DatasetForm(forms.Form):
   readonly = forms.BooleanField(required=False)
   compression = forms.BooleanField(required=False)
   dedup = forms.BooleanField(required=False)
+  #avscan = forms.BooleanField(required=False)
 
 class CreateDatasetForm(forms.Form):
   name = forms.CharField()
@@ -13,6 +14,7 @@ class CreateDatasetForm(forms.Form):
   compression = forms.BooleanField(required=False)
   dedup = forms.BooleanField(required=False)
   pool = forms.CharField()
+  avscan = forms.BooleanField(required=False)
 
 class CreateZvolForm(forms.Form):
   name = forms.CharField()

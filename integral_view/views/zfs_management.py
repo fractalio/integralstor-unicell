@@ -3,7 +3,7 @@ import django, django.template
 import integralstor_common
 import integralstor_unicell
 from integralstor_common import zfs, audit, ramdisk,file_processing, common, command,db, disks, remote_replication
-from integralstor_common import scheduler_utils, manifest_status,ssh
+from integralstor_common import scheduler_utils, manifest_status,ssh , clamav
 from integralstor_common import cifs as common_cifs
 from integralstor_unicell import nfs,local_users, iscsi_stgt, system_info
 
@@ -1021,8 +1021,15 @@ def view_zfs_dataset(request):
       elif request.GET["ack"] == "modified_dataset_properties":
         return_dict['ack_message'] = "ZFS dataset/volume configuration successfully modified"
       elif request.GET["ack"] == "created_dataset":
-        return_dict['ack_message'] = "ZFS dataset successfully created"
     
+        return_dict['ack_message'] = "ZFS dataset successfully created" 
+
+      elif request.GET["ack"] == "virus_scan_on":
+        return_dict['ack_message'] = "Virus Scan turned On" 
+      elif request.GET["ack"] == "virus_scan_off":
+        return_dict['ack_message'] = "Virus Scan turned Off" 
+
+
     dataset_name = request.REQUEST['name']
     if '/' in dataset_name:
       pos = dataset_name.find('/')
@@ -1031,6 +1038,10 @@ def view_zfs_dataset(request):
       pool = dataset_name
     return_dict['pool'] = pool
 
+    avscan,err = clamav.in_scan_list(dataset_name)
+    if err:
+      raise Exception(err)
+    return_dict['avscan'] = avscan 
     properties, err = zfs.get_properties(dataset_name)
     if err:
       raise Exception(err)
@@ -1057,7 +1068,7 @@ def view_zfs_dataset(request):
       return_dict['children'] = children
     return_dict['name'] = dataset_name
     return_dict['properties'] = properties
-    return_dict['exposed_properties'] = ['compression', 'compressratio', 'dedup',  'type', 'usedbychildren', 'usedbydataset', 'creation']
+    return_dict['exposed_properties'] = ['compression', 'compressratio', 'dedup',  'type', 'avscan', 'usedbychildren', 'usedbydataset', 'creation']
     if 'result' in request.GET:
       return_dict['result'] = request.GET['result']
     cmd = "select * from dataset_repl where dataset='%s'"%str(dataset_name)
@@ -1086,6 +1097,9 @@ def edit_zfs_dataset(request):
       raise Exception('Dataset name not specified. Please use the menus.')
     name = request.REQUEST["name"]
     properties, err = zfs.get_properties(name)
+    avscan,err = clamav.in_scan_list(name)
+    if err:
+      raise Exception(err)
     if not properties and err:
       raise Exception(err)
     elif not properties:
@@ -1101,9 +1115,14 @@ def edit_zfs_dataset(request):
         else:
           initial[p] = True
 
+      if avscan:
+        initial['avscan'] = True
+      else :
+        initial['avscan'] = False
       return_dict['type'] = properties['type']
       form = zfs_forms.DatasetForm(initial=initial)
       return_dict['form'] = form
+      
       return django.shortcuts.render_to_response("edit_zfs_dataset.html", return_dict, context_instance = django.template.context.RequestContext(request))
     else:
       form = zfs_forms.DatasetForm(request.POST)
@@ -1135,8 +1154,7 @@ def edit_zfs_dataset(request):
             audit_str += " property '%s' set to '%s'"%(p, changed)
             success = True
       if success:
-        audit.audit("edit_zfs_dataset", audit_str, request.META)
-                
+        audit.audit("edit_zfs_dataset", audit_str, request.META)          
       return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=modified_dataset_properties'%name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -1145,6 +1163,7 @@ def edit_zfs_dataset(request):
     return_dict["error"] = 'Error modify ZFS dataset properties'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 def delete_zfs_dataset(request):
 
@@ -1198,6 +1217,9 @@ def delete_zfs_dataset(request):
           raise Exception('Unknown error!')
         else:
           raise Exception(err)
+      result,err = clamav.update_scan_list(name, 'remove')
+      if err:
+        raise Exception(err)
  
       if type == 'dataset':
         audit_str = "Deleted ZFS dataset %s"%name
@@ -1253,6 +1275,11 @@ def create_zfs_dataset(request):
         else:
           raise Exception(err)
  
+      if cd['avscan']:
+        entry = '%s/%s'%(cd['pool'],cd['name'])
+        result,err = clamav.update_scan_list(entry, 'add')
+        if err:
+          raise Exception(err)
       audit_str = "Created a ZFS dataset named %s/%s"%(cd['pool'], cd['name'])
       audit.audit("create_zfs_dataset", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&ack=created_dataset&view=datasets_and_zvols'%pool)
