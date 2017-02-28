@@ -35,15 +35,12 @@ def view_log(request):
             raise Exception(err)
           return_dict["audit_list"] = al
           return django.shortcuts.render_to_response('view_audit_trail.html', return_dict, context_instance=django.template.context.RequestContext(request))
-        ################
         elif log_type == 'av':
           vs_log_list,err = clamav.get_virus_scan_log()
           if err:
             raise Exception(err)
           return_dict['vs_log_list'] = vs_log_list
           return django.shortcuts.render_to_response('view_virus_scan_logs.html', return_dict, context_instance=django.template.context.RequestContext(request))
-
-        ################
         
         elif log_type == 'hardware':
           hw_platform, err = common.get_hardware_platform()
@@ -80,9 +77,9 @@ def view_virus_scan_logs(request):
     return django.shortcuts.render_to_response('view_virus_scan_logs.html', return_dict, context_instance=django.template.context.RequestContext(request))
   except Exception, e:
     return_dict['base_template'] = "logging_base.html"
-    return_dict["page_title"] = 'System alerts'
-    return_dict['tab'] = 'view_current_alerts_tab'
-    return_dict["error"] = 'Error loading system alerts'
+    return_dict["page_title"] = 'Virus scan logs'
+    return_dict['tab'] = 'view_logs_tab'
+    return_dict["error"] = 'Error loading virus scan logs'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

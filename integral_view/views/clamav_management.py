@@ -40,7 +40,7 @@ def configure_clamav(request):
       raise Exception(err)
     if request.method == 'GET':
       if config:
-        form = clamav_management_forms.Config()
+        form = clamav_management_forms.ClamavConfiguration()
         return_dict['form'] = form
         return_dict['config'] = config
         return_dict['update_check'] = update_config
@@ -56,32 +56,30 @@ def configure_clamav(request):
       else:
         raise Exception('ClamAV config file error.')
     else:
-      form = clamav_management_forms.Config(request.POST)
+      form = clamav_management_forms.ClamavConfiguration(request.POST)
       return_dict['form'] = form
       if form.is_valid():
-        MaxFiles = form.cleaned_data['MaxFiles']
-        config['MaxFiles'] = MaxFiles
-        MaxScanSize = form.cleaned_data['MaxScanSize']
-        config['MaxScanSize'] = MaxScanSize
-        MaxFileSize = form.cleaned_data['MaxFileSize']
-        config['MaxFileSize'] = MaxFileSize
+        max_files = form.cleaned_data['max_files']
+        config['MaxFiles'] = max_files
+        max_scan_size = form.cleaned_data['max_scan_size']
+        config['MaxScanSize'] = max_scan_size
+        max_file_size = form.cleaned_data['max_file_size']
+        config['MaxFileSize'] = max_file_size
         response,err = clamav.update_clamav_conf(config, 'clamd')
         if err:
           raise Exception(err)
-                ###############################
-        Checks = form.cleaned_data['Checks']
-        update_config['Checks'] = Checks
+        checks = form.cleaned_data['checks']
+        update_config['Checks'] = checks
         response,err = clamav.update_clamav_conf(update_config, 'freshclam')
         if err:
           raise Exception(err)
-################################################################
         scheduler = request.POST.get('scheduler')
         schedule = scheduler.split()
         return_dict['schedule'] = schedule
         old_cron_id,err = clamav.get_clamav_cron_id()
         if err:
           raise Exception(err)
-        cron_task_id,err = clamav.add_clamav_cron(schedule,old_cron_id)
+        cron_task_id,err = clamav.update_clamav_cron(schedule,old_cron_id)
         if err:
           raise Exception(err)
         return django.http.HttpResponseRedirect('/view_clamav_configuration?ack=saved')
@@ -95,7 +93,7 @@ def configure_clamav(request):
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-def upload_update(request):
+def upload_clamav_update(request):
   return_dict = {}
   try:
     if request.method == 'POST' and request.FILES['update_file']:
@@ -111,7 +109,7 @@ def upload_update(request):
       if err:
         raise Exception(err)
       return django.http.HttpResponseRedirect('/view_clamav_configuration?ack=uploaded')
-    return render(request, 'upload_update.html')
+    return render(request, 'upload_clamav_update.html')
   except Exception,e:
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'Configure ClamAV'
@@ -155,7 +153,6 @@ def view_clamav_configuration(request):
       raise Exception(err)
     return_dict['config'] = config
     return_dict['update_check'] = update_check
-        #################
     cron_task_id,err = clamav.get_clamav_cron_id()
     if err:
       raise Exception(err)
@@ -164,7 +161,6 @@ def view_clamav_configuration(request):
       return_dict['schedule'] = crons[0][0]['schedule_description']
     else:
       return_dict['schedule'] = 'Not Set'
-        #################
     return django.shortcuts.render_to_response('view_clamav_configuration.html', return_dict, context_instance = django.template.context.RequestContext(request))
 
   except Exception, e:
@@ -214,7 +210,7 @@ def view_quarantine(request):
   except Exception,e :
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'View Quarantine'
-    return_dict['tab'] = 'quarantine'
+    return_dict['tab'] = 'clamav_configuration'
     return_dict["error"] = 'Error retrieving the quarantine'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -228,7 +224,7 @@ def delete_all_virus(request):
   except Exception,e :
     return_dict['base_template'] = "services_base.html"
     return_dict["page_title"] = 'View Quarentine'
-    return_dict['tab'] = 'quarantine'
+    return_dict['tab'] = 'clamav_configuration'
     return_dict["error"] = 'Error emptying the quarantine'
     return_dict["error_details"] = str(e)
     return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))

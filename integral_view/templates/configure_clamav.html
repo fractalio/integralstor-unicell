@@ -6,24 +6,11 @@
 
 {% block inside_content %}
 {% csrf_token %}
-  <script>
-    function select_field(field) {
-      e = document.getElementById(field);
-      val = e.checked;
-
-      if (val == true) {
-        $('#cert_name_row').show();
-      }
-      else {
-        $('#cert_name_row').hide();
-      }
-    }
-  </script>
   <form id="create_form" name="create_form" action="/configure_clamav/" method="post">
     <table class="table" style="width:800px"
-        <tr><th> MaxFiles </th><td><input name="MaxFiles" type="text" class="form-control" id="id_name" value="{{ config.MaxFiles }}" /></td></tr>
-        <tr><th> MaxScanSize </th><td><input name="MaxScanSize" type="text" class="form-control" id="id_name" value="{{ config.MaxScanSize }}" /></td></tr>
-        <tr><th> MaxFileSize </th><td><input name="MaxFileSize" type="text" class="form-control" id="id_name" value="{{ config.MaxFileSize }}" /></td></tr>
+        <tr><th> MaxFiles </th><td><input name="max_files" type="text" class="form-control"  value="{{ config.MaxFiles }}" /></td></tr>
+        <tr><th> MaxScanSize </th><td><input name="max_scan_size" type="text" class="form-control"  value="{{ config.MaxScanSize }}" /></td></tr>
+        <tr><th> MaxFileSize </th><td><input name="max_file_size" type="text" class="form-control"  value="{{ config.MaxFileSize }}" /></td></tr>
       
         <tr><th>Select update method</th><td> 
         <INPUT TYPE="Radio" Name="update_option" checked=true id="a" onchange="if(this.checked){document.getElementById('update_value_auto').value = '{{ update_check.Checks }}'; document.getElementById('update_value_auto').readOnly=false; document.getElementById('ck_daily').style.visiblity = 'visible';}">&nbsp&nbspAutomatic&nbsp&nbsp&nbsp
@@ -33,18 +20,7 @@
 
     </td></tr>
 
-        <tr ><th> Checks for update in a day </th><td><input name="Checks" type="text" class="form-control" id="update_value_auto" value="{{ update_check.Checks }}" /></td></tr>
-
-
-
-      <!--tr id="upload_file">
-        <th><label for="upload_iframe" >Browse to select the update file:</label></th>
-        <td>
-            <iframe id="upload_iframe" src="/upload_update" frameborder='0' scrolling='no' height="40" width="500"></iframe><br>
-            <a href="https://www.clamav.net/downloads" target='_blank'>Click here to go to official updates download site.</a> 
-            </td>
-      </tr-->
-
+        <tr ><th> Checks for update in a day </th><td><input name="checks" type="text" class="form-control" id="update_value_auto" value="{{ update_check.Checks }}" /></td></tr>
 
 
         <tr><th> Current schedule </th><td>{{ current_schedule }}</td></tr>
@@ -61,9 +37,17 @@
     </div>
   </form>
 
-
-
 {% endblock %}
+
+
+{%block help_header%}
+  Change ClamAV configuration
+{%endblock%}
+
+{%block help_body%}
+  <p> ClamAV configuration and scans can be scheduled from here.</p>
+{%endblock%}
+
 
 {% block tab_active %}
   <script>

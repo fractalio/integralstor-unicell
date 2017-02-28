@@ -38,6 +38,14 @@
 
 {% endblock %}
 
+{%block help_header%}
+  View Quarantine list
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen displays the list of files containing virus found during AntiVirus scan. Unwanted files ca be deleted.</p>
+{%endblock%}
+
 {% block tab_active %}
   <script>
     make_tab_active("clamav_configuration")

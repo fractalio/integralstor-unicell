@@ -1038,10 +1038,10 @@ def view_zfs_dataset(request):
       pool = dataset_name
     return_dict['pool'] = pool
 
-    avscan,err = clamav.in_scan_list(dataset_name)####################################
+    avscan,err = clamav.in_scan_list(dataset_name)
     if err:
       raise Exception(err)
-    return_dict['avscan'] = avscan ###################################
+    return_dict['avscan'] = avscan 
     properties, err = zfs.get_properties(dataset_name)
     if err:
       raise Exception(err)
@@ -1115,12 +1115,10 @@ def edit_zfs_dataset(request):
         else:
           initial[p] = True
 
-#############################################
       if avscan:
         initial['avscan'] = True
       else :
         initial['avscan'] = False
-#############################################
       return_dict['type'] = properties['type']
       form = zfs_forms.DatasetForm(initial=initial)
       return_dict['form'] = form
@@ -1157,17 +1155,6 @@ def edit_zfs_dataset(request):
             success = True
       if success:
         audit.audit("edit_zfs_dataset", audit_str, request.META)          
-###########################################      
-      ''' 
-      if cd['avscan']:
-        changed = 'add'
-      else:
-        changed = 'remove'
-      result,err = clamav.update_scan_list(name, changed)
-      if err:
-        raise Exception(err)
-      '''
-###########################################
       return django.http.HttpResponseRedirect('/view_zfs_dataset?name=%s&ack=modified_dataset_properties'%name)
   except Exception, e:
     return_dict['base_template'] = "storage_base.html"
@@ -1288,13 +1275,11 @@ def create_zfs_dataset(request):
         else:
           raise Exception(err)
  
-############################################
       if cd['avscan']:
         entry = '%s/%s'%(cd['pool'],cd['name'])
         result,err = clamav.update_scan_list(entry, 'add')
         if err:
           raise Exception(err)
-############################################
       audit_str = "Created a ZFS dataset named %s/%s"%(cd['pool'], cd['name'])
       audit.audit("create_zfs_dataset", audit_str, request.META)
       return django.http.HttpResponseRedirect('/view_zfs_pool?name=%s&ack=created_dataset&view=datasets_and_zvols'%pool)

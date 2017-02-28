@@ -37,7 +37,7 @@ from integral_view.views.rsync_share_management import create_rsync_share,edit_r
 
 from django.contrib.auth.decorators import login_required
 
-from integral_view.views.clamav_management import view_clamav_configuration, configure_clamav , change_av_status, view_quarantine, upload_update, delete_all_virus
+from integral_view.views.clamav_management import view_clamav_configuration, configure_clamav , change_av_status, view_quarantine, upload_clamav_update, delete_all_virus
 
 
 # Uncomment the next two lines to enable the admin:
@@ -222,6 +222,6 @@ urlpatterns = patterns('',
     url(r'^change_av_status', login_required(change_av_status)),
     url(r'^view_virus_scan_logs',login_required(view_virus_scan_logs)),
     url(r'^view_quarantine', login_required(view_quarantine)),
-    url(r'^upload_update', login_required(upload_update)),
+    url(r'^upload_clamav_update', login_required(upload_clamav_update)),
     url(r'^delete_all_virus', login_required(delete_all_virus)),
 )

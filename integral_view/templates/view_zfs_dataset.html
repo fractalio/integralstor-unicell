@@ -17,11 +17,9 @@
         {%endif%}
 
         {% if avscan %}
-        <!-- ############################# -->
         <li><a href="/change_av_status?name={{name}}&avscan=remove" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn off virus scan </a> </li>
 
         {% elif not avscan %}
-        <!-- ############################# -->
         <li><a href="/change_av_status?name={{name}}&avscan=add" > <i class="fa fa-cog fa-fw"></i>&nbsp;Turn on virus scan </a> </li>
         {% endif %}
 
@@ -73,7 +71,6 @@
             </tr>
           {%endif%}
         {%endfor%}
-        <!-- ################################################### -->
         <tr>
             <td>
             Virus Scan 
@@ -81,8 +78,6 @@
             <td> {%if avscan %} On {%elif not avscan %} Off {%endif%} </td>
             <td>{%if avscan %} Explicitly set {%elif not avscan %} Default {%endif%}</td>
         </tr>
-                                                                                                                                      <!-- ###################################################
-                                                                                                                                      -->
       </table>
       
       {%if properties.type.value == 'filesystem' and quotas %}

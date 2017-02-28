@@ -10,7 +10,7 @@
     <ul class="dropdown-menu">
       <li><a class="action-dropdown" href="/configure_clamav" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;Modify configuration</a></li>
       <li><a class="action-dropdown" href="/view_quarantine" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;View Quarantine</a></li>
-      <li><a class="action-dropdown" href="/upload_update" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;Upload Update File</a></li>
+      <li><a class="action-dropdown" href="/upload_clamav_update" role="button" ><i class="fa fa-cog fa-fw"></i>&nbsp;Upload Update File</a></li>
       <!--li><a class="action-dropdown" href="/schedule_clamav_scan"
           class="cover-page"><i class="fa fa-plus fa-fw"></i>&nbsp;Schedule Scan</a></li-->
     </ul>
@@ -54,6 +54,13 @@
 
 {% endblock %}
 
+{%block help_header%}
+  View ClamAV configuration
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen displays the current configuration and scan schedule of ClamAV antivirus</p>
+{%endblock%}
 {% block tab_active %}
   <script>
     make_tab_active("clamav_configuration")
