@@ -148,7 +148,7 @@ Checks 12
 # Run command when freshclam reports outdated version.
 # In the command string %v will be replaced by the new version number.
 # Default: disabled
-OnOutdatedExecute /opt/integralstor/integralstor_unicell/scripts/python/update_event.py "%v"
+#OnOutdatedExecute  command
 
 # Don't fork into background.
 # Default: no
