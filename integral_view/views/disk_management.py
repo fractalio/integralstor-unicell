@@ -94,11 +94,9 @@ def format_disk(request):
                 fs_types, err = disks.get_supported_mkfs_file_systems()
                 if err:
                     raise Exception(err)
-                initial = {}
-                initial['path'] = request.GET['path']
                 return_dict['path'] = request.GET['path']
                 return_dict['disk_id'] = request.GET['disk_id']
-                form = disk_forms.FormatDiskForm(initial = initial,  fs_types = fs_types)
+                form = disk_forms.FormatDiskForm(fs_types = fs_types)
                 return_dict['form'] = form
                 return django.shortcuts.render_to_response('format_disk.html', return_dict, context_instance = django.template.context.RequestContext(request))
         if request.method == 'POST':
