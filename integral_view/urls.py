@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from integral_view.views.scheduler_cron_management import view_background_tasks, view_task_details, delete_background_task
 
-from integral_view.views.disk_management import view_disks, identify_disk, replace_disk
+from integral_view.views.disk_management import view_disks, identify_disk, replace_disk, mount_disk, unmount_disk, format_disk
 
 from integral_view.views.remote_replication_management import create_remote_replication, view_remote_replications, delete_remote_replication, update_remote_replication
 
@@ -269,6 +269,11 @@ urlpatterns = patterns('',
                        url(r'^view_disks/', login_required(view_disks)),
                        url(r'^identify_disk/', login_required(identify_disk)),
                        url(r'^replace_disk/', login_required(replace_disk)),
+                       url(r'^mount_disk/', login_required(mount_disk)),
+                       url(r'^unmount_disk/', login_required(unmount_disk)),
+                       url(r'^format_disk/', login_required(format_disk)),
+
+
 
                        # From views/remote_replication_management.py
                        url(r'^view_remote_replications/',
