@@ -6,7 +6,7 @@ from integral_view.views.disk_management import view_disks, identify_disk, repla
 
 from integral_view.views.remote_replication_management import create_remote_replication, view_remote_replications, delete_remote_replication, update_remote_replication
 
-from integral_view.views.ntp_management import update_ntp_settings, view_ntp_settings
+from integral_view.views.ntp_management import update_ntp_settings, view_ntp_settings, sync_ntp
 
 from integral_view.views.admin_auth import login, logout, update_admin_password, view_email_settings, update_email_settings, view_https_mode, update_https_mode, reboot_or_shutdown
 
@@ -202,6 +202,8 @@ urlpatterns = patterns('',
                            login_required(view_ntp_settings)),
                        url(r'^update_ntp_settings/',
                            login_required(update_ntp_settings)),
+                       url(r'^sync_ntp/',
+                           login_required(sync_ntp)),
 
                        # From views/pki_management.py
                        url(r'^view_ssl_certificates/',
