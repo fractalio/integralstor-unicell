@@ -10,6 +10,7 @@ import django.http
 
 from integralstor_utils import command, audit, alerts, zfs, stats, config
 from integralstor_utils import cifs as cifs_common, services_management
+from integralstor_utils import system_date_time
 
 from integralstor import system_info, iscsi_stgt, nfs
 
@@ -24,16 +25,29 @@ def view_system_info(request):
             elif request.GET["ack"] == "system_date_set":
                 return_dict['ack_message'] = "Date successfully updated"
             elif request.GET["ack"] == "system_datetime_set":
-                return_dict['ack_message'] = "Date and Time successfully updated"
+                return_dict['ack_message'] = "Date and time successfully updated"
+            elif request.GET["ack"] == 'system_timezone_set':
+                return_dict['ack_message'] = "Timezone successfully updated"
+            elif request.GET['ack'] == 'system_date_timezone_set':
+                return_dict['ack_message'] = 'Date and timezone successfully updated'
+            elif request.GET['ack'] == 'system_time_timezone_set':
+                return_dict['ack_message'] = 'Time and timezone successfully updated'
+            elif request.GET['ack'] == 'system_datetimetz_set':
+                return_dict['ack_message'] = 'Date, time and timezone successfully updated'
 
         si, err = system_info.load_system_config()
         if err:
             raise Exception(err)
         now = datetime.datetime.now()
         milliseconds = int(time.mktime(time.localtime()) * 1000)
+        system_timezone, err = system_date_time.get_current_timezone()
+        if err:
+            raise Exception(err)
         return_dict['date_str'] = now.strftime("%A %d %B %Y")
         return_dict['time'] = now
         return_dict['milliseconds'] = milliseconds
+        return_dict['system_timezone'] = system_timezone['system_timezone']
+        print return_dict['system_timezone']
         return_dict['system_info'] = si
         if "from" in request.GET:
             frm = request.GET["from"]

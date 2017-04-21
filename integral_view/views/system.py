@@ -18,19 +18,31 @@ def update_system_date_time(request):
             if form.is_valid():
                 cd = form.cleaned_data
                 output, err = system_date_time.update_date_time(
-                    cd["system_date"], cd["system_time"])
+                    cd["system_date"], cd["system_time"], cd["system_timezone"])
                 if err:
                     raise Exception(err)
                 else:
-                    if "date_set" in output and "time_set" in output:
+                    if 'date_set' in output and 'time_set' in output and 'timezone_set' in output:
+                        if output['date_set'] == True and output['time_set'] == True and output['timezone_set'] == True:
+                            url = '/view_system_info?ack=system_datetimetz_set'
+                    elif "date_set" in output and "time_set" in output:
                         if output["date_set"] == True and output["time_set"] == True:
                             url = "/view_system_info?ack=system_datetime_set"
+                    elif 'date_set' in output and 'timezone_set' in output:
+                        if output['date_set'] == True and output['timezone_set'] == True:
+                            url = "/view_system_info?ack=system_date_timezone_set"
+                    elif 'time_set' in output and 'timezone_set' in output:
+                        if output['time_set'] == True and output['timezone_set'] == True:
+                            url = '/view_system_info?ack=system_time_timezone_set'
                     elif "time_set" in output:
                         if output["time_set"] == True:
                             url = "/view_system_info?ack=system_time_set"
                     elif "date_set" in output:
                         if output["date_set"] == True:
                             url = "/view_system_info?ack=system_date_set"
+                    elif 'timezone_set' in output:
+                        if output['timezone_set'] == True:
+                            url = '/view_system_info?ack=system_timezone_set'
                     return django.http.HttpResponseRedirect(url)
             else:
                 return_dict["form"] = form
