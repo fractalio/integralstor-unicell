@@ -1,5 +1,6 @@
 from django import forms
 
+
 class FormatDiskForm(forms.Form):
     path = forms.CharField(widget=forms.HiddenInput, required=False)
     disk_id = forms.CharField(widget=forms.HiddenInput, required=False)
@@ -24,4 +25,27 @@ class FormatDiskForm(forms.Form):
         if 'disk_id' in cd:
             if cd['disk_id'] == '':
                 raise forms.VAlidationError('could not find disk_id')
+        return cd
+
+
+class MountUnmountDiskForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        choiced = []
+        if kwargs and 'partitions' in kwargs:
+            partitions_list = kwargs.pop('partitions')
+            for i in partitions_list:
+                d = '/dev/' + i['name']
+                choiced.append(d)
+            super(MountUnmountDiskForm, self).__init__(*args, **kwargs)
+            self.fields['partitions'] = forms.ChoiceField(choices=choiced)
+        else:
+            super(MountUnmountDiskForm, self).__init__(*args, **kwargs)
+            self.fields['partition'] = forms.CharField(required=False)
+
+    def clean(self):
+        cd = super(MountUnmountDiskForm, self).clean()
+        if 'partition' in cd:
+            if cd['partition'] == '':
+                raise forms.ValidationError(
+                    'could not get partition to be mounted')
         return cd

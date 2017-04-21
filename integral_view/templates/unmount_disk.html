@@ -1,0 +1,53 @@
+{% extends 'storage_base.html' %}
+
+
+{%block tab_header %}
+  Unmount disk
+{%endblock%}
+
+{% block inside_content %}
+
+  <form id="create_form" name="create_form" action="/unmount_disk/" method="POST">
+  {%csrf_token%}
+    <table class="table" style="width:800px">
+<tr>
+<th>{{ form.errors }}</th>
+</tr>
+      <tr>
+        <th> USB id :</th>
+        <td> {{disk_id}}</td>
+     </tr>
+      <tr>
+        <th> Select partition :</th>
+        <td>
+          <select name="partition" class="form-control">
+            {% for choice in form.partitions.field.choices %}
+              <option value="{{choice}}" {%if choice == form.initial.fs_type %} selected="selected"{%endif%}>{{choice}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.partition.errors }} </td>
+      </tr><F4>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_disks" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Unmount</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Unmount a disk/partition
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to unmount disks. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{%block tab_active %}
+  <script>
+    make_tab_active("view_disks_tab")
+  </script>
+{% endblock %}
+

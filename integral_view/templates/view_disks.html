@@ -35,17 +35,18 @@
                 Name : {{disk.name}}
                 <br>
                 ID : {{disk.id}}
+                <br>
+                Partitions : {% for i in disk.partitions%}
+                name : {{i.name}}; fs_type : {{i.fs_type}}; mounted: {{i.is_mounted}}
+                <br>
+                {%endfor%}
           </td>
           <td>
             <div class="btn-group btn-group-xs pull-right" >
               <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for disk specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
               <ul class="dropdown-menu">
-               {%if disk.is_mounted == False %}
-                <li><a class="action-dropdown" href="/mount_disk?path={{disk.path}}&total_partitions={{disk.partitions|length}}" title="Select to mount the disk" > <i class="fa fa-play" ></i>Mount disk</a>
-                {%endif%}
-                {%if disk.is_mounted == True%}
-                <li><a class="action-dropdown" href="/unmount_disk?path={{disk.path}}&total_partitions={{disk.partitions|length}}" title="Select to unmount the disk" > <i class="fa fa-stop" ></i>Unmount disk</a>
-                {%endif%}
+                <li><a class="action-dropdown" href="/mount_disk?path={{disk.path}}&total_partitions={{disk.partitions|length}}&disk_id={{disk.id}}" title="Select to mount the disk" > <i class="fa fa-play" ></i>Mount disk</a>
+                <li><a class="action-dropdown" href="/unmount_disk?path={{disk.path}}&total_partitions={{disk.partitions|length}}&disk_id={{disk.id}}" title="Select to unmount the disk" > <i class="fa fa-stop" ></i>Unmount disk</a>
                 <li><a class="action-dropdown" style="color:red" href="/format_disk?path={{disk.path}}&disk_id={{disk.id}}" title="Select to format the disk" > <i class="fa fa-minus" ></i>Format disk</a>
               </ul>
             </div>
