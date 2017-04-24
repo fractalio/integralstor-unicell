@@ -26,7 +26,7 @@ def view_ntp_settings(request):
             return_dict["ack_message"] = 'NTP settings have successfully been updated.'
         elif "ack" in request.REQUEST and request.REQUEST['ack'] == 'ntp_synced':
             if 'server_used' in request.REQUEST:
-                return_dict["ack_message"] = 'One time ntp has been successfully synced with server %s' % request.REQUEST['server_used']
+                return_dict["ack_message"] = 'One time ntp sync with server %s successfully completed.' % request.REQUEST['server_used']
         return django.shortcuts.render_to_response('view_ntp_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "services_base.html"
