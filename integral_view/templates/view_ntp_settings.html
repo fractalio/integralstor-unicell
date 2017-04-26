@@ -4,6 +4,21 @@
   Network Time Protocol(NTP) settings
 {%endblock%}
 
+{%block global_actions %}
+
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click to modify Windows services settings" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+    <li><a href="/update_ntp_settings/" role="button" class="action-dropdown cover-page"><i class="fa fa-cog fa-fw"></i>&nbsp;Update Servers</a></li>
+      <li><a class="action-dropdown cover-page" href="/sync_ntp" role="button"><i class="fa fa-refresh fa-fw"></i>&nbsp;One time ntp sync</a></li>
+
+    </ul>
+
+  </div>
+{%endblock%}
+
+
+
 {% block inside_content %}
 
   {%if not ntp_servers %}
@@ -21,7 +36,6 @@
         </tr>
       {%endfor%}
     </table>
-    <a href="/update_ntp_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>Modify</a>
 
   {%endif%}
 

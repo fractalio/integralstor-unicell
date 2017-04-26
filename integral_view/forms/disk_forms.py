@@ -2,8 +2,8 @@ from django import forms
 
 
 class FormatDiskForm(forms.Form):
-    path = forms.CharField(widget=forms.HiddenInput, required=False)
-    disk_id = forms.CharField(widget=forms.HiddenInput, required=False)
+    path = forms.CharField(widget=forms.HiddenInput)
+    disk_id = forms.CharField(widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
         if kwargs and 'fs_types' in kwargs:
@@ -12,7 +12,7 @@ class FormatDiskForm(forms.Form):
             self.fields['fs_type'] = forms.ChoiceField(choices=fs_type_list)
         else:
             super(FormatDiskForm, self).__init__(*args, **kwargs)
-            self.fields['fs_type'] = forms.CharField(required=False)
+            self.fields['fs_type'] = forms.CharField()
 
     def clean(self):
         cd = super(FormatDiskForm, self).clean()
@@ -40,7 +40,7 @@ class MountUnmountDiskForm(forms.Form):
             self.fields['partitions'] = forms.ChoiceField(choices=choiced)
         else:
             super(MountUnmountDiskForm, self).__init__(*args, **kwargs)
-            self.fields['partition'] = forms.CharField(required=False)
+            self.fields['partition'] = forms.CharField()
 
     def clean(self):
         cd = super(MountUnmountDiskForm, self).clean()

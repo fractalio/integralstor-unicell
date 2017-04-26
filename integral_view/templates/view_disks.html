@@ -36,10 +36,16 @@
                 <br>
                 ID : {{disk.id}}
                 <br>
-                Partitions : {% for i in disk.partitions%}
+                Partitions :
+		{%if disk.partitions|length != 0%}
+		{% for i in disk.partitions%}
                 name : {{i.name}}; fs_type : {{i.fs_type}}; mounted: {{i.is_mounted}}
+		{%endfor%}
+		{%endif%}
+		{%if disk.partitions|length == 0%}
+		None
+		{%endif%}
                 <br>
-                {%endfor%}
           </td>
           <td>
             <div class="btn-group btn-group-xs pull-right" >

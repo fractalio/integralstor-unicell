@@ -24,6 +24,9 @@ def view_ntp_settings(request):
         return_dict["ntp_servers"] = ntp_servers
         if "ack" in request.REQUEST and request.REQUEST['ack'] == 'saved':
             return_dict["ack_message"] = 'NTP settings have successfully been updated.'
+        elif "ack" in request.REQUEST and request.REQUEST['ack'] == 'ntp_synced':
+            if 'server_used' in request.REQUEST:
+                return_dict["ack_message"] = 'One time ntp sync with server %s successfully completed.' % request.REQUEST['server_used']
         return django.shortcuts.render_to_response('view_ntp_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "services_base.html"
@@ -94,6 +97,26 @@ def update_ntp_settings(request):
         return_dict["page_title"] = 'Modify NTP notifications settings'
         return_dict['tab'] = 'ntp_settings_tab'
         return_dict["error"] = 'Error modifying NTP notifications settings'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def sync_ntp(request):
+    return_dict = {}
+    try:
+        output, err = ntp.sync_ntp()
+        if err:
+            raise Exception(err)
+        else:
+            if 'ntp_sync' in output and output['ntp_sync'] == True and 'server_used' in output:
+                return django.http.HttpResponseRedirect("/view_ntp_settings?ack=ntp_synced&server_used=%s" % output['server_used'])
+            else:
+                raise Exception("NTP sync failed")
+    except Exception, e:
+        return_dict['base_template'] = "services_base.html"
+        return_dict["page_title"] = 'View NTP settings'
+        return_dict['tab'] = 'ntp_settings_tab'
+        return_dict["error"] = 'Error retrieving syncing with ntp servers'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
