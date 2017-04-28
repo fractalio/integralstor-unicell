@@ -1,0 +1,36 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+Format a drive - confirmation
+{%endblock%}
+
+{% block inside_content %}
+
+<form id="create_form" name="create_form" action="/format_disk/" method="POST">
+  {%csrf_token%}
+  <input name="fs_type" type="hidden" value="{{  fs_type }}">
+  <input name="path" type="hidden" value="{{path}}">
+  <input name="confirm" type="hidden" value="True">
+    <p id="p-warning-text" style="color:black"> You have chosen to format the drive with ID <span id="p-warning-text">"{{disk_id}}"</span> and file system type <span id="p-warning-text"> "{{fs_type}}"</span> . This will erase all data on the disk including all partitions. <br><br><span id="p-warning-text"> Are you sure you want to proceed?</span></p>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_disks" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page">Confirm and format</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Format a USB Disk
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to format disks. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{%block tab_active %}
+  <script>
+    make_tab_active("view_disks_tab")
+  </script>
+{% endblock %}
+

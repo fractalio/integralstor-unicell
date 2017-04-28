@@ -14,6 +14,49 @@
     {%endif%}
   {%endif%}
 
+
+  <h4> USB disks </h4>
+  <table class="table table-striped table-responsive" style="width:800px">
+    <tr>
+      <th> Disk serial number </th>
+      <th> Disk details</th>
+      <th> Disk actions</th>
+    </tr>
+    {%for sn, disk in disk_status.items %}
+      {%if disk.usb%}
+        <tr>
+          <td>{{sn}}  (USB disk) </td>
+          <td> Capacity : {{disk.capacity}}
+                <br>
+                Number of partitions : {{disk.partitions|length}}
+                <br>
+                SCSI bus address : {{disk.scsi_info}}
+                <br>
+                Name : {{disk.name}}
+                <br>
+                ID : {{disk.id}}
+                <br>
+                Partitions : {% for i in disk.partitions%}
+                name : {{i.name}}; fs_type : {{i.fs_type}}; mounted: {{i.is_mounted}}
+                <br>
+                {%endfor%}
+          </td>
+          <td>
+            <div class="btn-group btn-group-xs pull-right" >
+              <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for disk specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+              <ul class="dropdown-menu">
+                <li><a class="action-dropdown" href="/mount_disk?path={{disk.path}}&total_partitions={{disk.partitions|length}}&disk_id={{disk.id}}" title="Select to mount the disk" > <i class="fa fa-play" ></i>Mount disk</a>
+                <li><a class="action-dropdown" href="/unmount_disk?path={{disk.path}}&total_partitions={{disk.partitions|length}}&disk_id={{disk.id}}" title="Select to unmount the disk" > <i class="fa fa-stop" ></i>Unmount disk</a>
+                <li><a class="action-dropdown" style="color:red" href="/format_disk?path={{disk.path}}&disk_id={{disk.id}}" title="Select to format the disk" > <i class="fa fa-minus" ></i>Format disk</a>
+              </ul>
+            </div>
+          </td>
+        </tr>
+      {%endif%}
+    {%endfor%}
+  </table>
+
+
   <h4> Data disks (rotating) </h4>
   <table class="table table-striped table-responsive" style="width:800px">
     <tr>
@@ -29,6 +72,7 @@
     </tr>
     {%for sn, disk in disk_status.items %}
       {%if not disk.os_device  and disk.rotational%}
+	{%if not disk.usb %}
         <tr>
           <td> {{sn}}  (Data disk) </td>
           <td> Capacity : {{disk.capacity}}
@@ -80,6 +124,7 @@
             {%endif%}
           {%endif%}
         </tr>
+	{%endif%}
       {%endif%}
     {%endfor%}
   </table>

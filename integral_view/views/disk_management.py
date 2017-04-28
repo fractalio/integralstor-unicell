@@ -1,8 +1,9 @@
 import django
 import django.template
-
+import re
 from integralstor_utils import config, disks, command, audit, zfs, manifest_status, scheduler_utils
 from integralstor import system_info
+from integral_view.forms import disk_forms
 
 
 def view_disks(request):
@@ -13,6 +14,16 @@ def view_disks(request):
                 return_dict['ack_message'] = "Disk identification LED successfully activated"
             elif request.GET["ack"] == "unblink":
                 return_dict['ack_message'] = "Disk identification LED successfully de-activated"
+            elif request.GET["ack"] == "mount_disk":
+                return_dict['ack_message'] = "Disk successfully mounted"
+            elif request.GET["ack"] == "unmount_disk":
+                return_dict['ack_message'] = "Disk successfully unmounted"
+            elif request.GET["ack"] == "format_usb":
+                return_dict['ack_message'] = "Formatted Disk successfully"
+            elif request.GET["ack"] == "already_mounted":
+                return_dict['ack_message'] = "Disk is already mounted"
+            elif request.GET["ack"] == "already_unmounted":
+                return_dict['ack_message'] = "Disk is already unmounted"
         si, err = system_info.load_system_config()
         if err:
             raise Exception(err)
@@ -36,6 +47,128 @@ def view_disks(request):
         return_dict["page_title"] = 'Disks'
         return_dict['tab'] = 'view_disks_tab'
         return_dict["error"] = 'Error loading disk information'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def mount_disk(request):
+	return_dict = {}
+	try:
+		if request.method == 'GET':
+			path = request.GET['path']
+			return_dict['path'] = request.GET['path']
+			total_partitions = int(request.GET['total_partitions'])
+			if total_partitions == 0:
+				ret_val, err = disks.mount_disk_by_name(path)
+				if err:
+					raise Exception(err)
+				if ret_val == True:
+					return django.http.HttpResponseRedirect('/view_disks?ack=mount_disk')
+				if ret_val == False:
+					return django.http.HttpResponseRedirect('/view_disks?ack=already_mounted')
+			else:
+				return_dict['disk_id'] = request.GET['disk_id']
+				partitions, err = disks.get_partitions(path[5:])
+				if err:
+					raise Exception(err)
+				form = disk_forms.MountUnmountDiskForm( partitions = partitions)
+				return_dict['form'] = form
+				return django.shortcuts.render_to_response('mount_disk.html', return_dict, context_instance = django.template.context.RequestContext(request))
+		if request.method == 'POST':
+			form = disk_forms.MountUnmountDiskForm(request.POST)
+			if form.is_valid():
+				cd = form.cleaned_data
+				ret_val, err = disks.mount_disk_by_name(cd['partition'])
+				if err:
+					raise Exception(err)
+				if ret_val == True:
+					return django.http.HttpResponseRedirect('/view_disks?ack=mount_disk')
+				if ret_val == False:
+					return django.http.HttpResponseRedirect('/view_disks?ack=already_mounted')
+	except Exception, e:
+		return_dict['base_template'] = "storage_base.html"
+		return_dict["page_title"] = 'Disks'
+		return_dict['tab'] = 'view_disks_tab'
+		return_dict["error"] = 'Error mounting disk'
+		return_dict["error_details"] = str(e)
+		return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def unmount_disk(request):
+    return_dict = {}
+    try:
+        if "path" in request.GET:
+            path = request.GET['path']
+            total_partitions = int(request.GET["total_partitions"])
+            if total_partitions == 0:
+                ret_val, err = disks.unmount_disk_by_name(path)
+                if err:
+                    raise Exception(err)
+                if ret_val == True:
+                    return django.http.HttpResponseRedirect('/view_disks?ack=unmount_disk')
+                if ret_val == False:
+                    return django.http.HttpResponseRedirect('/view_disks?ack=already_unmounted')
+            else:
+                return_dict['disk_id'] = request.GET['disk_id']
+                partitions, err = disks.get_partitions(path[5:])
+                if err:
+                    raise Exception(err)
+                form =disk_forms.MountUnmountDiskForm(partitions = partitions)
+                return_dict['form'] = form
+                return django.shortcuts.render_to_response('unmount_disk.html', return_dict, context_instance = django.template.context.RequestContext(request))
+        if request.method == 'POST':
+            form = disk_forms.MountUnmountDiskForm(request.POST)
+            if form.is_valid():
+                cd = form.cleaned_data
+                ret_val, err = disks.unmount_disk_by_name(cd['partition'])
+                if err:
+                    raise Exception(err)
+                if ret_val == True:
+                    return django.http.HttpResponseRedirect('/view_disks?ack=unmount_disk')
+                if ret_val == False:
+                    return django.http.HttpResponseRedirect('/view_disks?ack=already_unmounted')
+    except Exception, e:
+        return_dict['base_template'] = "storage_base.html"
+        return_dict["page_title"] = 'Disks'
+        return_dict['tab'] = 'view_disks_tab'
+        return_dict["error"] = 'Error mounting/unmounting disk'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def format_disk(request):
+    return_dict = {}
+    try:
+        if request.method == 'GET':
+            if 'disk_id' in request.GET:
+                fs_types, err = disks.get_supported_mkfs_file_systems()
+                if err:
+                    raise Exception(err)
+                return_dict['path'] = request.GET['path']
+                return_dict['disk_id'] = request.GET['disk_id']
+                form = disk_forms.FormatDiskForm(fs_types = fs_types)
+                return_dict['form'] = form
+                return django.shortcuts.render_to_response('format_disk.html', return_dict, context_instance = django.template.context.RequestContext(request))
+        if request.method == 'POST':
+            if 'fs_type' in request.POST and 'disk_id' in request.POST and 'path' in request.POST:
+                form = disk_forms.FormatDiskForm(request.POST)
+                if form.is_valid():
+                    cd = form.cleaned_data
+                    return_dict['fs_type'] = cd['fs_type']
+                    return_dict['disk_id'] = cd['disk_id']
+                    return_dict['path'] = cd['path']
+                    return django.shortcuts.render_to_response('format_disk_conf.html', return_dict, context_instance = django.template.context.RequestContext(request))
+            if 'confirm' in request.POST and request.POST['confirm'] == 'True':
+                ret_val, err = disks.format_disk_by_name(request.POST['path'],request.POST['fs_type'])
+                if err:
+                    raise Exception(err)
+                if ret_val == True:
+                    return django.http.HttpResponseRedirect('/view_disks?ack=format_usb')
+    except Exception, e:
+        return_dict['base_template'] = "storage_base.html"
+        return_dict["page_title"] = 'Format usb disk'
+        return_dict['tab'] = 'view_disks_tab'
+        return_dict["error"] = 'Error formatting the disk'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

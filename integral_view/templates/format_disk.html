@@ -1,0 +1,55 @@
+{% extends 'storage_base.html' %}
+
+
+{%block tab_header %}
+  Format disk
+{%endblock%}
+
+{% block inside_content %}
+
+  <form id="create_form" name="create_form" action="/format_disk/" method="POST">
+  {%csrf_token%}
+    <input name="path" type="hidden" value="{{ path }}">
+    <input name="disk_id" type="hidden" value="{{ disk_id  }}" >
+    <table class="table" style="width:800px">
+<tr>
+<th>{{ form.errors }}</th>
+</tr>
+      <tr>
+        <th> USB id :</th>
+        <td> {{disk_id}}</td>
+     </tr>
+      <tr>
+        <th> Select file system type :</th>
+        <td>
+          <select name="fs_type" class="form-control">
+            {% for choice in form.fs_type.field.choices %}
+              <option value="{{choice}}" {%if choice == form.initial.fs_type %} selected="selected"{%endif%}>{{choice}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.fs_type.errors }} </td>
+      </tr><F4>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_disks" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Format</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Format a USB Disk
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to format disks. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{%block tab_active %}
+  <script>
+    make_tab_active("view_disks_tab")
+  </script>
+{% endblock %}
+
