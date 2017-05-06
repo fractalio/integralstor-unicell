@@ -132,6 +132,16 @@ class CreateBondForm(forms.Form):
             if name and name in self.existing_bonds:
                 self._errors["name"] = self.error_class(
                     ["A Bond or interface of this name already exists. Please choose another name."])
+            if name and '.' in name:
+                self._errors["name"] = self.error_class(
+                    ["Please enter a name without the domain name component (no '.'s allowed)"])
+            valid, err = networking.validate_hostname(name)
+            if err:
+                self._errors["name"] = self.error_class(
+                    ['Invalid name. Only alphabets, digits and hyphens permitted.'])
+            elif not valid:
+                self._errors["name"] = self.error_class(
+                    ['Invalid name. Only alphabets, digits and hyphens permitted.'])
         return cd
 
 
