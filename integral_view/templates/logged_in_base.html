@@ -296,13 +296,18 @@
   <script>
     $(document).ready(function(){
       {%block datatables%}
-        $('.datatable').DataTable({
-          searching: false,
-          ordering: false,
-          paging: false,
-          responsive: true,
-          info: false, 
+	$('#datatable').DataTable({
+          'searching' : 'true',
+          'ordering' : 'true',
+          'paging' : 'true',
+          'responsive' : 'true',
+          'info' : 'true',
+          'autoWidth' : 'true',
+          'jQueryUI' : 'true',
+          'pageLength' : '25',
+	  'order' : [[0, 'desc']]
         });
+
       {%endblock%}
       //$("table").css({'width':'90%'})
       $(".dataTables_info").addClass('margin-left-10')
