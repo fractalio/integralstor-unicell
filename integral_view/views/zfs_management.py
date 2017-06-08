@@ -528,13 +528,12 @@ def clear_zfs_pool(request):
     return_dict = {}
     try:
         req_ret, err = django_utils.get_request_parameter_values(request, [
-                                                                 'clear_zfs_pool'])
-        print req_ret
+                                                                 'pool_name'])
         if err:
             raise Exception(err)
-        if 'clear_zfs_pool' not in req_ret:
+        if 'pool_name' not in req_ret:
             raise Exception("Invalid request, please use the menus.")
-        name = req_ret['clear_zfs_pool']
+        name = req_ret['pool_name']
         return_dict["name"] = name
         if request.method == "GET":
             return django.http.HttpResponseRedirect('/view_zfs_pools/')

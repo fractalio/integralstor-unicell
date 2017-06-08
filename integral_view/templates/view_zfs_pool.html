@@ -26,7 +26,7 @@
       </div>
       <form method='POST' action='/clear_zfs_pool/' id='id_clear_pool_form' name='clear_pool_form'>
         {% csrf_token  %}
-        <input name="clear_zfs_pool" id="id_clear_zfs_pool" value="{{pool.pool_name}}" hidden />
+        <input name="pool_name" id="id_pool_name" value="{{pool.pool_name}}" hidden />
       </form>
       <div class="col-sm-3 btn-group btn-group-sm pull-right"  style="border:0px solid">
         <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
