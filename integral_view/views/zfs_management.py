@@ -112,6 +112,8 @@ def view_zfs_pool(request):
                 return_dict['ack_message'] = "Successfully added spare disks to the pool"
             elif request.GET["ack"] == "removed_spare":
                 return_dict['ack_message'] = "Successfully removed a spare disk from the pool"
+            elif request.GET["ack"] == "clear_zfs_pool":
+                return_dict['ack_message'] = "ZFS pool errors successfully cleared"
         if 'view' in req_ret:
             view = req_ret['view']
         else:
@@ -520,6 +522,40 @@ def scrub_zfs_pool(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
+def clear_zfs_pool(request):
+
+    return_dict = {}
+    try:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'clear_zfs_pool'])
+        print req_ret
+        if err:
+            raise Exception(err)
+        if 'clear_zfs_pool' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        name = req_ret['clear_zfs_pool']
+        return_dict["name"] = name
+        if request.method == "GET":
+            return django.http.HttpResponseRedirect('/view_zfs_pools/')
+        else:
+            result, err = zfs.clear_pool(name)
+            if not result:
+                if not err:
+                    raise Exception('Unknown error!')
+                else:
+                    raise Exception(err)
+
+            audit_str = "Cleared ZFS pool errors on pool %s" % name
+            audit.audit("clear_zfs_pool", audit_str, request)
+            return django.http.HttpResponseRedirect('/view_zfs_pool?ack=clear_zfs_pool&name=%s' % name)
+    except Exception, e:
+        return_dict['base_template'] = "storage_base.html"
+        return_dict["page_title"] = 'ZFS pool clear'
+        return_dict['tab'] = 'view_zfs_pools_tab'
+        return_dict["error"] = 'Error clearing ZFS pool errors'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def delete_zfs_pool(request):
 

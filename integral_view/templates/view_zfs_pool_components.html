@@ -24,6 +24,12 @@
           </div>
         </form>
       </div>
+
+      <form method='POST' action='/clear_zfs_pool/' id='id_clear_pool_form' name='clear_pool_form'>
+        {% csrf_token  %}
+        <input name="clear_zfs_pool" id="id_clear_zfs_pool" value="{{pool.pool_name}}" hidden />
+      </form>
+
       <div class="col-sm-3 btn-group btn-group-sm pull-right"  style="border:0px solid">
         <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
         <ul class="dropdown-menu">
@@ -35,6 +41,8 @@
           <li><a class="action-dropdown" href="/create_zfs_zvol?pool={{pool.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
           <li class="divider"></li>
           <li> <a class="action-dropdown" href="/scrub_zfs_pool?name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Initiate a scrub</a>
+          <li class="divider"></li>
+          <li> <a class="action-dropdown" role="button" onclick="document.clear_pool_form.submit()"><i class="fa fa-lemon-o fa-fw"></i>Clear pool errors</a>
           <li class="divider"></li>
           <li><a class="action-dropdown" href="/export_zfs_pool?pool_name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-cloud-download fa-fw" ></i>Export this pool</a>
           <li><a class="action-dropdown" href="/delete_zfs_pool?name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-trash-o fa-fw" ></i>Delete this pool</a>
