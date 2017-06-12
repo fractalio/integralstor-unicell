@@ -242,15 +242,25 @@ sleep 2
 echo "***	Started post install operations		***"
 echo ""
 
-### Adding a user and group called integralstor. ###
+### Adding neccesary users and groups ###
 groupadd integralstor -g 1000
 useradd integralstor -g 1000
 groupadd replicator -g 1001
 useradd replicator -g 1001
+groupadd console -g 1002
+useradd console -g 1002
+
 echo "integralstor123" | passwd --stdin integralstor
 echo "replicator123" | passwd --stdin replicator
+echo "console123" | passwd --stdin console
+echo "nagios123" | passwd --stdin nagios
 echo "integralstor    ALL=(ALL)    ALL" >> /etc/sudoers
 echo "replicator    ALL=(ALL)    NOPASSWD: /usr/sbin/zfs" >> /etc/sudoers
+echo "console    ALL=(ALL)    NOPASSWD: ALL" >> /etc/sudoers
+
+### Changing MIN_UID and MIN_GID to start from 1500 for local users ###
+sed -i "s/^UID_MIN.*/UID_MIN                  1500/g" /etc/login.defs
+sed -i "s/^GID_MIN.*/GID_MIN                  1500/g" /etc/login.defs
 
 ### Network interface configuration  ###
 sed -i 's/BOOTPROTO=dhcp/BOOTPROTO=none/' /etc/sysconfig/network-scripts/ifcfg-eno*
@@ -306,8 +316,8 @@ ln -s /opt/integralstor/integralstor/config/shellinabox/shellinaboxd /etc/syscon
 ### Chhanging scripts files for appropriate permission
 chmod 755 /opt/integralstor/integralstor/scripts/python/*
 chmod 755 /opt/integralstor/integralstor/scripts/shell/*
-mkdir /opt/integralstor/integralstor/config/logs/cron_logs
-mkdir /opt/integralstor/integralstor/config/logs/task_logs
+mkdir -p /opt/integralstor/integralstor/config/logs/cron_logs
+mkdir -p /opt/integralstor/integralstor/config/logs/task_logs
 chmod 777 /opt/integralstor/integralstor/config/logs/cron_logs
 chmod 777 /opt/integralstor/integralstor/config/logs/task_logs
 
@@ -379,53 +389,66 @@ modprobe 8021q
 if grep "dell" /opt/integralstor/platform > /dev/null
 then
   (crontab -l 2>/dev/null; echo "@reboot srvadmin-services.sh restart > /tmp/srvadmin_logs >> /tmp/srvadmin_errors") | crontab -
+  echo "copying integralstor repository..."
+  echo "Please install dell specific dependencies(srvadmin-all&dell-system-update) when you have dell hardware"
+#  cd /etc/yum.repos.d
+#  /usr/bin/wget -c http://192.168.1.150/netboot/distros/centos/7.2/x86_64/integralstor/v1.0/integralstor.repo
+#  echo "copying integralstor repository...Done"
+#  echo "installing dell specific dependencies..."
+#  yum install srvadmin-all dell-system-update -y
+#  echo "installing dell specific dependencies...Done"
+#  echo "disabling integralstor repository..."
+#  sed -i '/\[updates\]/a enabled=0' /etc/yum.repos.d/integralstor.repo 
+#  echo "disabling integralstor repository...Done":w
 else
   echo "Non dell hardware. Exiting..."
 fi
 
+### Grub and other file modification to show title/name Integralstor instead Centos 7.2 ###
+cd /etc
+mv issue issue.bak
+mv /usr/share/plymouth/themes/text/text.plymouth /usr/share/plymouth/themes/text/text.plymouth.bak
+cp -f /opt/integralstor/integralstor/install/conf_files/text.plymouth /usr/share/plymouth/themes/text/
+
+### Display pre login message ###
+cp -f /opt/integralstor/integralstor/install/conf_files/issue /etc/
+
+# Run login_menu.sh after user login
+ln -s /opt/integralstor/integralstor/scripts/shell/login_menu.sh /etc/profile.d/spring_up.sh
+
+### creating integralstor config dg ###
+cd /opt/integralstor/integralstor/config/db/
+rm -f integral_view_config.db
+sqlite3 integral_view_config.db < schemas
+
+### removing execute permission on these service files ###
+chmod -x /usr/lib/systemd/system/urbackup-server.service
+chmod -x /usr/lib/systemd/system/tgtd.service
+sed -i "s/^TasksMax.*/ /g" /usr/lib/systemd/system/urbackup-server.service
+
 ### Removing install files after install
-cd /opt/integralstor/integralstor_tar_installs
-yes | cp -rf getty\@tty* /etc/systemd/system/getty.target.wants/
-
-if [ $? -ne 0 ]; then
-    echo "CRITICAL: TTY installation failed!"
-    exit 1
-else
-    echo "Successfully installed TTY files."
-    echo "Removing installation files..."
-    rm -rf /opt/integralstor/integralstor_*
-    echo "Removing installation files...Done"
-
-fi
+cd /opt/integralstor
+echo "Removing installation files..."
+rm -rf initial_setup.sh integralstor_rpm_post.sh integralstor_tar_installs*
+echo "Removing installation files...Done"
 
 sleep 2
 
 ### Turn on other services ###
-systemctl start rpcbind.service
-systemctl enable rpcbind.service
-systemctl start nfs-server.service
-systemctl enable nfs-server.service
-systemctl start winbind.service
-systemctl enable winbind.service
-systemctl start smb.service
-systemctl enable smb.service
-systemctl start tgtd.service
-systemctl enable tgtd.service
-systemctl start ntpd.service
-systemctl enable ntpd.service
-systemctl start crond.service
-systemctl enable crond.service
-systemctl start ramdisk.service
-systemctl enable ramdisk.service
-systemctl start vsftpd.service
-systemctl enable vsftpd.service
-systemctl start shellinaboxd.service
-systemctl enable shellinaboxd.service
-systemctl start uwsginew.service
-systemctl enable uwsginew.service
-systemctl start nginx.service
-systemctl enable nginx.service
-systemctl enable getty@tty1.service
+echo "Start and Enabling necessary services..."
+systemctl start rpcbind && systemctl enable rpcbind
+systemctl start nfs-server && systemctl enable nfs-server
+systemctl start winbind && systemctl enable winbind
+systemctl start smb && systemctl enable smb
+systemctl start tgtd && systemctl enable tgtd
+systemctl start ntpd && systemctl enable ntpd
+systemctl start crond && systemctl enable crond
+systemctl start ramdisk && systemctl enable ramdisk
+systemctl start vsftpd && systemctl enable vsftpd
+systemctl start shellinaboxd && systemctl enable shellinaboxd
+systemctl start uwsginew && systemctl enable uwsginew
+systemctl start nginx && systemctl enable nginx
 systemctl daemon-reload
+echo "Start and Enabling necessary services...Done"
 
 echo "Completed post install operations. Reboot the machine to changes take affect."
