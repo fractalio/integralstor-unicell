@@ -1,0 +1,41 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Reset to factory defaults - confirmation
+{%endblock%}
+
+{% block inside_content %}
+
+
+  <p id="p-warning-text"> You have chosen to reset the following to the factory defaults : </p><br/>{{selected_components_str}}.<br/><br/>
+  <p id="p-warning-text"> This process is irrevsible{%if data_loss == 'yes' %} and will result in data loss {%endif%}. Are you sure you want to continue? </p>
+
+  <p> If you choose to continue and you have selected to remove the network settings, then you will not be able to see the result of this operation as the browser session will end. However, the results will be logged in the audit trail. You will need to reassign an IP address from the console and access the system using that address to view the audit logs for the result of this operation.</p>
+  <br>
+  <form action="" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="conf" value="True">
+    {%for field in form %}
+      {{ field.as_hidden }}
+    {%endfor%}
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_system_info" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page">Confirm and continue</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Reset to factory defaults - confirmation
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to reset settings to factory defaults. Please use this very carefully as the actions are not reversible!</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("system_info_tab")
+  </script>
+{% endblock %}

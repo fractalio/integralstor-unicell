@@ -1,9 +1,158 @@
 import django
 import django.template
 
-from integral_view.forms import system_date_time_forms
-from integralstor_utils import system_date_time, audit
+from integral_view.forms import system_forms
+from integralstor_utils import system_date_time, audit, django_utils, cifs as cifs_utils, rsync, alerts, logger, ntp, vsftp, mail
+from integralstor import cifs as cifs_integralstor, nfs, iscsi_stgt, local_users
 
+def reset_to_factory_defaults(request):
+    return_dict = {}
+    try:
+        component_descriptions = {  'delete_cifs_shares':'Windows shares',
+                                    'delete_nfs_exports':'NFS exports',
+                                    'delete_rsync_shares':'Rsync shares',
+                                    'delete_iscsi_targets':'ISCSI targets',
+                                    'delete_local_users':'local users',
+                                    'delete_local_groups':'local groups',
+                                    'delete_dns_settings':'DNS settings',
+                                    'delete_network_interface_settings':'network interface settings',
+                                    'delete_network_bonds':'network bonds',
+                                    'delete_network_vlans':'network VLANs',
+                                    'reset_hostname':'hostname and domain name',
+                                    'delete_ssl_certificates':'SSL certificates',
+                                    'delete_ssh_authorized_keys':'SSH authorized keys',
+                                    'delete_ssh_fingerprints':'SSH host fingerprints',
+                                    'delete_audits':'audit trail',
+                                    'delete_alerts':'alerts',
+                                    'delete_logs':'logs',
+                                    'delete_remote_replications':'scheduled remote replications',
+                                    'delete_tasks_and_logs':'background tasks and logs',
+                                    'reset_cifs_settings':'Windows access settings',
+                                    'reset_ntp_settings':'NTP settings',
+                                    'reset_ftp_settings':'FTP settings',
+                                    'delete_email_settings':'email server settings',
+                                    'delete_zfs_pools':'ZFS pools (user data)',
+                                    'delete_zfs_datasets_and_snapshots':'ZFS datasets and snapshots (user data)',
+                                    'delete_zfs_zvols_and_snapshots':'ZFS block device volumes and snapshots (user data)'}
+        if request.method == 'GET':
+            form = system_forms.FactoryDefaultsForm()
+            return_dict['form'] = form
+            return django.shortcuts.render_to_response('reset_to_factory_defaults.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        else:
+            req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'conf'])
+            if err:
+                raise Exception(err)
+            form = system_forms.FactoryDefaultsForm(request.POST)
+            if form.is_valid():
+                cd = form.cleaned_data
+                if 'conf' not in req_ret:
+                    #No confirmation yet so process the form
+                    selected_components = []
+                    for key in cd.keys():
+                        selected_components.append(component_descriptions[key])
+                    if ('delete_zfs_pools' in cd and cd['delete_zfs_pools']) or ('delete_zfs_datasets_and_snapshots' in cd and cd['delete_zfs_datasets_and_snapshots']) or ('delete_zfs_zvols_and_snapshots' in cd and cd['delete_zfs_zvols_and_snapshots']):
+                        return_dict['data_loss'] = 'yes'
+                    return_dict['selected_components_str'] = ','.join(selected_components)
+                    return_dict['form'] = form
+                    return django.shortcuts.render_to_response('reset_to_factory_defaults_conf.html', return_dict, context_instance=django.template.context.RequestContext(request))
+                else:
+                    #Got the confirmation so now do the work.
+                    success_list = []
+                    failed_list = []
+                    error_dict = {}
+                    for key in cd.keys():
+                        result = False
+                        if not cd[key]:
+                            continue
+                        if key == 'delete_cifs_shares' and cd[key]:
+                            result, err = cifs_utils.delete_all_shares()
+                            if result:
+                                cifs_integralstor.reload_configuration()
+                        elif key == 'delete_nfs_exports':
+                            result, err = nfs.delete_all_exports()
+                            print result, err
+                        elif key == 'delete_rsync_shares':
+                            result, err = rsync.delete_all_rsync_shares()
+                        elif key == 'delete_iscsi_targets':
+                            result, err = iscsi_stgt.delete_all_targets()
+                        elif key == 'delete_local_users':
+                            result, err = local_users.delete_all_local_users()
+                        elif key == 'delete_local_groups':
+                            result, err = local_users.delete_all_local_groups()
+                        elif key == 'delete_dns_settings':
+                            pass
+                        elif key == 'delete_network_interface_settings':
+                            pass
+                        elif key == 'delete_network_bonds':
+                            pass
+                        elif key == 'delete_network_vlans':
+                            pass
+                        elif key == 'reset_hostname':
+                            pass
+                        elif key == 'delete_ssl_certificates':
+                            pass
+                        elif key == 'delete_ssh_authorized_keys':
+                            pass
+                        elif key == 'delete_ssh_fingerprints':
+                            pass
+                        elif key == 'delete_audits':
+                            result, err = audit.delete_all_audits()
+                        elif key == 'delete_alerts':
+                            result, err = alerts.delete_all_alerts()
+                        elif key == 'delete_logs':
+                            result, err = logger.zero_logs()
+                        elif key == 'delete_remote_replications':
+                            pass
+                        elif key == 'delete_tasks_and_logs':
+                            pass
+                        elif key == 'reset_cifs_settings':
+                            result, err = cifs_utils.delete_auth_settings()
+                            if not err:
+                                cifs_integralstor.reload_configuration()
+                        elif key == 'reset_ntp_settings':
+                            result, err = ntp.update_integralstor_ntp_servers(['0.centos.pool.ntp.org','1.centos.pool.ntp.org','2.centos.pool.ntp.org','3.centos.pool.ntp.org'])
+                        elif key == 'reset_ftp_settings':
+                            result, err = vsftp.delete_ftp_config()
+                        elif key == 'delete_email_settings':
+                            result, err = mail.delete_email_settings()
+                        elif key == 'delete_zfs_pools':
+                            pass
+                        elif key == 'delete_zfs_datasets_and_snapshots':
+                            pass
+                        elif key == 'delete_zfs_zvols_and_snapshots':
+                            pass
+    
+                        if result:
+                            success_list.append(component_descriptions[key])
+                        else:
+                            failed_list.append(component_descriptions[key])
+                            error_dict[component_descriptions[key]] = err
+                    audit_str = ''
+                    if success_list:
+                        audit_str += 'Factory defaults reset of the following components succeeded : '
+                        audit_str += ', '.join(success_list)
+                        audit_str += '. '
+                    if failed_list:
+                        audit_str += 'Factory defaults reset of the following components failed : '
+                        audit_str += ', '.join(failed_list)
+                        audit_str += '. '
+                    audit.audit('factory_defaults_reset', audit_str, request)
+                    return_dict['success_list'] = success_list
+                    return_dict['error_dict'] = error_dict
+                    return django.shortcuts.render_to_response('reset_to_factory_defaults_result.html', return_dict, context_instance=django.template.context.RequestContext(request))
+            else:
+                #Bad form
+                return_dict['form'] = form
+                return django.shortcuts.render_to_response('reset_to_factory_defaults.html', return_dict, context_instance=django.template.context.RequestContext(request))
+
+    except Exception, e:
+        return_dict["base_template"] = 'system_base.html'
+        return_dict['tab'] = 'system_info_tab'
+        return_dict['page_title'] = 'Reset to factory defaults'
+        return_dict["error"] = 'Error resetting to factory defaults'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def update_system_date_time(request):
     return_dict = {}
@@ -14,7 +163,7 @@ def update_system_date_time(request):
             return django.shortcuts.render_to_response("update_system_date_time.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
         if request.method == 'POST':
-            form = system_date_time_forms.DateTimeForm(request.POST)
+            form = system_forms.DateTimeForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
                 output, err = system_date_time.update_date_time(
@@ -60,9 +209,12 @@ def update_system_date_time(request):
                 return django.shortcuts.render_to_response("update_system_date_time.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict["base_template"] = 'system_base.html'
+        return_dict['tab'] = 'system_info_tab'
         return_dict['page_title'] = 'Update system and hardware date and time'
         return_dict["error"] = 'Error Performing Date Time Update'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
     else:
         return django.http.HttpResponseRedirect("/view_system_info")
+
+# vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
