@@ -21,7 +21,7 @@ def view_targets(request):
             if request.GET["ack"] == "created":
                 return_dict['ack_message'] = "ISCSI target successfully created"
             elif request.GET["ack"] == "target_deleted":
-                return_dict['ack_message'] = "ISCSI target successfully created"
+                return_dict['ack_message'] = "ISCSI target successfully deleted"
             elif request.GET["ack"] == "deleted":
                 return_dict['ack_message'] = "ISCSI target successfully deleted"
 

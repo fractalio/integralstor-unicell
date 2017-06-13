@@ -40,7 +40,7 @@ from integral_view.views.rsync_share_management import create_rsync_share, updat
 
 from django.contrib.auth.decorators import login_required
 
-from integral_view.views.system import update_system_date_time
+from integral_view.views.system import update_system_date_time, reset_to_factory_defaults
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -91,6 +91,8 @@ urlpatterns = patterns('',
                        # Form views/system.py
                        url(r'^update_system_date_time/',
                            login_required(update_system_date_time)),
+                       url(r'^reset_to_factory_defaults/',
+                           login_required(reset_to_factory_defaults)),
 
 
                        # From views/config.py
