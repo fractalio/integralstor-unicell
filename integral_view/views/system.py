@@ -2,7 +2,7 @@ import django
 import django.template
 
 from integral_view.forms import system_forms
-from integralstor_utils import system_date_time, audit, django_utils, cifs as cifs_utils, rsync, alerts, logger, ntp, vsftp, mail
+from integralstor_utils import system_date_time, audit, django_utils, cifs as cifs_utils, rsync, alerts, logger, ntp, vsftp, mail, remote_replication, scheduler_utils, zfs, networking, pki
 from integralstor import cifs as cifs_integralstor, nfs, iscsi_stgt, local_users
 
 def reset_to_factory_defaults(request):
@@ -17,7 +17,7 @@ def reset_to_factory_defaults(request):
                                     'delete_dns_settings':'DNS settings',
                                     'delete_network_interface_settings':'network interface settings',
                                     'delete_network_bonds':'network bonds',
-                                    'delete_network_vlans':'network VLANs',
+                                    #'delete_network_vlans':'network VLANs',
                                     'reset_hostname':'hostname and domain name',
                                     'delete_ssl_certificates':'SSL certificates',
                                     'delete_ssh_authorized_keys':'SSH authorized keys',
@@ -50,7 +50,8 @@ def reset_to_factory_defaults(request):
                     #No confirmation yet so process the form
                     selected_components = []
                     for key in cd.keys():
-                        selected_components.append(component_descriptions[key])
+                        if cd[key]:
+                            selected_components.append(component_descriptions[key])
                     if ('delete_zfs_pools' in cd and cd['delete_zfs_pools']) or ('delete_zfs_datasets_and_snapshots' in cd and cd['delete_zfs_datasets_and_snapshots']) or ('delete_zfs_zvols_and_snapshots' in cd and cd['delete_zfs_zvols_and_snapshots']):
                         return_dict['data_loss'] = 'yes'
                     return_dict['selected_components_str'] = ','.join(selected_components)
@@ -71,7 +72,6 @@ def reset_to_factory_defaults(request):
                                 cifs_integralstor.reload_configuration()
                         elif key == 'delete_nfs_exports':
                             result, err = nfs.delete_all_exports()
-                            print result, err
                         elif key == 'delete_rsync_shares':
                             result, err = rsync.delete_all_rsync_shares()
                         elif key == 'delete_iscsi_targets':
@@ -80,22 +80,12 @@ def reset_to_factory_defaults(request):
                             result, err = local_users.delete_all_local_users()
                         elif key == 'delete_local_groups':
                             result, err = local_users.delete_all_local_groups()
-                        elif key == 'delete_dns_settings':
-                            pass
-                        elif key == 'delete_network_interface_settings':
-                            pass
-                        elif key == 'delete_network_bonds':
-                            pass
-                        elif key == 'delete_network_vlans':
-                            pass
-                        elif key == 'reset_hostname':
-                            pass
                         elif key == 'delete_ssl_certificates':
-                            pass
+                            result, err = pki.delete_all_ssl_certificates()
                         elif key == 'delete_ssh_authorized_keys':
-                            pass
+                            result, err = pki.delete_authorized_keys('replicator')
                         elif key == 'delete_ssh_fingerprints':
-                            pass
+                            result, err = pki.delete_fingerprints('replicator')
                         elif key == 'delete_audits':
                             result, err = audit.delete_all_audits()
                         elif key == 'delete_alerts':
@@ -103,9 +93,20 @@ def reset_to_factory_defaults(request):
                         elif key == 'delete_logs':
                             result, err = logger.zero_logs()
                         elif key == 'delete_remote_replications':
-                            pass
+                            result, err = remote_replication.delete_all_remote_replications()
                         elif key == 'delete_tasks_and_logs':
-                            pass
+                            res1, err1 = scheduler_utils.delete_all_tasks()
+                            res2, err2 = scheduler_utils.delete_all_logs()
+                            err = None
+                            result = False
+                            if err1 and err2:
+                                err = '%s\t%s' % (err1, err2)
+                            elif err1:
+                                err = 'Sucessfully deleted all tasks logs. \t%s' % err1
+                            elif err2:
+                                err = 'Sucessfully deleted all tasks. \t%s' % err2
+                            else:
+                                result = True
                         elif key == 'reset_cifs_settings':
                             result, err = cifs_utils.delete_auth_settings()
                             if not err:
@@ -117,11 +118,22 @@ def reset_to_factory_defaults(request):
                         elif key == 'delete_email_settings':
                             result, err = mail.delete_email_settings()
                         elif key == 'delete_zfs_pools':
-                            pass
+                            result, err = zfs.delete_all_pools(force=True)
                         elif key == 'delete_zfs_datasets_and_snapshots':
-                            pass
+                            result, err = zfs.delete_all_datasets(dataset_type='filesystem',recursive=True,force=True)
                         elif key == 'delete_zfs_zvols_and_snapshots':
-                            pass
+                            result, err = zfs.delete_all_datasets(dataset_type='volume',recursive=True,force=True)
+                        elif key == 'reset_hostname':
+                            result, err = networking.update_hostname('localhost','localdomain')
+                        elif key == 'delete_dns_settings':
+                            result, err = networking.delete_name_servers()
+                        #TODO: get vlans sorted out
+                        #elif key == 'delete_network_vlans':
+                        #    pass
+                        elif key == 'delete_network_interface_settings':
+                            result, err = networking.delete_interfaces_connection()
+                        elif key == 'delete_network_bonds':
+                            result, err = networking.delete_all_bonds()
     
                         if result:
                             success_list.append(component_descriptions[key])
