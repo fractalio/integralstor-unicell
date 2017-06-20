@@ -1,0 +1,63 @@
+{% extends 'dashboard_base.html' %}
+
+{%block tab_header %}
+  Remote IntegralSTOR server monitoring
+{%endblock%}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click for remote monitoring actions" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/update_remote_monitoring_server"  title="Add information about an IntegralSTOR server to monitor"> <i class="fa fa-plus fa-fw"></i>Add a new server to monitor remotely</a> 
+    </ul>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+  {%if not servers%}
+    There are currently no remote IntegralSTOR servers that have been configured for remote mornitoring.
+  {%else%}
+    <table class="table">
+    {%for ip, details in servers.items %}
+      <tr>
+        <td>
+          {{details.name}} ({{ip}})
+        </td>
+        <td>
+          <div class="btn-group btn-group-xs" >
+            <a class="btn btn-default pull-left dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+            <ul class="dropdown-menu">
+              <li><a class="action-dropdown" href="/view_remote_monitoring_server_status?ip={{ip}}"  title="View the status of this server" > <i class="fa fa-cog fa-fw"></i>View server status</a> 
+              <li><a class="action-dropdown" href="/update_remote_monitoring_server?ip={{ip}}"  title="Modify the settings for this server" > <i class="fa fa-cog fa-fw"></i>Modify server settings</a> 
+              <li class="divider"></li>
+              <li><a class="action-dropdown" href="/delete_remote_monitoring_server?ip={{ip}}"  title="Remove this server" style="color:red"> <i class="fa fa-trash fa-fw"></i>Remove this server </a> 
+            </ul>
+          </div>
+        </td>
+      </tr>
+    {%endfor%}
+    </table>
+
+  {%endif%}
+{% endblock %}
+
+{%block help_header%}
+  Remotely monitor other IntegralSTOR servers
+{%endblock%}
+
+{%block help_body%}
+  <p> 
+  This screen displays the list of other IntegralSTOR servers that have been configured for remote monitoring.
+  </p>
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+   make_tab_active("remote_monitoring_tab")
+  </script>
+{% endblock%}
+
+
+
+

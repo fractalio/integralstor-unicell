@@ -556,6 +556,7 @@ def clear_zfs_pool(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def delete_zfs_pool(request):
 
     return_dict = {}

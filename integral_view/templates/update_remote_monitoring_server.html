@@ -1,0 +1,61 @@
+{% extends 'dashboard_base.html' %}
+
+{%block tab_header %}
+  Create/Modify remote monitoring IntegralSTOR server
+{%endblock%}
+
+{% block inside_content %}
+
+  <form action="/update_remote_monitoring_server/" method="post">
+    {%csrf_token%}
+    <table class="table" >
+      <tr>
+        <td  style="max-width:100px;word-wrap: break-word"> 
+          <b>IntegralSTOR server IP address</b>: 
+        </td>
+        <td>
+          {%if action == 'update'%}
+            <input type="hidden"  name="ip" value="{{form.initial.ip}}"> 
+            {{form.initial.ip}}
+          {%else%}
+            <input type="text"  name="ip" class="form-control" id="id_ip" value="{{form.initial.ip}}" placeholder="Enter the IntegralSTOR server's IP addresses"> 
+          {%endif%}
+        </td>
+        <td>  
+          {{ form.ip.errors }}
+        </td>
+      <tr>
+	<td  style="max-width:100px;word-wrap: break-word"> 
+	  <b>Associated name</b>: 
+	</td>
+	<td>
+	  <input type="text"  name="name" class="form-control" id="id_name" value="{{form.initial.name}}" placeholder="Enter an associated name for this IntegralSTOR server"> 
+	</td>
+	<td>  
+	  {{ form.name.errors }}
+	</td>
+      </tr>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_remote_monitoring_servers/" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+
+
+{%endblock%}
+
+{%block help_header%}
+  Create of modify an entry for an IntegralSTOR server to be remotely monitored
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to add/modify information of an IntegralSTOR server that you would like to remotely monitor. Please enter the IntegralSTOR server's IP address and any name that you would like to associate with that server.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("remote_monitoring_tab")
+  </script>
+{% endblock %}
