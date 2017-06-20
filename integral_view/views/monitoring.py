@@ -50,7 +50,7 @@ def update_remote_monitoring_server(request):
                 ip = req_ret['ip']
                 if ip in servers.keys():
                     initial['ip'] = ip
-                    initial['name'] = servers[ip]
+                    initial['name'] = servers[ip]['name']
                 return_dict['action'] = 'update'
             else:
                 return_dict['action'] = 'create'
