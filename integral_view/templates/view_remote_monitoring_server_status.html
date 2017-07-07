@@ -1,0 +1,133 @@
+{% extends 'dashboard_base.html' %}
+
+{%block tab_header %}
+  Remote IntegralSTOR server status
+{%endblock%}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click for remote monitoring actions" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/view_remote_monitoring_servers" role="button" ><i class="fa fa-list fa-fw">&nbsp; </i>Back to server list</a></li>
+    </ul>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+  {%if not status%}
+    Could not access the status for the selected server.
+  {%else%}
+    {% if 'pools' in status and status.pools %}
+      <h4>Pool status</h4>
+      {%for pool in status.pools%}
+        <table class="table">
+          <tr>
+            <th>Pool name</th>
+            <td>{{pool.name}}</td>
+          </tr>
+          <tr>
+            <th>Pool state</th>
+            <td>{{pool.state}}</td>
+          </tr>
+          <tr>
+            <th>Pool errors</th>
+            <td>{{pool.errors}}</td>
+          </tr>
+        </table>
+      {%endfor%}
+    {%endif%}
+    {% if 'disks' in status and status.disks %}
+      <h4>Disks status</h4>
+      <table class="table">
+        <tr>
+          <th>Serial number</th>
+          <th>Status</th>
+        </tr>
+      {%for disk in status.disks%}
+        <tr>
+          <td>{{disk.name}}</td>
+          <td>{{disk.status}}</td>
+        </tr>
+      {%endfor%}
+      </table>
+    {%endif%}
+    {% if 'services' in status and status.services %}
+      <h4>Services status</h4>
+      <table class="table">
+        <tr>
+          <th>Service name</th>
+          <th>Status</th>
+        </tr>
+      {%for service in status.services%}
+        <tr>
+          <td>{{service.name}}</td>
+          <td>{{service.status}}</td>
+        </tr>
+      {%endfor%}
+      </table>
+    {%endif%}
+    {% if 'interfaces' in status and status.interfaces %}
+      <h4>Interface status</h4>
+      <table class="table">
+        <tr>
+          <th>Interface name</th>
+          <th>Status</th>
+        </tr>
+      {%for interface in status.interfaces%}
+        <tr>
+          <td>{{interface.name}}</td>
+          <td>{{interface.status}}</td>
+        </tr>
+      {%endfor%}
+      </table>
+    {%endif%}
+    {% if 'load_avg' in status and status.load_avg %}
+      <h4>CPU Load average</h4>
+      <table class="table">
+        <tr>
+          <th>15 minute load average</th>
+          <td>{{status.load_avg.15_min}}</td>
+        </tr>
+        <tr>
+          <th>5 minute load average</th>
+          <td>{{status.load_avg.5_min}}</td>
+        </tr>
+      </table>
+    {%endif%}
+    {% if 'memory' in status and status.memory %}
+      <h4>System RAM information</h4>
+        <table class="table">
+          <tr>
+            <th>Total RAM</th>
+            <td>{{status.memory.mem_total}}</td>
+          </tr>
+          <tr>
+            <th>Free RAM</th>
+            <td>{{status.memory.mem_free}}</td>
+          </tr>
+        </table>
+    {%endif%}
+
+  {%endif%}
+{% endblock %}
+
+{%block help_header%}
+  Remotely monitor other IntegralSTOR servers
+{%endblock%}
+
+{%block help_body%}
+  <p> 
+  This screen displays the list of other IntegralSTOR servers that have been configured for remote monitoring.
+  </p>
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+   make_tab_active("remote_monitoring_tab")
+  </script>
+{% endblock%}
+
+
+
+

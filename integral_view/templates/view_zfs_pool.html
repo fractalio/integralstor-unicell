@@ -82,22 +82,30 @@
         <div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">
           <div class="panel-body">
               <div class="progress" style="background: rgba(204, 188, 188, 1); border: 1px solid rgba(245, 245, 245, 1); ">
-                <div class="progress-bar {%if pool.usage.capacity.value > 50 and pool.usage.capacity.value < 70 %}  progress-bar-warning {%elif pool.usage.capacity.value >= 70 %}  progress-bar-danger{%else%} progress-bar-info {%endif%}" role="progressbar" aria-valuenow="{{pool.usage.capacity.value}}" aria-valuemin="0" aria-valuemax="100" style="{%if pool.usage.capacity.value %} width: {{pool.usage.capacity.value}}%;{%endif%}min-width: 3em;">
-                  {{pool.usage.capacity.value|floatformat}}%
+                <div class="progress-bar {% if pool.usage.used_percent > 50 and pool.usage.used_percent < 70 %}  progress-bar-warning {% elif pool.usage.used_percent >= 70 %} progress-bar-danger {% else %} progress-bar-info {%endif%}" role="progressbar" aria-valuenow="{{pool.usage.used_percent}}" aria-valuemin="0" aria-valuemax="100.0" style="{%if pool.usage.used_percent %} width: {{pool.usage.used_percent}}%;{%endif%}min-width: 3em;">
+                  {{pool.usage.used_percent}}%
                 </div>
               </div>
               <table class="table table-bordered table-hover table-responsive" style="width:800px">
-                <tr><th> Space available for data </th> <td>{{pool.usage.available_for_data.value}}{{pool.usage.available_for_data.unit}}<td></tr>
+                <tr><th> Total consumable space {% if pool.properties.quota.value != 'none' %}* {% endif %}</th> <td>{{pool.usage.total_space}}<td></tr>
                 <tr><th> Space consumed by data </th> <td>{{pool.usage.used_by_data.value}}{{pool.usage.used_by_data.unit}}<td></tr>
+                <tr><th> Space available for data </th> <td>{{pool.usage.available_for_data.value}}{{pool.usage.available_for_data.unit}}<td></tr>
+		<!--
                 <tr><th> Raw space from all data disks </th> <td>{{pool.usage.size.value}}{{pool.usage.size.unit}}<td></tr>
                 <tr><th> Space consumed by data & metadata </th> <td>{{pool.usage.allocated.value}}{{pool.usage.allocated.unit}}<td></tr>
                 <tr><th> Space consumed percentage </th> <td>{{pool.usage.capacity.value}}{{pool.usage.capacity.unit}}<td></tr>
+                <tr><th> Consumed space percentage </th> <td>{{pool.usage.used_percent}}%<td></tr>
+		-->
+                <tr><th> Percentage of space available </th> <td>{{pool.usage.avail_percent}}%<td></tr>
                 <tr><th> Pool dedup </th> <td>{{pool.usage.dedup}}<td></tr>
                 {%if pool.usage.dedup == 'on'%}
                   <tr><th> Pool dedup ratio</th> <td>{{pool.usage.dedupratio.value}}{{pool.usage.dedupratio.unit}}<td></tr>
                 {%endif%}
                 <tr><th> Pool fragmentation percentage</th> <td>{{pool.usage.fragmentation.value}}{{pool.usage.fragmentation.unit}}<td></tr>
                 <tr><th> Pool autoexpand </th> <td>{%if pool.usage.autoexpand%} Enabled {%else%} Disabled{%endif%}<td></tr>
+		{% if pool.properties.quota.value != 'none' %}
+                  <tr><td>* This is the storage space after reserving the designated space for optimal system operation.</td></tr>
+                {%endif%}
               </table>
           </div>
         </div>

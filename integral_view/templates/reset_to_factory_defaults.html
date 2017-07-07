@@ -1,0 +1,224 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Reset to factory defaults
+{%endblock%}
+
+
+{%block inside_content %}
+  <form id="reset_form" class="form-horizontal" role="form" name="reset_form" action="" method="post">
+    {%csrf_token%}
+    <h3>Quick settings</h3>
+    <table  class="table" style="border:0px solid;width:60%">
+      <tr>
+        <td> 
+          <b>Reset all settings to factory defaults</b><br/>
+          <em>(Includes Windows and rsync shares, NFS exports, ISCSI LUNs and users, local users and groups, all network settings, SSL and SSH certificates, keys and fingerprints, logs, remote replication schedules, background tasks, Windows access settings, NTP settings, FTP and email alert settings. This does <b>NOT</b> includes ZFS pools, datasets, volumes and user data!)</em>
+        </td>
+        <td><input type=checkbox id="select_settings"/></td>
+      </tr>
+      <tr>
+        <td> 
+          <b>Reset all user data</b><br/>
+          <em>(Remove all ZFS pools, datasets, block devices volumes and will result in the removal of all user data)</em>
+        </td>
+        <td> <input type=checkbox id="select_data"/></td>
+      </tr>
+    </table>
+  {%if request.user.username == 'superadmin'%} 
+    <div style="display:block">
+  {%else%}
+    <div style="display:none">
+  {%endif%}
+    <hr/>
+    <h3>Granular settings</h3>
+    <table  class="table" style="border:0px solid;width:60%">
+      <tr>
+        <th colspan=3> <h4>Shares and targets</h4></th>
+      </tr>
+      <tr>
+        <th> Remove all Windows shares </th>
+        <td> {{ form.delete_cifs_shares }} </td>
+        <td> {{ form.delete_cifs_shares.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all NFS exports </th>
+        <td> {{ form.delete_nfs_exports }} </td>
+        <td> {{ form.delete_nfs_exports.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all Rsync shares</th>
+        <td> {{ form.delete_rsync_shares }} </td>
+        <td> {{ form.delete_rsync_shares.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all ISCSI targets</th>
+        <td> {{ form.delete_iscsi_targets }} </td>
+        <td> {{ form.delete_iscsi_targets.errors }} </td>
+      </tr>
+      <tr>
+        <th colspan=3> <h4>Users and groups</h4></th>
+      </tr>
+      <tr>
+        <th> Remove all local users</th>
+        <td> {{ form.delete_local_users }} </td>
+        <td> {{ form.delete_local_users.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all local groups</th>
+        <td> {{ form.delete_local_groups }} </td>
+        <td> {{ form.delete_local_groups.errors }} </td>
+      </tr>
+      <tr>
+        <th colspan=3> <h4>SSL and SSH certificates and keys</h4></th>
+      </tr>
+      <tr>
+        <th> Remove all SSL certificates</th>
+        <td> {{ form.delete_ssl_certificates }} </td>
+        <td> {{ form.delete_ssl_certificates.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all SSH authorized keys</th>
+        <td> {{ form.delete_ssh_authorized_keys }} </td>
+        <td> {{ form.delete_ssh_authorized_keys.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all SSH fingerprints</th>
+        <td> {{ form.delete_ssh_fingerprints }} </td>
+        <td> {{ form.delete_ssh_fingerprints.errors }} </td>
+      </tr>
+      <tr>
+        <th colspan=3> <h4>Logs</h4></th>
+      </tr>
+      <tr>
+        <th> Remove audit trail</th>
+        <td> {{ form.delete_audits }} </td>
+        <td> {{ form.delete_audits.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all alerts</th>
+        <td> {{ form.delete_alerts }} </td>
+        <td> {{ form.delete_alerts.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all logs</th>
+        <td> {{ form.delete_logs }} </td>
+        <td> {{ form.delete_logs.errors }} </td>
+      </tr>
+      <tr>
+        <th colspan=3> <h4>Remote replication and background tasks</h4></th>
+      </tr>
+      <tr>
+        <th> Remove all scheduled remote replications</th>
+        <td> {{ form.delete_remote_replications }} </td>
+        <td> {{ form.delete_remote_replications.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all background tasks and task logs</th>
+        <td> {{ form.delete_tasks_and_logs }} </td>
+        <td> {{ form.delete_tasks_and_logs.errors }} </td>
+      </tr>
+      <tr>
+        <th colspan=3> <h4>Services settings</h4></th>
+      </tr>
+      <tr>
+        <th> Reset Windows access settings</th>
+        <td> {{ form.reset_cifs_settings }} </td>
+        <td> {{ form.reset_cifs_settings.errors }} </td>
+      </tr>
+      <tr>
+        <th> Reset NTP settings</th>
+        <td> {{ form.reset_ntp_settings }} </td>
+        <td> {{ form.reset_ntp_settings.errors }} </td>
+      </tr>
+      <tr>
+        <th> Reset FTP settings</th>
+        <td> {{ form.reset_ftp_settings }} </td>
+        <td> {{ form.reset_ftp_settings.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove email settings</th>
+        <td> {{ form.delete_email_settings }} </td>
+        <td> {{ form.delete_email_settings.errors }} </td>
+      </tr>
+      <tr>
+        <th colspan=3> <h4>ZFS configuration and data</h4></th>
+      </tr>
+      <tr>
+        <th> Remove all ZFS pools</th>
+        <td> {{ form.delete_zfs_pools }} </td>
+        <td> {{ form.delete_zfs_pools.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all ZFS datasets and associated snapshots</th>
+        <td> {{ form.delete_zfs_datasets_and_snapshots }} </td>
+        <td> {{ form.delete_zfs_datasets.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all ZFS block device volumes and associated snapshots</th>
+        <td> {{ form.delete_zfs_zvols_and_snapshots }} </td>
+        <td> {{ form.delete_zfs_zvols.errors }} </td>
+      </tr>
+      <tr>
+        <th colspan=3> <h4>Network settings</h4></th>
+      </tr>
+      <tr>
+        <th> Remove DNS server settings</th>
+        <td> {{ form.delete_dns_settings }} </td>
+        <td> {{ form.delete_dns_settings.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all network interface settings</th>
+        <td> {{ form.delete_network_interface_settings }} </td>
+        <td> {{ form.delete_network_interface_settings.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all network bonds</th>
+        <td> {{ form.delete_network_bonds }} </td>
+        <td> {{ form.delete_network_bonds.errors }} </td>
+      </tr>
+      <!--
+      <tr>
+        <th> Remove all VLANs</th>
+        <td> {{ form.delete_network_vlans }} </td>
+        <td> {{ form.delete_network_vlans.errors }} </td>
+      </tr>
+      -->
+      <tr>
+        <th> Reset the hostname and domain name</th>
+        <td> {{ form.reset_hostname }} </td>
+        <td> {{ form.reset_hostname.errors }} </td>
+      </tr>
+    </table>
+  </div>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_system_info" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary"> Reset to factory defaults </button>
+    </div>
+  </form>
+
+<script language="javascript">
+$("#select_settings").change(function() {
+  $(".settings_class:checkbox").prop('checked', this.checked);
+});
+$("#select_data").change(function() {
+  $(".data_class:checkbox").prop('checked', this.checked);
+});
+</script>
+{%endblock%}
+
+
+{%block help_header%}
+  Reset to factory defaults
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to reset settings to factory defaults. Please use this very carefully as the actions are not reversible!</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("system_info_tab")
+  </script>
+{% endblock %}

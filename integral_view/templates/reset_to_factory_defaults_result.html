@@ -1,0 +1,51 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Reset to factory defaults - results
+{%endblock%}
+
+{% block inside_content %}
+
+  {%if success_list %}
+    <p>
+      The following components were successfully reset to factory defaults :
+      <ul>
+        {%for comp in success_list %}
+        <li> {{comp}}</li>
+        {%endfor%}
+      </ul>
+    </p>
+  {%endif%}
+  {%if error_dict %}
+    <p>
+      The following components could NOT be reset to factory defaults :
+      <table class="table">
+	<tr>
+	  <th>Component</th>
+	  <th>Error</th>
+        </tr>
+        {%for comp, err in error_dict.items %}
+        <tr>
+	  <td> {{comp}}</td>
+	  <td> {{err}}</td>
+        </tr>
+        {%endfor%}
+      </table>
+    </p>
+  {%endif%}
+
+{%endblock%}
+
+{%block help_header%}
+  Reset to factory defaults - confirmation
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to reset settings to factory defaults. Please use this very carefully as the actions are not reversible!</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("system_info_tab")
+  </script>
+{% endblock %}

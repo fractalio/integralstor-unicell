@@ -4,8 +4,6 @@ import django
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
-import shutil
-
 from integralstor_utils import ntp, services_management, django_utils
 from integralstor import system_info
 
@@ -62,32 +60,13 @@ def update_ntp_settings(request):
             if form.is_valid():
                 iv_logging.debug("Got valid request to change NTP settings")
                 cd = form.cleaned_data
-                si, err = system_info.load_system_config()
-                if err:
-                    raise Exception(err)
                 server_list = cd["server_list"]
                 if ',' in server_list:
                     slist = server_list.split(',')
                 else:
                     slist = server_list.split(' ')
-                with open('/tmp/ntp.conf', 'w') as temp:
-                    # First create the ntp.conf file for the primary and
-                    # secondary nodes
-                    temp.write("driftfile /var/lib/ntp/drift\n")
-                    temp.write(
-                        "restrict default kod nomodify notrap nopeer noquery\n")
-                    temp.write(
-                        "restrict -6 default kod nomodify notrap nopeer noquery\n")
-                    temp.write("logfile /var/log/ntp.log\n")
-                    temp.write("\n")
-                    for server in slist:
-                        temp.write("server %s iburst\n" % server)
-                    temp.flush()
-                    temp.close()
-                shutil.move('/tmp/ntp.conf', '/etc/ntp.conf')
-                #ret, err = ntp.restart_ntp_service()
-                ret, err = services_management.update_service_status(
-                    'ntpd', 'restart')
+                ret, err = ntp.update_integralstor_ntp_servers(slist)
+                print ret, err
                 if err:
                     raise Exception(err)
                 return django.http.HttpResponseRedirect("/view_ntp_settings?ack=saved")

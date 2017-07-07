@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-from integral_view.views.monitoring import view_read_write_stats
+from integral_view.views.monitoring import view_read_write_stats, api_get_status, view_remote_monitoring_servers, update_remote_monitoring_server, delete_remote_monitoring_server, view_remote_monitoring_server_status
 
 from integral_view.views.scheduler_cron_management import view_background_tasks, view_task_details, delete_background_task
 
@@ -40,7 +40,7 @@ from integral_view.views.rsync_share_management import create_rsync_share, updat
 
 from django.contrib.auth.decorators import login_required
 
-from integral_view.views.system import update_system_date_time
+from integral_view.views.system import update_system_date_time, reset_to_factory_defaults
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -58,7 +58,6 @@ urlpatterns = patterns('',
                        url(r'^login/', login),
                        url(r'^logout/', logout, name="logout"),
                        url(r'^$', login),
-                       url(r'^view_read_write_stats/', view_read_write_stats),
                        url(r'^update_admin_password/',
                            login_required(update_admin_password)),
                        url(r'^view_email_settings/',
@@ -70,6 +69,18 @@ urlpatterns = patterns('',
                            login_required(update_https_mode)),
                        url(r'^reboot_or_shutdown',
                            login_required(reboot_or_shutdown)),
+
+                       # From views/monitoring.py
+                       url(r'^api_get_status/', api_get_status),
+                       url(r'^view_remote_monitoring_servers/',
+                           view_remote_monitoring_servers),
+                       url(r'^update_remote_monitoring_server/',
+                           update_remote_monitoring_server),
+                       url(r'^delete_remote_monitoring_server/',
+                           delete_remote_monitoring_server),
+                       url(r'^view_remote_monitoring_server_status/',
+                           view_remote_monitoring_server_status),
+
 
                        # From views/cifs_share_management.py
                        url(r'^view_cifs_shares/',
@@ -91,6 +102,8 @@ urlpatterns = patterns('',
                        # Form views/system.py
                        url(r'^update_system_date_time/',
                            login_required(update_system_date_time)),
+                       url(r'^reset_to_factory_defaults/',
+                           login_required(reset_to_factory_defaults)),
 
 
                        # From views/config.py

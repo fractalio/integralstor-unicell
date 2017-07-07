@@ -162,6 +162,11 @@ generate_manifest_and_status(){
   pause
 }
 
+usb_utils(){
+  sudo python /opt/integralstor/integralstor/scripts/python/usb_utils.py
+  pause
+}
+
 
 do_reboot() {
   sudo reboot now
@@ -190,10 +195,11 @@ show_menu() {
   echo "  8.  Restart services"
   echo "      | 81. Restart smb   82. Restart Winbind               83. Restart iscsi   84. Restart shell service"
   echo "      | 85. Restart NTP   86. Restart IntegralView services 87. Restart FTP     88. Restart NFS"
-  echo "  9.  Create NIC Bond"
-  echo "  10. Remove NIC Bond"
-  echo "  11. Update User Password"
-  echo "  12. Exit"
+  echo "  9.  Create NIC bond"
+  echo " 10.  Remove NIC bond"
+  echo " 11.  Update user password"
+  echo " 12.  USB utilities"
+  echo " 13.  Exit"
   echo
 
 }
@@ -212,7 +218,8 @@ read_input(){
     9) create_nic_bond;;
    10) remove_nic_bond;;
    11) update_password;;
-   12) logout;;
+   12) usb_utils;;
+   13) logout;;
    81) smb_restart;;
    82) winbind_restart;;
    83) restart_iscsi;;
