@@ -346,7 +346,7 @@ cat >> /etc/yum.repos.d/integralstor.repo << EOF
 [integralstor]
 enabled=1
 name= integralstor - base
-baseurl=file:///tmp/netatalk
+baseurl=file:///tmp/netatalk/netatalk
 gpgcheck=0
 EOF
 yum install avahi dbus nss-mdns gnome-boxes netatalk -y
@@ -355,7 +355,7 @@ cat >> /etc/yum.repos.d/integralstor.repo << EOF
 [integralstor]
 enabled=0
 name= integralstor - base
-baseurl=file:///tmp/netatalk
+baseurl=file:///tmp/netatalk/netatalk
 gpgcheck=0
 EOF
 
