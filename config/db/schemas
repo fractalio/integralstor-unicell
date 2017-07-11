@@ -59,6 +59,7 @@ CREATE TABLE "admin_alerts" (
 );
 
 CREATE TABLE "rsync_shares" (
+  "share_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "name" varchar(200) NOT NULL,
   "path" varchar(200) NOT NULL,
   "comment" varchar(200) NOT NULL,
@@ -111,15 +112,39 @@ CREATE TABLE "cron_tasks" (
   "command" varchar(200) NOT NULL
 );
 
+
 CREATE TABLE "remote_replications" (
   "remote_replication_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  "source_dataset" varchar(100) NOT NULL,
-  "destination_ip" varchar(100) NOT NULL,
-  "destination_user_name" varchar(100) NOT NULL,
-  "destination_pool" varchar(100) NOT NULL,
-  "cron_task_id" NOT NULL,
+  "mode" varchar(20) NOT NULL,
+  "cron_task_id" integer NOT NULL,
   FOREIGN KEY(cron_task_id) REFERENCES cron_tasks(cron_task_id)
 );
+
+
+CREATE TABLE "zfs_replications" (
+  "zfs_replication_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "source_dataset" varchar(100) NOT NULL,
+  "target_pool" varchar(100) NOT NULL,
+  "target_ip" varchar(30) NOT NULL,
+  "target_user_name" varchar(100) NOT NULL,
+  "remote_replication_id" integer NOT NULL,
+  FOREIGN KEY(remote_replication_id) REFERENCES remote_replications(remote_replication_id)
+);
+
+
+CREATE TABLE "rsync_replications" (
+  "rsync_replication_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "rsync_type" varchar(10) NOT NULL,
+  "short_switches" varchar(200),
+  "long_switches" varchar(100),
+  "source_path" varchar(200) NOT NULL,
+  "target_path" varchar(200) NOT NULL,
+  "target_ip" varchar(30) NOT NULL,
+  "target_user_name" varchar(100) NOT NULL,
+  "remote_replication_id" integer NOT NULL,
+  FOREIGN KEY(remote_replication_id) REFERENCES remote_replications(remote_replication_id)
+);
+
 
 CREATE TABLE "audit" (
   "audit_id" integer NOT NULL PRIMARY KEY,
