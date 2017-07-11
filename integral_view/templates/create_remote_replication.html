@@ -1,0 +1,321 @@
+{% extends 'snapshot_replication_base.html' %}
+
+{%block tab_header %}
+  Remote replication
+{%endblock%}
+
+{%block global_actions %}
+    <div class="btn-group btn-group-sm pull-right"  >
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/view_remote_replications/" ><i class="fa fa-list fa-fw"></i>&nbsp;Back to replications list</a></li>
+      </ul>
+    </div>
+{%endblock%}
+
+{% block inside_content %}
+  {% if form %}
+  <form name="schedule_replication" id="id_schedule_replication" class="form-horizontal" role="form" method="post">
+    {%csrf_token%}
+    <table  class="table" style="width:80%">
+      <colgroup width="40%" />
+      <!--
+      <col width="40%" />
+      <col width="40%" />
+      <col width="10%" />
+      -->
+      <input type="hidden" name="initial_rsync_type" id="id_initial_rsync_type" value="{{initial.rsync_type}}" />
+
+      <tr>
+	<th>Replication mode </th>
+	<td>
+	<!--
+	  <select id="id_mode" name="modes" class="form-control"> 
+	    {% for mode in form.modes.field.choices %}
+	      <option id="id_{{mode}}" value="{{mode.0}}" {% if mode.0 == form.select_mode.value %} selected{% endif %} >{{mode.1}}</option> 
+	    {% endfor %}
+	  </select>
+	-->
+	    {% for mode in form.modes.field.choices %}
+	      <h5><input type="radio" name="modes" id="id_{{mode}}" value="{{mode.0}}" {% if mode.0 == form.select_mode.value %} checked {% endif %} />&nbsp;&nbsp;{{mode.1}}</h5>
+	    {% endfor %}
+
+	</td>
+	<td> {{ form.modes.errors }} </td>
+      </tr>
+      <input type="hidden" name="select_mode" value="{{form.select_mode.value}}" />
+
+      {% if form.select_mode.value == "rsync" %}
+      <tr>
+	<th>Replicate from </th>
+	<td>
+	    {% for type in form.rsync_type.field.choices %}
+	      {% if initial.rsync_type == type.0 %}
+	      	<h5><input type="radio" name="rsync_type" id="id_{{type.0}}" value="{{type.0}}" checked onclick="is_rsync_local(this)"/>&nbsp;&nbsp;{{type.1}}</h5>
+	      {% else %}
+	      	<h5><input type="radio" name="rsync_type" id="id_{{type.0}}" value="{{type.0}}" {% if initial.rsync_type == None and type.0 == form.rsync_type.field.choices.0.0 %} checked {% endif %} onclick="is_rsync_local(this)"/>&nbsp;&nbsp;{{type.1}}</h5>
+	      {% endif %}
+	    {% endfor %}
+
+	</td>
+	<td> {{ form.rsync_type.errors }} </td>
+      </tr>
+      {% endif %}
+
+      <tr>
+        {% if form.select_mode.value == "zfs" %}
+	<th>Source dataset or block device volume to replicate <sup class="required" /> </th>
+        {% else %}
+	<th>Dataset on local host <sup class="required" /> </th>
+        {% endif %}
+	<td>
+	 <!-- <select id="id_source_dataset" name="source_dataset" class="form-control" onchange="change_dataset(this)"> --> 
+	  <select id="id_source_dataset" name="source_dataset" class="form-control" {% if form.select_mode.value == "rsync" %} onchange="change_dataset(this)" {% endif %}> 
+	     <!-- {% if form.select_mode.value == "rsync" %}
+             <option id="id_dataset_none" value='None' >--Select--</option>
+             {% endif %} -->
+	    {% for dataset in form.source_dataset.field.choices %}
+	      {% if initial.source_dataset == dataset.0%}
+	      <option id="id_{{dataset}}" value={{dataset.0}} selected>{{dataset.1}}</option>
+	      {% else %}
+	      <option id="id_{{dataset}}" value={{dataset.0}} >{{dataset.1}}</option>
+	      {% endif %}
+	    {% endfor %}
+	  </select>
+	</td>
+	<td> {{ form.source_dataset.errors }} </td>
+      </tr>
+
+      {% if form.select_mode.value == "rsync" %}
+      <tr>
+        <th> Directory path on local host(this machine)<sup class="required" /></th>
+        <td >
+          <input type="text" name="local_path" class="form-control" id="id_local_path" placeholder="Enter local directory path" value="{{form.local_path.value|default_if_none:""}}"> 
+        </td>
+        <td> {{ form.local_path.errors }} </td>
+
+	<!--
+        <td rowspan=4>
+          <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse...</a>
+          <div id="pathdiv" style="min-height:200px;height:200px;min-width:200px;width:300px;overflow:auto;display:block;border:0px solid"> </div>
+        </td>
+	-->
+      </tr>
+
+      <tr>
+        <th> Directory path on remote machine<sup class="required" /></th>
+        <td>
+          <input type="text" name="remote_path" class="form-control" id="id_remote_path" placeholder="Enter remote directory path" value="{{form.remote_path.value|default_if_none:""}}"> 
+        </td>
+        <td> {{ form.remote_path.errors }} </td>
+      </tr>
+      {% endif %}
+
+      <tr>
+	<th> {% if form.select_mode.value == "zfs" %}Target IntegralSTOR {% else %}Remote host {% endif %} IP <sup class="required" /></th>
+	<td>
+	{% if initial.target_ip %}
+	  <input type="text"  name="target_ip" class="form-control" id="id_target_ip" value="{{initial.target_ip }}"> 
+	{% else %}
+	  <input type="text"  name="target_ip" class="form-control" id="id_target_ip" placeholder="Enter IP"> 
+	{% endif %}
+	</td>
+	<td> {{ form.target_ip.errors }} </td>
+      </tr>
+
+      {% if form.select_mode.value == "zfs" %}
+      <tr>
+	<th> Target IntegralSTOR pool name<sup class="required" /></th>
+	<td>
+	{% if initial.target_pool%}
+	  <input type="text"  name="target_pool" class="form-control" id="id_target_pool" value="{{initial.target_pool}}"> 
+	{% else %}
+	  <input type="text"  name="target_pool" class="form-control" id="id_target_pool" placeholder="Enter destination pool name"> 
+	{% endif %}
+	</td>
+	<td> {{ form.target_pool.errors }} </td>
+      </tr>
+
+      {% endif %}
+    </table>
+
+    {% if form.select_mode.value == "rsync" %}
+    <table  class="table">
+    <colgroup width="30%" />
+      <tr>
+        <td />
+        <td>
+	  <ul style="list-style:none;">
+	  {% for switch in form.switches.field.choices %}
+	    {% for k,v in switch.0.items %}
+	    <li>
+	    <label for="id_{{v.id}}">
+	    {% if k in initial.switches.keys %}
+	    	<input id="id_{{v.id}}" name="switches" type="checkbox" checked value="{{switch.0}}"  onclick="is_switch_arg(this)" />
+	    {% else %}
+	    	<input id="id_{{v.id}}" name="switches" type="checkbox" value="{{switch.0}}" onclick="is_switch_arg(this)" />
+	    {% endif %}
+	    {{switch.1}}
+	    {% if v.is_arg == True %}
+	       <input id="id_{{v.id}}_arg" name="{{v.id}}_arg" type="text" placeholder="provide appropriate input" disabled onblur="update_switch_arg(this,'id_{{v.id}}', '{{v.key}}' )" />
+
+	    {% endif %}
+	    </label>
+	    </li>
+	    {% endfor %}
+	  {% endfor %}
+	  </ul>
+	</td>
+      </tr>
+    </table>
+    {% endif %}
+
+
+    <table  class="table">
+    <colgroup width="32%" />
+      <tr>
+        <th> Replication schedule</th>
+        <td>
+          <div id="scheduler" class="form-control" style="border:0px ">
+          </div>
+          <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="hidden" required readonly>
+        </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
+      <button type="submit" class="btn btn-primary" id="start">Configure Replication</button>
+    </div>
+  </form>
+ {% endif %}
+
+{%endblock%}
+
+{%block help_header%}
+  Schedule remote replication.
+{%endblock%}
+
+{%block help_body%}
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_remote_replications_tab")
+  </script>
+{% endblock %}
+
+{% block js %}
+  <script src="/static/jstree/dist/jstree.js"></script>
+  <script type="text/javascript" src="/static/js/jquery-cron-min.js"></script>
+  <link type="text/css" href="/static/css/jquery-cron.css" rel="stylesheet" />
+  <script>
+
+    $('#scheduler').cron({
+      onChange: function() {
+        $('#id_scheduler').val($(this).cron("value"));
+      },
+      customValues: {
+        "15 Minutes" : "*/15 * * * *",
+        "30 Minutes" : "*/30 * * * *",
+    }
+     });
+
+/*
+// uncomment this block and the appropriate field in the content to
+// switch replication mode selection to drop-down selection list
+    $(function(){
+      $('#id_mode').on('change', function () {
+        var url = "/create_remote_replication?mode="+$(this).val(); 
+        if (url) { 
+          window.location = url; 
+        }
+        return false;
+      });
+    });
+*/
+
+
+
+// uncomment this block and the appropriate field in the content to
+// switch replication mode selection to radio-buttons
+
+    $(function(){
+      $('input[name=modes]:radio').on('change', function () {
+        var url = "/create_remote_replication?mode="+$(this).val(); 
+        if (url) { 
+          window.location = url; 
+        }
+        return false;
+      });
+
+      $('#id_source_dataset').on('change', function () {
+        document.getElementById('id_local_path').value = '/' + $(this).val();
+      });
+
+	if ($('#id_initial_rsync_type').val() == 'local') {
+		is_rsync_local("#id_local");
+	}
+
+	// Until -X and -A is figured out, disable selection.
+	$('#id_xattrs').prop("disabled",true);
+	$('#id_acls').prop("disabled",true);
+    });
+
+
+    function is_rsync_local(sel){
+	if ($(sel).val() == 'local') {
+		$('#id_target_ip').prop("readonly", true);
+		$('#id_target_ip').val('0.0.0.0');
+	} else {
+		$('#id_target_ip').prop("readonly", false);
+		$('#id_target_ip').val(null)
+	}
+    }
+
+   function is_switch_arg(sel) {
+	    var arg_id = $(sel).attr('id') + '_arg';
+	    var aa = $(sel).attr("id");
+	    var sp = arg_id.split('_arg');
+	    if($('#' + aa).prop("checked")) {
+	    	$('#' + arg_id).prop("disabled",false);
+	    } else {
+	    	$('#' + arg_id).prop("disabled",true);
+	    }
+   }
+
+/*
+   function update_switch_arg(sel,id,sw_key) {
+	var sw = $('#' + id).val();
+	var arg_val = $(sel).val();
+        console.log(id, sw, arg_val, sw_key);
+       	console.log(sw);
+   }
+*/
+    function displayTree() {
+      document.getElementById("pathdiv").style.display = "block";
+      $('#pathdiv').jstree({ 'core' : {
+        'multiple':false,
+        'data' : {
+          'url' : function (node) {
+            return node.id === '#' ? 
+              '/view_dir_contents?first=1' : 
+              '/view_dir_contents'; 
+          },
+          'data' : function (node) {
+            var e = document.getElementById("id_source_dataset");
+            var ds_name = e.options[e.selectedIndex].text;
+            if (node.data) {
+              return {'dir' : node.data['dir'] , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
+            }
+            else
+              return { 'dir' : node.text , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
+            }
+            
+          }
+          
+        }
+      });
+   }
+
+  </script>
+{% endblock %}

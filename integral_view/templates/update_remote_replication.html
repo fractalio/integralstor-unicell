@@ -1,7 +1,7 @@
 {% extends 'snapshot_replication_base.html' %}
 
 {%block tab_header %}
-  ZFS replication
+  Remote replication
 {%endblock%}
 
 {%block global_actions %}
@@ -17,69 +17,118 @@
 
   <form class="form-horizontal" role="form" name="schedule_replication"  method="post">
     {%csrf_token%}
+    {% if replication %} 
     <table  class="table " style="width:800px">
-      {% if not replication %} 
-        <tr>
-          <th>Source dataset or block device volume for replication </th>
-          <td>
-            <select id="id_source_dataset" name="source_dataset" class="form-control"> 
-              {% for dataset in datasets %}
-                <option id="id_{{dataset}}" value={{dataset}} >{{dataset}}</option>
-              {% endfor %}
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <th> Destination IntegralSTOR IP</th>
-          <td>
-            <input type="text"  name="destination_ip" class="form-control" id="id_destination_ip" placeholder="Enter the destination IP"  required> 
-          </td>
-        </tr>
-        <tr>
-          <th> Destination IntegralSTOR pool name</th>
-          <td>
-            <input type="text"  name="destination_pool" class="form-control" id="id_destination_pool" placeholder="Enter the destination pool name" required> 
-          </td>
-        </tr>
-      {%else %}
         <input type="hidden" name="remote_replication_id" value="{{replication.remote_replication_id}}">
         <input type="hidden" name="cron_task_id" value="{{replication.cron_task_id}}">
-        <tr>
-          <th> Replicated dataset</th>
-          <td> 
-            {{replication.source_dataset}}
-          </td>
-        </tr>
+
+        {% if replication.mode == 'zfs' %}
+
+		<tr>
+		  <th> Replicated dataset</th>
+		  <td> 
+		    {{replication.zfs.0.source_dataset}}
+		  </td>
+		</tr>
+		<tr>
+		  <th> Target IntegralSTOR IP</th>
+		  <td> 
+		    {{replication.zfs.0.target_ip}}
+		  </td>
+		</tr>
+		<tr>
+		  <th> Target IntegralSTOR pool name</th>
+		  <td> 
+		    {{replication.zfs.0.target_pool}}
+		  </td>
+		</tr>
+
+        {% elif replication.mode == 'rsync' %}
+		<tr>
+		  <th> Source path</th>
+		  <td> 
+		    {{replication.rsync.0.source_path}}
+		  </td>
+		</tr>
+		{% if replication.rsync.0.rsync_type != 'local' %}
+		  {% if replication.rsync.0.rsync_type == 'push' %}
+		    <tr>
+		      <th> Source machine</th>
+		      <td> 
+		      Local host(this machine)
+		      </td>
+		    </tr>
+		  {% elif replication.rsync.0.rsync_type == 'pull' %}
+		    <tr>
+		      <th> Source machine</th>
+		      <td> 
+		      {{replication.rsync.0.target_ip}}
+		      </td>
+		    </tr>
+		  {% endif %}
+		{% endif %}
+		<tr>
+		  <th> Target path</th>
+		  <td> 
+		    {{replication.rsync.0.target_path}}
+		  </td>
+		</tr>
+		{% if replication.rsync.0.rsync_type != 'local' %}
+
+		  {% if replication.rsync.0.rsync_type == 'pull' %}
+		    <tr>
+		      <th> Target machine</th>
+		      <td> 
+		      Local host(this machine)
+		      </td>
+		    </tr>
+		  {% elif replication.rsync.0.rsync_type == 'push' %}
+		    <tr>
+		      <th> Target machine</th>
+		      <td> 
+		      {{replication.rsync.0.target_ip}}
+		      </td>
+		    </tr>
+		  {% endif %}
+
+		{% endif %}
+
+		{% if replication.rsync.0.rsync_type == 'local' %}
+		<tr>
+		  <th> Source and target path are on local host(this machine)</th>
+		  <td> 
+		  </td>
+		</tr>
+		{% endif %}
+        {%endif%}
+
         <tr>
           <th> Current replication schedule</th>
           <td> {{replication.schedule_description}} </td>
         </tr>
         <tr>
-          <th> Destination IntegralSTOR IP</th>
-          <td> 
-            {{replication.destination_ip}}
-          </td>
-        </tr>
-        <tr>
-          <th> Destination IntegralSTOR pool name</th>
-          <td> 
-            {{replication.destination_pool}}
-          </td>
-        </tr>
-      {%endif%}
-      <tr>
         <th> Select new replication schedule</th>
         <td>
           <div id="scheduler" class="form-control" style="border:0px ">
           </div>
           <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="hidden" required readonly>
         </td>
-      </tr>
+        </tr>
     </table>
+
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
       <button type="submit" class="btn btn-primary" id="start">Configure Replication</button>
     </div>
+
+    {% else %}
+      Could not find what you are looking for!
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
+    </div>
+
+    {%endif%}
+
   </form>
 
 {%endblock%}
