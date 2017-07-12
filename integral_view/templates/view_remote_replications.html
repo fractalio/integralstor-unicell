@@ -10,25 +10,56 @@
 
 {% block inside_content %}
 
+  <table  class="table " style="width:80%">
+      <colgroup width="40%">
+
+      <tr>
+        <th>Replication mode:  </th>
+        <td >
+          <select id="id_mode" name="mode" class="form-control" onchange="change_dataset(this)" > 
+            {% for mode in modes %}
+              <option id="id_{{mode}}" value={{mode}} {% if select_mode == mode%} selected  {% endif %}>{{mode}}</option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+  </table>
+  <input type="hidden" name="select_mode" value="{{select_mode}}" />
+
+
   {% if replications %}
     <table id="remote_replications_list" class="table table-stripped" style="width:800px;">
+        {% if select_mode == 'zfs' and is_zfs == False  %}
+	There are currently no active  ZFS replications enabled/scheduled.
+        {% elif select_mode == 'rsync' and is_rsync == False  %}
+	There are currently no active rsync replications enabled/scheduled.
+        {% else %}
       <thead>
         <tr>
           <th> Description </th>
+          {% if select_mode == "zfs" %}
           <th> Source dataset</th>
-          <th> Destination IP </th>
-          <th> Destination pool </th>
+          <th> Target pool </th>
+          <th> Target IP </th>
+          {% else %}
+          <th> Source path </th>
+          <th> Source machine </th>
+          <th> Target path </th>
+          <th> Target machine </th>
+          {% endif %}
           <th> Schedule</th>
           <th> Actions</th>
         </tr>
       </thead>
+	{% endif %}
       <tbody> 
         {% for replication in replications %}
           <tr>
+            {% if select_mode == "zfs" and replication.zfs.0 %}
             <td> {{replication.description}} </td>
-            <td> {{replication.source_dataset}} </td>
-            <td> {{replication.destination_ip}} </td>
-            <td> {{replication.destination_pool}} </td>
+            <td> {{replication.zfs.0.source_dataset}} </td>
+            <td> {{replication.zfs.0.target_pool}} </td>
+            <td> {{replication.zfs.0.target_ip}} </td>
             <td> {{replication.schedule_description}} </td>
             <td> 
               <div class="btn-group btn-group-xs pull-right" >
@@ -39,6 +70,31 @@
                   <li><a class="action-dropdown" href="/delete_remote_replication?remote_replication_id={{replication.remote_replication_id}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Cancel this replication </a></li>
                 </ul>
               </div>
+
+            {% elif select_mode == "rsync" and replication.rsync.0 %}
+            <td> {{replication.description}} </td>
+              {% if replication.rsync.0.rsync_type == "push" %}
+              <td> {{replication.rsync.0.source_path}} </td>
+              <td> Local host </td>
+              <td> {{replication.rsync.0.target_path}} </td>
+              <td> {{replication.rsync.0.target_ip}} </td>
+              {% else %}
+              <td> {{replication.rsync.0.source_path}} </td>
+              <td> {{replication.rsync.0.target_ip}} </td>
+              <td> {{replication.rsync.0.target_path}} </td>
+              <td> Local host </td>
+              {% endif %}
+            <td> {{replication.schedule_description}} </td>
+            <td> 
+              <div class="btn-group btn-group-xs pull-right" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li> <a class="action-dropdown" href="/update_remote_replication/?remote_replication_id={{replication.remote_replication_id}}" title="Modify the parameters for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify replication settings </a></li>
+                  <li class="divider"></li>
+                  <li><a class="action-dropdown" href="/delete_remote_replication?remote_replication_id={{replication.remote_replication_id}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Cancel this replication </a></li>
+                </ul>
+              </div>
+            {% endif %}
           </tr>
         {% endfor %}
       </tbody>
@@ -50,6 +106,22 @@
   <br />
   <br />
 {% endblock %}
+
+
+{%block js %}
+<script>
+    $(function(){
+      $('#id_mode').on('change', function () {
+        var url = "/view_remote_replications?mode="+$(this).val(); 
+        if (url) { 
+          window.location = url; 
+        }
+        return false;
+      });
+    });
+
+</script>
+{%endblock%}
 
 {%block help_header%}
   View all scheduled remote replications

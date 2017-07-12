@@ -1,0 +1,45 @@
+{% extends 'snapshot_replication_base.html' %}
+
+{%block tab_header %}
+  Cancel remote replication - confirmation
+{%endblock%}
+
+{% block inside_content %}
+  {% if replication.mode == 'zfs' %}
+  <p id="p-warning-text">Are you sure you want to cancel the ZFS replication of "{{replication.zfs.0.source_dataset}}" to pool "{{replication.zfs.0.target_pool}}" on "{{replication.zfs.0.target_ip}}"? </p>
+  {% elif replication.mode == 'rsync' %}
+    {% if replication.rsync.0.rsync_type == 'pull' %}
+      <p id="p-warning-text">Are you sure you want to cancel the rsync replication of "{{replication.rsync.0.source_path}}" from {{replication.rsync.0.target_ip}} to "{{replication.rsync.0.target_path}}" on local host? </p>
+    {% elif replication.rsync.0.rsync_type == 'push' %}
+      <p id="p-warning-text">Are you sure you want to cancel the rsync replication of "{{replication.rsync.0.source_path}}" from local host to "{{replication.rsync.0.target_path}}" on {{replication.rsync.0.target_ip}}? </p>
+    {% elif replication.rsync.0.rsync_type == 'local' %}
+      <p id="p-warning-text">Are you sure you want to cancel the local rsync replication of "{{replication.rsync.0.source_path}}" to "{{replication.rsync.0.target_path}}" on local host? </p>
+    {% endif %}
+  {% endif %}
+
+  <form action="/delete_remote_replication/" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="remote_replication_id" value="{{replication.remote_replication_id}}">
+    <input type=hidden name="cron_task_id" value="{{replication.cron_task_id}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_remote_replications'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger cover-page" ">Confirm and delete</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Cancel remote replication 
+{%endblock%}
+
+{%block help_body%}
+  This screen is a confirmation to ensure that you actually want to cancel the selected remote replication.
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_remote_replications_tab")
+  </script>
+{% endblock %}
+
