@@ -111,13 +111,13 @@ CREATE TABLE "cron_tasks" (
   "description" varchar(200) NOT NULL,
   "command" varchar(200) NOT NULL
 );
+INSERT INTO cron_tasks (cron_task_id, description, command) values (-1, 'Dummy entry for temporary reference', 'echo');
 
 
 CREATE TABLE "remote_replications" (
   "remote_replication_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "mode" varchar(20) NOT NULL,
-  "cron_task_id" integer NOT NULL,
-  FOREIGN KEY(cron_task_id) REFERENCES cron_tasks(cron_task_id)
+  "cron_task_id" integer NOT NULL REFERENCES cron_tasks(cron_task_id) ON DELETE CASCADE
 );
 
 
@@ -127,8 +127,7 @@ CREATE TABLE "zfs_replications" (
   "target_pool" varchar(100) NOT NULL,
   "target_ip" varchar(30) NOT NULL,
   "target_user_name" varchar(100) NOT NULL,
-  "remote_replication_id" integer NOT NULL,
-  FOREIGN KEY(remote_replication_id) REFERENCES remote_replications(remote_replication_id)
+  "remote_replication_id" integer NOT NULL REFERENCES remote_replications(remote_replication_id) ON DELETE CASCADE
 );
 
 
@@ -141,8 +140,7 @@ CREATE TABLE "rsync_replications" (
   "target_path" varchar(200) NOT NULL,
   "target_ip" varchar(30) NOT NULL,
   "target_user_name" varchar(100) NOT NULL,
-  "remote_replication_id" integer NOT NULL,
-  FOREIGN KEY(remote_replication_id) REFERENCES remote_replications(remote_replication_id)
+  "remote_replication_id" integer NOT NULL REFERENCES remote_replications(remote_replication_id) ON DELETE CASCADE
 );
 
 

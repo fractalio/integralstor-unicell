@@ -2,11 +2,11 @@ import ast
 import django
 import django.template
 
-from integralstor_utils import zfs, audit, config, scheduler_utils, django_utils, rsync
-from integralstor import remote_replication
+
+from integralstor_utils import zfs, config, scheduler_utils, django_utils
+from integralstor import audit, rsync, remote_replication
 
 from integral_view.forms import remote_replication_forms
-
 
 def view_remote_replications(request):
     return_dict = {}
@@ -382,8 +382,8 @@ def update_remote_replication(request):
             description += replications[0]['description']
 
             # update the schedule of the cron entry in-place
-            is_update, err = scheduler_utils.update_cron_schedule(
-                cron_task_id, 'root', schedule[0], schedule[1], schedule[2], schedule[3], schedule[4])
+            is_update, err = remote_replication.update_remote_replication_schedule(
+                remote_replication_id, schedule)
             if err:
                 raise Exception(err)
 
