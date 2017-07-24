@@ -1,0 +1,105 @@
+{% extends 'logging_base.html' %}
+
+{%block tab_header %}
+  Schedule a notification for alerts
+{%endblock%}
+
+
+{% block inside_content %}
+  <form class="form-horizontal" role="form" name=""  method="post">
+    <input type="hidden" name="event_type_id" value="{{event_type_id}}">
+    {%csrf_token%}
+    <table  class="table " style="width:800px">
+      <tr>
+        <th>Triggering alert subsystem</th>
+        <td>
+          <select name="subsystem_type_id" class="form-control" id="id_subsystem_type_id">
+            {% for choice in form.subsystem_type_id.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.subsystem_type_id %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.errors.subsystem_type_id}} </td>
+      </tr>
+      <tr>
+        <th>Triggering alert severity level</th>
+        <td>
+          <select name="severity_type_id" class="form-control" id="id_severity_type_id">
+            {% for choice in form.severity_type_id.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.severity_type_id %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.errors.severity_type_id}} </td>
+      </tr>
+      <tr>
+        <th>Select notification type</th>
+        <td>
+          <select name="notification_type_id" class="form-control" id="id_notification_type_id">
+            {% for choice in form.notification_type_id.field.choices %}
+              <option value="{{choice.0}}" {%if choice.0 == form.initial.notification_type_id %} selected="selected"{%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.errors.notification_type_id}} </td>
+      </tr>
+      <tr>
+        <th> Email recipient list: </th>
+        <td>
+          <input type="text"  name="recipient_list" class="form-control" id="id_recipient_list" placeholder="Enter email recipient list" > 
+        </td>
+        <td> {{ form.errors.recipient_list }} </td>
+      </tr>
+      <tr>
+        <th> Select schedule</th>
+        <td>
+          <div id="scheduler" class="form-control" style="border:0px ">
+          </div>
+          <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select schedule using time selector" type="hidden" required readonly>
+        </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_scheduled_notifications/" role="button" class="btn btn-default"> Cancel</a>
+      <button type="submit" class="btn btn-primary" id="start">Schedule</button>
+    </div>
+  </form>
+{% endblock %}
+
+{%block help_header%}
+  Create a notification for alerts
+{%endblock%}
+
+{%block help_body%}
+  <p> 
+    Use this screen to schedule a notification for different types of alerts.
+  </p>
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+   make_tab_active("scheduled_notifications_tab")
+  </script>
+{% endblock%}
+
+
+{% block js %}
+
+  <script type="text/javascript" src="/static/js/jquery-cron-min.js"></script>
+  <link type="text/css" href="/static/css/jquery-cron.css" rel="stylesheet" />
+  <script>
+    $('#scheduler').cron({
+      onChange: function() {
+        $('#id_scheduler').val($(this).cron("value"));
+      },
+      customValues: {
+        "1 Minute" : "*/1 * * * *",
+        "5 Minutes" : "*/5 * * * *",
+        "10 Minutes" : "*/10 * * * *",
+        "15 Minutes" : "*/15 * * * *",
+        "30 Minutes" : "*/30 * * * *",
+    }
+     });
+  </script>
+{% endblock %}

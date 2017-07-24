@@ -24,7 +24,12 @@
         </td>
       </tr>
     </table>
-    <button type="submit" id="download_logs"  class="btn btn-default btn-sm"><i class="fa fa-download fa-fw"></i>&nbsp;Download</button>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      {%if hw_platform == 'dell'%}
+        <a href="/view_hardware_logs" role="button" class="btn btn-default cover-page"> View hardware logs</a>&nbsp;&nbsp;
+      {%endif%}
+      <button type="submit" id="download_logs"  class="btn btn-default btn-sm"><i class="fa fa-download fa-fw"></i>&nbsp;Download</button>
+    </div>
   </form>
   <br><br>
   <p id="p-instruction-text"> The requested log will be fetched as a zip/text file which you can open or save on your computer.</p>
@@ -52,6 +57,6 @@
 
 {% block tab_active %}
   <script>
-    make_tab_active("download_logs_tab")
+    make_tab_active("logs_tab")
   </script>
 {% endblock %}

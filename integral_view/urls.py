@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-from integral_view.views.monitoring import view_read_write_stats, api_get_status, view_remote_monitoring_servers, update_remote_monitoring_server, delete_remote_monitoring_server, view_remote_monitoring_server_status
+from integral_view.views.monitoring import view_read_write_stats, api_get_status, view_remote_monitoring_servers, update_remote_monitoring_server, delete_remote_monitoring_server, view_remote_monitoring_server_status, view_scheduled_notifications, create_scheduled_notification, delete_scheduled_notification
 
 from integral_view.views.scheduler_cron_management import view_background_tasks, view_task_details, delete_background_task
 
@@ -16,7 +16,7 @@ from integral_view.views.pki_management import view_ssl_certificates, delete_ssl
 
 from integral_view.views.common import view_dashboard, access_shell, view_backup, update_manifest, flag_node, view_system_info
 
-from integral_view.views.log_management import download_log, rotate_log, view_rotated_log_list, view_rotated_log_file, download_sys_info, upload_sys_info, refresh_alerts, view_alerts, view_log
+from integral_view.views.log_management import download_log, download_sys_info, upload_sys_info, refresh_alerts, view_alerts, view_audits, view_hardware_logs
 
 from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, view_samba_server_settings, update_samba_server_settings, view_cifs_share, update_cifs_share, delete_cifs_share, update_auth_method
 
@@ -80,6 +80,12 @@ urlpatterns = patterns('',
                            delete_remote_monitoring_server),
                        url(r'^view_remote_monitoring_server_status/',
                            view_remote_monitoring_server_status),
+                       url(r'^view_scheduled_notifications/',
+                           view_scheduled_notifications),
+                       url(r'^create_scheduled_notification/',
+                           create_scheduled_notification),
+                       url(r'^delete_scheduled_notification/',
+                           delete_scheduled_notification),
 
 
                        # From views/cifs_share_management.py
@@ -169,18 +175,14 @@ urlpatterns = patterns('',
                            login_required(update_group_membership)),
 
                        # From views/log_management.py
-                       url(r'^view_log/', login_required(view_log)),
                        url(r'^view_alerts/', login_required(view_alerts)),
+                       url(r'^view_audits/', login_required(view_audits)),
+                       url(r'^view_hardware_logs/',
+                           login_required(view_hardware_logs)),
                        url(r'^download_log/', login_required(download_log)),
-                       url(r'^rotate_log/([A-Za-z_]+)',
-                           login_required(rotate_log)),
                        url(r'^download_sys_info/',
                            login_required(download_sys_info)),
                        url(r'^upload_sys_info/', login_required(upload_sys_info)),
-                       url(r'^view_rotated_log_list/([A-Za-z_]+)',
-                           login_required(view_rotated_log_list)),
-                       url(r'^view_rotated_log_file/([A-Za-z_]+)',
-                           login_required(view_rotated_log_file)),
                        url(r'^refresh_alerts/([0-9_]*)',
                            login_required(refresh_alerts)),
 
