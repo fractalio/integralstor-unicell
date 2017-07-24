@@ -148,6 +148,13 @@ def view_scheduled_notifications(request):
         #print ent_list
         if err:
             raise Exception(err)
+        for ent in ent_list:
+            if ent['notification_type_id'] == 1:
+                enc, err = mail.get_event_notification_configuration(ent['enc_id'])
+                if err:
+                    raise Exception(err)
+                if enc:
+                    ent['recipient_list'] = enc['recipient_list']
                 
         return_dict['ent_list'] = ent_list
         return django.shortcuts.render_to_response("view_scheduled_notifications.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -218,6 +225,9 @@ def create_scheduled_notification(request):
                 if int(cd['notification_type_id']) == 1:
                     mail.delete_event_notification_configuration(enc_id)
                 raise Exception(err)
+
+            if int(cd['notification_type_id']) == 1:
+                audit_str += " Emails will be sent to %s"%cd['recipient_list']
 
             if event_type_id == 1:
                 audit.audit("create_alert_notification", audit_str, request)

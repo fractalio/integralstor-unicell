@@ -33,7 +33,7 @@
     {%for ent in ent_list %}
       <tr>
         <td>
-          {{ent.description}} 
+          {{ent.description}}{%if ent.notification_type_id == 1 and ent.recipient_list%} Emails will be sent to {{ent.recipient_list}}.{%endif%}
         </td>
         <td>
           {{ent.schedule_description}} 
