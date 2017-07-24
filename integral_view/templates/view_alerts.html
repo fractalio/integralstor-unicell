@@ -1,27 +1,7 @@
 {% extends 'logging_base.html' %}
 
 {%block tab_header %}
-  {%if historical %}
-    Rotated system alerts
-  {%else%}
     System alerts
-  {%endif%}
-{%endblock%}
-
-{%block global_actions %}
-    <div class="btn-group btn-group-sm pull-right">
-      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
-      <ul class="dropdown-menu">
-      {%if alerts_list and not historical%}
-        <li><a class="action-dropdown" href="/rotate_log/alerts" ><i class="fa fa-rotate-right fa-fw"></i>&nbsp;Rotate alerts logs</a></li>
-      {%elif not historical and not alerts_list%}
-        <li><a class="action-dropdown" href="" >No log entries to rotate</a></li>
-      {%endif%}
-      {% if historical %}
-        <li><a class="action-dropdown" href="/view_rotated_log_list/alerts/" ><i class="fa fa-list fa-fw"></i>&nbsp;Back to log list</a></li>
-      {%endif%}
-      </ul>
-    </div>
 {%endblock%}
 
 {% block inside_content %}
@@ -29,18 +9,34 @@
   <table class="table table-bordered table-hover">
     <thead>
       <tr>
-        <th> Time </th>
-        <th> Alert </th>
+        <th> First reported time </th>
+        <td> <b>Repeat count </b><br/>(within 15 minutes of first report time)</td>
+        <th> Subsystem </th>
+        <th> Component </th>
+        <th> Severity </th>
+        <th> Details </th>
       </tr>
     </thead>
     {% if alerts_list %}
       {% for a in alerts_list %}
-        <tr>
+        <tr {%if a.severity_id == 3%} style="background-color:red" {%elif a.severity_id == 2%} style="background-color:orange"{%endif%}>
           <td style="width:200px">
-            {{a.time}}
+            {{a.first_alert_time}}
           </td>
           <td>
-            {{a.message|safe}}
+            {{a.repeat_count}}
+          </td>
+          <td>
+            {{a.subsystem|safe}}
+          </td>
+          <td>
+            {{a.component|safe}}
+          </td>
+          <td>
+            {{a.severity|safe}}
+          </td>
+          <td>
+            {{a.alert_str|safe}}
           </td>
         </tr>
       {%endfor%}
@@ -60,10 +56,6 @@
 
 {% block tab_active %}
   <script>
-    {%if historical %}
-      make_tab_active("view_rotated_alert_log_list_tab")
-    {%else%}
-      make_tab_active("view_logs_tab")
-    {%endif%}
+    make_tab_active("alerts_tab")
   </script>
 {% endblock %}

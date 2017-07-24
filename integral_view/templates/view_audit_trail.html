@@ -57,11 +57,7 @@
 
 {% block tab_active %}
   <script>
-  {%if historical %}
-    make_tab_active("view_rotated_audit_log_list_tab")
-  {%else%}
-    make_tab_active("view_logs_tab")
-  {%endif%}
+    make_tab_active("audits_tab")
   </script>
 {% endblock %}
 

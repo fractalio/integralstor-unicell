@@ -4,7 +4,7 @@ import re
 from email.utils import parseaddr
 
 
-class _MultipleEmailField(forms.CharField):
+class MultipleEmailField(forms.CharField):
 
     def _is_valid_email(self, email):
         try:
@@ -61,11 +61,7 @@ class ConfigureEmailForm(forms.Form):
     username = forms.CharField(required=True)
     pswd = forms.CharField(widget=forms.PasswordInput())
     tls = forms.BooleanField(required=False)
-    rcpt_list = _MultipleEmailField(required=True)
-    email_alerts = forms.BooleanField(required=False)
-    email_audit = forms.BooleanField(required=False)
-    email_quota = forms.BooleanField(
-        required=False, widget=forms.HiddenInput())
+    rcpt_list = MultipleEmailField()
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

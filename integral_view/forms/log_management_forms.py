@@ -6,8 +6,9 @@ from integralstor_utils import config
 class DownloadLogsForm(forms.Form):
     """ Form to get the info about which log to download"""
 
-    ch = [('boot', 'Boot log'), ('dmesg', 'Dmesg log'), ('message', 'Message log'), ('smb', 'Samba logs'),
-          ('winbind', 'Samba Winbind logs'), ('alerts', 'Alerts log'), ('audit', 'Audit log')]
+    #ch = [('boot', 'Boot log'), ('dmesg', 'Dmesg log'), ('message', 'Message log'), ('smb', 'Samba logs'),
+    #      ('winbind', 'Samba Winbind logs'), ('alerts', 'Alerts log'), ('audit', 'Audit log')]
+    ch = [('system', 'System logs'), ('alerts', 'Alerts log'), ('audit', 'Audit log')]
     hw_platform, err = config.get_hardware_platform()
     if hw_platform and hw_platform == 'dell':
         ch.append(('hardware', 'Hardware log'))

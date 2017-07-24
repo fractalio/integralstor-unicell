@@ -1,0 +1,75 @@
+{% extends 'logging_base.html' %}
+
+{%block tab_header %}
+  Scheduled notifications
+{%endblock%}
+
+{%block global_actions %}
+  <div class="btn-group btn-group-sm pull-right" >
+    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Click for remote monitoring actions" href="#"> <i class="fa fa-cog fa-fw"></i> Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+    <ul class="dropdown-menu">
+      <li><a class="action-dropdown" href="/create_scheduled_notification?event_type_id=1"  title="Schedule a new alerting notification"> <i class="fa fa-plus fa-fw"></i>Schedule notification for alerts</a> 
+      <li><a class="action-dropdown" href="/create_scheduled_notification?event_type_id=2"  title="Schedule a new auditing notification"> <i class="fa fa-plus fa-fw"></i>Schedule notification for audits</a> 
+    </ul>
+  </div>
+{%endblock%}
+
+{% block inside_content %}
+  {%if not ent_list%}
+    There are currently no scheduled notifications.
+  {%else%}
+    <table class="table">
+      <tr>
+        <th>
+          Description
+        </th>
+        <th>
+          Schedule
+        </th>
+        <th>
+          Notification
+        </th>
+      </tr>
+    {%for ent in ent_list %}
+      <tr>
+        <td>
+          {{ent.description}} 
+        </td>
+        <td>
+          {{ent.schedule_description}} 
+        </td>
+        <td>
+          <div class="btn-group btn-group-xs" >
+            <a class="btn btn-default pull-left dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+            <ul class="dropdown-menu">
+              <li><a class="action-dropdown" href="/delete_scheduled_notification?ent_id={{ent.ent_id}}"  title="Remove this scheduled notification" style="color:red"> <i class="fa fa-trash fa-fw"></i>Remove this notification </a> 
+            </ul>
+          </div>
+        </td>
+      </tr>
+    {%endfor%}
+    </table>
+
+  {%endif%}
+{% endblock %}
+
+{%block help_header%}
+  Scheduled notifications
+{%endblock%}
+
+{%block help_body%}
+  <p> 
+  This screen displays the list of currently scheduled mnotifications that have been created. It also allows you to remove existing notifcations or schedule new ones.
+  </p>
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+   make_tab_active("scheduled_notifications_tab")
+  </script>
+{% endblock%}
+
+
+
+

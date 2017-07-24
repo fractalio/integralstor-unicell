@@ -1,14 +1,12 @@
 import django
 import django.template
-import django.utils.timezone
-import time
-import datetime
 from django.http import HttpResponse
 from django.http import JsonResponse
 
-from integralstor_utils import django_utils, config, inotify, system_date_time, command, audit
+from integralstor_utils import django_utils, config, inotify, command
+from integralstor import event_notifications, mail, audit
 from integralstor import system_info, remote_monitoring
-from integral_view.forms import system_forms
+from integral_view.forms import system_forms, monitoring_forms
 
 
 def view_remote_monitoring_servers(request):
@@ -33,7 +31,6 @@ def view_remote_monitoring_servers(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-
 def update_remote_monitoring_server(request):
     return_dict = {}
     try:
@@ -42,7 +39,7 @@ def update_remote_monitoring_server(request):
             if err:
                 raise Exception(err)
             req_ret, err = django_utils.get_request_parameter_values(request, [
-                'view', 'ip'])
+                                                                 'view', 'ip'])
             if err:
                 raise Exception(err)
             initial = {}
@@ -62,18 +59,14 @@ def update_remote_monitoring_server(request):
             return_dict["form"] = form
             if form.is_valid():
                 cd = form.cleaned_data
-                res, err = remote_monitoring.update_server(
-                    cd['ip'], cd['name'])
+                res, err = remote_monitoring.update_server(cd['ip'], cd['name'])
                 if not res:
                     if err:
                         raise Exception(err)
                     else:
-                        raise Exception(
-                            'Error updating remote monitoring server list')
-                audit_str = 'Updated the remote monitoring server with IP : %s and name : %s' % (
-                    cd['ip'], cd['name'])
-                audit.audit("update_remote_monitoring_server",
-                            audit_str, request)
+                        raise Exception('Error updating remote monitoring server list')
+                audit_str = 'Updated the remote monitoring server with IP : %s and name : %s'%(cd['ip'], cd['name'])
+                audit.audit("update_remote_monitoring_server", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_remote_monitoring_servers?ack=updated')
             else:
                 # invalid form
@@ -86,12 +79,11 @@ def update_remote_monitoring_server(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-
 def delete_remote_monitoring_server(request):
     return_dict = {}
     try:
         req_ret, err = django_utils.get_request_parameter_values(request, [
-            'view', 'ip'])
+                                                             'view', 'ip'])
         if err:
             raise Exception(err)
         if 'ip' not in req_ret:
@@ -101,14 +93,12 @@ def delete_remote_monitoring_server(request):
         if err:
             raise Exception(err)
         if ip not in servers.keys():
-            raise Exception(
-                'Specified server is currently not being remote monitored.')
+            raise Exception('Specified server is currently not being remote monitored.')
         name = servers[ip]['name']
         ret, err = remote_monitoring.delete_server(ip)
         if err:
             raise Exception(err)
-        audit_str = 'Removed the remote monitoring server with IP : %s name : %s' % (
-            ip, name)
+        audit_str = 'Removed the remote monitoring server with IP : %s name : %s'%(ip, name)
         audit.audit("delete_remote_monitoring_server", audit_str, request)
         return django.http.HttpResponseRedirect('/view_remote_monitoring_servers?ack=deleted')
 
@@ -120,12 +110,11 @@ def delete_remote_monitoring_server(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
-
 def view_remote_monitoring_server_status(request):
     return_dict = {}
     try:
         req_ret, err = django_utils.get_request_parameter_values(request, [
-            'view', 'ip'])
+                                                             'view', 'ip'])
         if err:
             raise Exception(err)
         if 'ip' not in req_ret:
@@ -146,30 +135,156 @@ def view_remote_monitoring_server_status(request):
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
+def view_scheduled_notifications(request):
+    return_dict = {}
+    try:
+        if "ack" in request.GET:
+            if request.GET["ack"] == "deleted":
+                return_dict['ack_message'] = "Scheduled notification successfully removed"
+            elif request.GET["ack"] == "created":
+                return_dict['ack_message'] = "Scheduled notification successfully created"
+
+        ent_list, err = event_notifications.get_event_notification_triggers()
+        #print ent_list
+        if err:
+            raise Exception(err)
+                
+        return_dict['ent_list'] = ent_list
+        return django.shortcuts.render_to_response("view_scheduled_notifications.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    except Exception, e:
+        return_dict["page_title"] = 'View scheduled notifications'
+        return_dict['tab'] = 'scheduled_notifications_tab'
+        return_dict["error"] = 'Error loading scheduled notifications list'
+        return_dict['base_template'] = "logging_base.html"
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def create_scheduled_notification(request):
+    return_dict = {}
+    try:
+        req_params, err = django_utils.get_request_parameter_values(request, [
+                                                                 'event_type_id', 'scheduler'])
+        if err:
+            raise Exception(err)
+
+        reference_table_entries, err = event_notifications.get_reference_table_entries(['reference_event_types','reference_notification_types', 'reference_severity_types', 'reference_subsystem_types'])
+        if err:
+            raise Exception(err)
+        if 'event_type_id' not in req_params or int(req_params['event_type_id']) not in reference_table_entries['reference_event_types'].keys():
+            raise Exception('Invalid request. Please use the menus.')
+        return_dict['event_type_id'] = req_params['event_type_id']
+        event_type_id = int(req_params['event_type_id'])
+        if request.method == "GET":
+            if event_type_id == 1: 
+                form = monitoring_forms.AlertNotificationsForm(reference_subsystem_types = reference_table_entries['reference_subsystem_types'], reference_severity_types = reference_table_entries['reference_severity_types'], reference_notification_types = reference_table_entries['reference_notification_types'])
+                template = 'create_alert_notification.html'
+            elif event_type_id == 2: 
+                form = monitoring_forms.AuditNotificationsForm(reference_notification_types = reference_table_entries['reference_notification_types'])
+                template = 'create_audit_notification.html'
+            return_dict['form'] = form
+            return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
+
+        elif request.method == "POST":
+            scheduler = req_params['scheduler']
+            schedule = scheduler.split()
+            if event_type_id == 1:
+                form = monitoring_forms.AlertNotificationsForm(request.POST, reference_subsystem_types = reference_table_entries['reference_subsystem_types'], reference_severity_types = reference_table_entries['reference_severity_types'], reference_notification_types = reference_table_entries['reference_notification_types'])
+                template = 'create_alert_notification.html'
+            elif event_type_id == 2: 
+                form = monitoring_forms.AuditNotificationsForm(request.POST, reference_notification_types = reference_table_entries['reference_notification_types'])
+                template = 'create_audit_notification.html'
+            return_dict['form'] = form
+            if not form.is_valid():
+                return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
+            cd = form.cleaned_data
+
+            psp, err = config.get_python_scripts_path()
+            if err:
+                raise Exception(err)
+            if 'subsystem_type_id' in cd:
+                subsystem_type_id = int(cd['subsystem_type_id'])
+            else:
+                subsystem_type_id = -1
+            if 'severity_type_id' in cd:
+                severity_type_id = int(cd['severity_type_id'])
+            else:
+                severity_type_id = -1 
+            if int(cd['notification_type_id']) == 1:
+                enc_id, err = mail.create_event_notification_configuration(cd['recipient_list'])
+                if err:
+                    raise Exception(err)
+            audit_str, err = event_notifications.create_event_notification(schedule, event_type_id, -1, subsystem_type_id, int(cd['notification_type_id']), severity_type_id, enc_id, reference_table_entries = reference_table_entries)
+            if err:
+                if int(cd['notification_type_id']) == 1:
+                    mail.delete_event_notification_configuration(enc_id)
+                raise Exception(err)
+
+            if event_type_id == 1:
+                audit.audit("create_alert_notification", audit_str, request)
+            elif event_type_id == 2:
+                audit.audit("create_audit_notification", audit_str, request)
+
+            return django.http.HttpResponseRedirect('/view_scheduled_notifications?ack=created')
+    except Exception, e:
+        return_dict["page_title"] = 'Crete scheduled notification'
+        return_dict['tab'] = 'scheduled_notifications_tab'
+        return_dict["error"] = 'Error creating scheduled notification'
+        return_dict['base_template'] = "logging_base.html"
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def delete_scheduled_notification(request):
+    return_dict = {}
+    try:
+        req_params, err = django_utils.get_request_parameter_values(request, [
+                                                             'ent_id'])
+        if err:
+            raise Exception(err)
+        if 'ent_id' not in req_params:
+            raise Exception('Invalid request, please use the menus.')
+        ent_id = int(req_params['ent_id'])
+        ent, err = event_notifications.get_event_notification_trigger(ent_id)
+        #print ent
+        if err:
+            raise Exception(err)
+        ret, err = event_notifications.delete_event_notification(ent_id)
+        if err:
+            raise Exception(err)
+        audit_str = 'Removed the event notification: %s, that was scheduled for %s'%(ent['description'], ent['schedule_description'])
+        if ent['event_type_id'] == 1:
+            audit.audit("delete_alert_notification", audit_str, request)
+        elif ent['event_type_id'] == 2:
+            audit.audit("delete_audit_notification", audit_str, request)
+        return django.http.HttpResponseRedirect('/view_scheduled_notifications?ack=deleted')
+    except Exception, e:
+        return_dict["page_title"] = 'Remove scheduled notification'
+        return_dict['tab'] = 'scheduled_notifications_tab'
+        return_dict["error"] = 'Error removing scheduled notification'
+        return_dict['base_template'] = "logging_base.html"
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 def api_get_status(request):
     si = {}
     err = None
     try:
-        si, err = system_info.load_system_config()
-        # print si
+        si,err = system_info.load_system_config()
+        #print si
         if err:
-            raise Exception(err)
+          raise Exception(err)
     except Exception, e:
-        # print str(e)
-        return JsonResponse({'error': str(e)})
-        # return django.http.HttpResponse({'error': str(e)}
-        # ,content_type='application/json')
+        #print str(e)
+        return JsonResponse({'error':str(e)})
+        #return django.http.HttpResponse({'error': str(e)} ,content_type='application/json')
     else:
         return JsonResponse(si)
-        # return django.http.HttpResponse(si,content_type='application/json')
-
+        #return django.http.HttpResponse(si,content_type='application/json')
 
 def view_read_write_stats(request):
     return_dict = {}
     try:
 
-        req_params, err = django_utils.get_request_parameter_values(
-            request, ['last_x_seconds', 'refresh_interval'])
+        req_params, err = django_utils.get_request_parameter_values(request, ['last_x_seconds', 'refresh_interval'])
         if err:
             raise Exception(err)
         if 'refresh_interval' in req_params:
@@ -178,16 +293,14 @@ def view_read_write_stats(request):
             actions = ['access', 'modify', 'create', 'delete', 'move']
             count_dict = {}
             for action in actions:
-                count, err = inotify.get_count(
-                    action, int(req_params['last_x_seconds']))
+                count, err = inotify.get_count(action, int(req_params['last_x_seconds']))
                 if err:
                     raise Exception(err)
                 count_dict[action] = count
-            # print count_dict
+            #print count_dict
             return_dict['count_dict'] = count_dict
             return_dict['last_x_seconds'] = int(req_params['last_x_seconds'])
-            return_dict['last_x_minutes'] = int(
-                req_params['last_x_seconds']) / 60
+            return_dict['last_x_minutes'] = int(req_params['last_x_seconds'])/60
 
         lines, err = command.get_command_output('/usr/bin/arc_summary.py -d')
         if not err:
@@ -225,21 +338,6 @@ def view_read_write_stats(request):
         else:
             return_dict['mem_error'] = err
 
-        '''
-        local_timezone, err = system_date_time.get_current_timezone()
-        if err:
-            raise Exception(err)
-        if 'timezone_str' not in local_timezone:
-            timezone_str = 'UTC'
-        else:
-            timezone_str = local_timezone['timezone_str']
-
-        tz = pytz.timezone(timezone_str)
-        django.utils.timezone.activate(tz)
-        now_local = datetime.datetime.now(tz)
-
-        now = int(now_local.strftime('%s'))
-        '''
         if err:
             raise Exception(err)
         return django.shortcuts.render_to_response('view_read_write_stats.html', return_dict, context_instance=django.template.context.RequestContext(request))

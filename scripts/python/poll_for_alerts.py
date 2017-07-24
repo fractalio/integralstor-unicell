@@ -2,7 +2,8 @@
 import sys
 import time
 
-from integralstor_utils import config, alerts, lock, db
+from integralstor_utils import config, lock, db
+from integralstor import alerts
 
 import atexit
 import time
@@ -18,7 +19,6 @@ def main():
         if not lck:
             raise Exception('Could not acquire lock. Exiting.')
 
-        alert_list = []
         now = int(time.time())
 
         db_path, err = config.get_db_path()
@@ -33,14 +33,17 @@ def main():
         if err:
             raise Exception(err)
 
+        alert_list = None
         if rows:
             for row in rows:
-                msg = "%s: %s." % (row['status'], row['description'])
-                alert_list.append(msg)
+                if row['status'] == 'error-retrying':
+                    alert_list.append({ 'subsystem_type_id': 7, 'severity_type_id': 2, 'component' : row['description'], 'alert_str' : "Task: %s failed but will be retried." % row['description']})
+                elif row['status'] == 'failed':
+                    alert_list.append({ 'subsystem_type_id': 7, 'severity_type_id': 3, 'component' : row['description'], 'alert_str' : "Task: %s failed." % row['description']})
 
         # print "\nalert_list: ", alert_list
         if alert_list:
-            alerts.raise_alert(alert_list)
+            alerts.record_alerts(alert_list)
 
         lock.release_lock('integralstor_poll_for_alerts')
 

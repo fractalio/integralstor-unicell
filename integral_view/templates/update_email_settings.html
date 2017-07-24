@@ -1,4 +1,4 @@
-{% extends 'system_base.html' %}
+{% extends 'services_base.html' %}
 {%block tab_header %}
   Modify e-mail settings
 {%endblock%}
@@ -53,21 +53,7 @@
         <td> {{ form.tls.errors }} </td>
       </tr>
       <tr>
-        <th> Send email for alerts </th>
-        <td>
-          <input name="email_alerts" type="checkbox" {% if form.email_alerts.value%} checked="checked" {%endif%}>
-        </td>
-        <td> {{ form.email_alerts.errors }} </td>
-      </tr>
-      <tr>
-        <th> Send email for Audits </th>
-        <td>
-          <input name="email_audit" type="checkbox" {% if form.email_audit.value%} checked="checked" {%endif%}>
-        </td>
-        <td> {{ form.email_audits.errors }} </td>
-      </tr>
-      <tr>
-        <th> Email recipient list: </th>
+        <th> Email recipient list for test email: </th>
         <td>
           <input type="text"  name="rcpt_list" class="form-control" id="id_rcpt_list" placeholder="Enter email recipient list" value="{{form.rcpt_list.value}}"> 
         </td>
