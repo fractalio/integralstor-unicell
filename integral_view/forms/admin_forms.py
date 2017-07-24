@@ -24,7 +24,7 @@ class MultipleEmailField(forms.CharField):
 
     def clean(self, value):
         if not value:
-            return forms.ValidationError("Enter atleast one email address")
+            raise forms.ValidationError("Enter atleast one email address")
         if ',' in value:
             emails = value.lower().split(',')
         else:
