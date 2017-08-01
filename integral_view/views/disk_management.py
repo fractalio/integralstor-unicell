@@ -1,18 +1,27 @@
 import django
 import django.template
 
-from integralstor_utils import config, disks, command, audit, zfs, manifest_status, scheduler_utils, django_utils
-from integralstor import system_info
+from integralstor_utils import config, disks, command, zfs, scheduler_utils, django_utils
+from integralstor import system_info, manifest_status, audit
 
 
 def view_disks(request):
     return_dict = {}
+    type = 'data'
     try:
         if "ack" in request.GET:
             if request.GET["ack"] == "blink":
                 return_dict['ack_message'] = "Disk identification LED successfully activated"
             elif request.GET["ack"] == "unblink":
                 return_dict['ack_message'] = "Disk identification LED successfully de-activated"
+        ret, err = django_utils.get_request_parameter_values(
+            request, ['type'])
+        if err:
+            raise Exception(err)
+        if ('type' not in ret) or ret['type'] not in ['data', 'os']:
+            type = 'data'
+        else:
+            type = ret['type']
         si, err = system_info.load_system_config()
         if err:
             raise Exception(err)
@@ -26,15 +35,23 @@ def view_disks(request):
                 idrac_url, err = dell.get_idrac_addr()
                 if idrac_url:
                     return_dict['idrac_url'] = idrac_url
+        if type == 'os':
+            os_disk_stats, err = disks.get_os_partition_stats()
+            if err:
+                raise Exception(err)
+            return_dict['os_disk_stats'] = os_disk_stats
         return_dict['node'] = si[si.keys()[0]]
         return_dict['system_info'] = si
         return_dict["disk_status"] = si[si.keys()[0]]['disks']
         return_dict['node_name'] = si.keys()[0]
-        return django.shortcuts.render_to_response('view_disks.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        if type == 'os':
+            return django.shortcuts.render_to_response('view_os_disks.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        else:
+            return django.shortcuts.render_to_response('view_data_disks.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
         return_dict["page_title"] = 'Disks'
-        return_dict['tab'] = 'view_disks_tab'
+        return_dict['tab'] = 'view_%s_disks_tab'%type
         return_dict["error"] = 'Error loading disk information'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -49,7 +66,7 @@ def identify_disk(request):
         controller_number = None
         target_id = None
         ret, err = django_utils.get_request_parameter_values(
-            request, ['hw_platform', 'action', 'controller_number', 'channel', 'enclosure_id', 'target_id'])
+            request, ['hw_platform', 'action', 'controller_number', 'channel', 'enclosure_id', 'target_id', 'disk_type'])
         if err:
             raise Exception(err)
 
@@ -63,6 +80,10 @@ def identify_disk(request):
             raise Exception(
                 'Invalid request, please use the menus.')
         action = ret['action']
+        if 'disk_type' in ret:
+            disk_type = ret['disk_type']
+        else:
+            disk_type = 'data'
         channel = ret['channel']
         enclosure_id = ret['enclosure_id']
         target_id = ret['target_id']
@@ -72,12 +93,12 @@ def identify_disk(request):
             action, controller_number, channel, enclosure_id, target_id)
         if not result:
             raise Exception(err)
-        return django.http.HttpResponseRedirect('/view_disks?ack=%s' % action)
+        return django.http.HttpResponseRedirect('/view_disks?ack=%s&type=%s' %(action, disk_type))
 
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
         return_dict["page_title"] = 'Disks'
-        return_dict['tab'] = 'view_disks_tab'
+        return_dict['tab'] = 'view_data_disks_tab'
         return_dict["error"] = 'Error toggling disk identification'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))

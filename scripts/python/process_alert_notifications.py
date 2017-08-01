@@ -1,16 +1,20 @@
 
 from integralstor import event_notifications, alerts, mail
-from integralstor_utils import db, lock, logger
+from integralstor_utils import db, logger
 
 import logging
 import sys
 import datetime
 
+'''
+Process all events that match the specified alert notification
+'''
+
 def main():
     lg = None
     try:
         lg, err = logger.get_script_logger(
-            'Process alert events', '/var/log/integralstor/scripts.log', level=logging.DEBUG)
+            'Process alert events', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
         num_args = len(sys.argv)
         if num_args != 2:
             raise Exception('Usage : python process_alert_notifications <event_notification_trigger_id>')
@@ -68,7 +72,6 @@ def main():
                             e, lg, level='critical')
         return -1,  'Error processing alert notifications : %s' % e
     else:
-        #lock.release_lock('process_alert_notifications')
         logger.log_or_print(
             'Processing alert notifications completed successfully.', lg, level='info')
         return 0, None

@@ -53,7 +53,7 @@ def main():
     lg = None
     try:
         lg, err = logger.get_script_logger(
-            'Generate manifest', '/var/log/integralstor/scripts.log', level=logging.DEBUG)
+            'Generate manifest', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
         logger.log_or_print('Generate manifest initiated.', lg, level='info')
 
         num_args = len(sys.argv)

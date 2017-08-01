@@ -72,8 +72,8 @@
                 <div class="btn-group btn-group-xs pull-right" >
                   <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for disk specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                   <ul class="dropdown-menu">
-                    <li><a  class="action-dropdown" href="/identify_disk?action=blink&hw_platform=dell&controller_number={{disk.controller_number}}&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to physically identify this disk" > <i class="fa fa-lightbulb-o fa-fw"></i>Blink disk LED</a> 
-                    <li><a  class="action-dropdown" href="/identify_disk?action=unblink&hw_platform=dell&controller_number={{disk.controller_number}}&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to turn off disk identification LED" > <i class="fa fa-remove fa-fw"></i>Turn off disk LED</a> 
+                    <li><a  class="action-dropdown" href="/identify_disk?action=blink&disk_type=data&hw_platform=dell&controller_number={{disk.controller_number}}&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to physically identify this disk" > <i class="fa fa-lightbulb-o fa-fw"></i>Blink disk LED</a> 
+                    <li><a  class="action-dropdown" href="/identify_disk?action=unblink&disk_type=data&hw_platform=dell&controller_number={{disk.controller_number}}&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to turn off disk identification LED" > <i class="fa fa-remove fa-fw"></i>Turn off disk LED</a> 
                   </ul>
                 </div>
               </td>
@@ -149,8 +149,8 @@
                 <div class="btn-group btn-group-xs pull-right" >
                   <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for disk specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                   <ul class="dropdown-menu">
-                    <li><a  class="action-dropdown" href="/identify_disk?action=blink&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to physically identify this disk" > <i class="fa fa-lightbulb-o fa-fw"></i>Blink disk LED</a> 
-                    <li><a  class="action-dropdown" href="/identify_disk?action=unblink&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to turn off disk identification LED" > <i class="fa fa-remove fa-fw"></i>Turn off disk LED</a> 
+                    <li><a  class="action-dropdown" href="/identify_disk?action=blink&disk_type=data&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to physically identify this disk" > <i class="fa fa-lightbulb-o fa-fw"></i>Blink disk LED</a> 
+                    <li><a  class="action-dropdown" href="/identify_disk?action=unblink&disk_type=data&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to turn off disk identification LED" > <i class="fa fa-remove fa-fw"></i>Turn off disk LED</a> 
                   </ul>
                 </div>
               </td>
@@ -161,109 +161,6 @@
     {%endfor%}
   </table>
   <hr/>
-  <h4> OS Disks </h4>
-  <table class="table table-striped table-responsive" style="width:800px">
-    <tr>
-      <th > Disk serial number </th>
-      <th > Disk details</th>
-      <th> S.M.A.R.T status </th>
-      {%if hw_platform%}
-        {%if hw_platform == 'dell' and idrac_url %}
-          <th> Disk identification</th>
-        {%endif%}
-      {%endif%}
-    </tr>
-    {%for sn, disk in disk_status.items %}
-      {%if disk.os_device %}
-        <tr>
-          <td> 
-            {{sn}}  (OS disk) 
-            {%if disk.hw_raid%}
-              <br>
-              <b>(Under hardware RAID)</b>
-            {%endif%}
-          </td>
-          <td> Capacity : {{disk.capacity}}
-                <br>
-                {%if disk.rotational %}
-                  Type : Rotational
-                {%else%}
-                  Type : SSD
-                {%endif%}
-                <br>
-                Number of partitions : {{disk.partitions|length}}
-                <br>
-                SCSI bus address : {{disk.scsi_info}}
-                <br>
-                Name : {{disk.name}}
-                <br>
-                ID : {{disk.id}}
-          </td>
-          <td>
-            {{disk.status}} &nbsp;&nbsp;
-            {%if not disk.hw_raid %}
-              {%if disk.status == 'PASSED' or disk.status == 'OK'%}
-                <i class="fa fa-check-circle green fa-2x"></i>
-              {%else%}
-                <i class="fa fa-remove red fa-2x"></i>
-              {%endif%}
-            {%else%}
-              {%if disk.status.lower == 'ok'%}
-                <i class="fa fa-check green fa-2x"></i>
-              {%else%}
-                <i class="fa fa-remove red fa-2x"></i>
-              {%endif%}<br/>
-            {%endif%}
-          </td>
-          {%if hw_platform%}
-            {%if hw_platform == 'dell' and idrac_url %}
-              <td>
-                <div class="btn-group btn-group-xs pull-right" >
-                  <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for disk specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
-                  <ul class="dropdown-menu">
-                    <li><a  class="action-dropdown" href="/identify_disk?action=blink&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to physically identify this disk" > <i class="fa fa-lightbulb-o fa-fw"></i>Blink disk LED</a> 
-                    <li><a  class="action-dropdown" href="/identify_disk?action=unblink&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to turn off disk identification LED" > <i class="fa fa-remove fa-fw"></i>Turn off disk LED</a> 
-                  </ul>
-                </div>
-              </td>
-            {%endif%}
-          {%endif%}
-        </tr>
-      {%endif%}
-    {%endfor%}
-  </table>
-
-  {% if hardware%}
-    <h5> Disk positions </h5>
-
-    <div class="row">
-      {% for i in "xxxxxxxxxxxx" %}
-        <div class="col-sm-12 col-md-3 col-lg-3">
-          <div class="info-box">
-      	    <span class="info-box-icon bg-purple" id="disk_{{forloop.counter0}}_colour">{{forloop.counter0|add:'1'}}</span>
-           <div class="info-box-content">
-      		    <span class="info-box-text" id="disk_{{ forloop.counter0 }}_serial">No Disk</span>
-      		    <span class="info-box-number" id="disk_{{forloop.counter0}}_status">&nbsp;</span>
-      	    </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-
-    <script>
-      {%for sn, disk in disk_status.items %}
-        {%if disk.status != 'PASSED' and disk.status != 'OK' and not disk.os_device%}
-          $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
-          $('#disk_{{disk.scsi_info.2}}_status').text("Status :{{disk.status}}")
-          $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-red')
-        {%elif not disk.os_device%}
-          $('#disk_{{disk.scsi_info.2}}_serial').html("S No. : {{sn}}")
-          $('#disk_{{disk.scsi_info.2}}_status').text("Status :OK")
-          $('#disk_{{disk.scsi_info.2}}_colour').removeClass('bg-purple').addClass('bg-green')
-        {%endif%}
-      {%endfor%}
-    </script>
-  {% endif %}
 
 {% endblock %}
 
@@ -273,16 +170,13 @@
 
 {%block help_body%}
   <p> 
-  This screen displays the status of all the disks in the system. The information includes the S.M.A.R.T information and the disk position in the chassis. If there is an issue with a disk, then a button next to the disk will give you the option of replacing the disk. Clicking on this button will take you through a wizard for the disk replacement process.
+  This screen displays the status of all the data disks in the system. The information includes the S.M.A.R.T information and the disk position in the chassis. If there is an issue with a disk, then a button next to the disk will give you the option of replacing the disk. Clicking on this button will take you through a wizard for the disk replacement process.
   </p>
 {%endblock%}
 
 
 {% block tab_active %}
   <script>
-    make_tab_active("view_disks_tab")
+    make_tab_active("view_data_disks_tab")
   </script>
 {% endblock%}
-
-
-

@@ -2,8 +2,8 @@ import django
 import django.template
 
 from integral_view.forms import system_forms
-from integralstor_utils import system_date_time, audit, django_utils, cifs as cifs_utils, rsync, alerts, logger, ntp, vsftp, mail, remote_replication, scheduler_utils, zfs, networking, pki
-from integralstor import cifs as cifs_integralstor, nfs, iscsi_stgt, local_users
+from integralstor_utils import django_utils, cifs as cifs_utils, rsync, logger, ntp, vsftp, remote_replication, scheduler_utils, zfs, networking, pki
+from integralstor import cifs as cifs_integralstor, nfs, iscsi_stgt, local_users, audit, alerts, mail, datetime_utils
 
 
 def reset_to_factory_defaults(request):
@@ -179,7 +179,7 @@ def update_system_date_time(request):
     return_dict = {}
     try:
         if request.method == 'GET':
-            form = system_date_time_forms.DateTimeForm()
+            form = system_forms.DateTimeForm()
             return_dict['form'] = form
             return django.shortcuts.render_to_response("update_system_date_time.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
@@ -187,7 +187,7 @@ def update_system_date_time(request):
             form = system_forms.DateTimeForm(request.POST)
             if form.is_valid():
                 cd = form.cleaned_data
-                output, err = system_date_time.update_date_time(
+                output, err = datetime_utils.update_system_date_time(
                     cd["system_date"], cd["system_time"], cd["system_timezone"])
                 if err:
                     raise Exception(err)

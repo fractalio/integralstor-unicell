@@ -8,11 +8,10 @@ import django
 from django.contrib.auth.decorators import login_required
 import django.http
 
-from integralstor_utils import command, audit, alerts, zfs, stats, config, django_utils
+from integralstor_utils import command, zfs, stats, config, django_utils
 from integralstor_utils import cifs as cifs_common, services_management
-from integralstor_utils import system_date_time
 
-from integralstor import system_info, iscsi_stgt, nfs
+from integralstor import system_info, iscsi_stgt, nfs, audit, datetime_utils
 
 
 @login_required
@@ -38,16 +37,23 @@ def view_system_info(request):
         si, err = system_info.load_system_config()
         if err:
             raise Exception(err)
-        now = datetime.datetime.now()
-        milliseconds = int(time.mktime(time.localtime()) * 1000)
-        system_timezone, err = system_date_time.get_current_timezone()
+        now_epoch, err = datetime_utils.get_epoch(when='now', num_previous_days=0)
+        if err:
+            raise Exception(err)
+        now, err = datetime_utils.convert_from_epoch(now_epoch, return_format='datetime', to='local')
+        if err:
+            raise Exception(err)
+        milliseconds = int(now_epoch*1000)
+        if err:
+            raise Exception(err)
+        system_timezone, err = datetime_utils.get_system_timezone()
         if err:
             raise Exception(err)
         return_dict['date_str'] = now.strftime("%A %d %B %Y")
         return_dict['time'] = now
         return_dict['milliseconds'] = milliseconds
         return_dict['system_timezone'] = system_timezone['system_timezone']
-        print return_dict['system_timezone']
+        #print return_dict['system_timezone']
         return_dict['system_info'] = si
         if "from" in request.GET:
             frm = request.GET["from"]
@@ -68,7 +74,7 @@ def update_manifest(request):
     return_dict = {}
     try:
         if request.method == "GET":
-            from integralstor_utils import manifest_status as iu
+            from integralstor import manifest_status as iu
             mi, err = iu.generate_manifest_info()
             # print mi, err
             if err:

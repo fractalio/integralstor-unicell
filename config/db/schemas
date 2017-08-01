@@ -141,7 +141,7 @@ CREATE TABLE "audit" (
 );
 
 CREATE TABLE "reference_event_types" (
-  "id" integer NOT NULL,
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "description" varchar(100) NOT NULL
 );
 
@@ -150,21 +150,21 @@ INSERT INTO reference_event_types (id, description) values (2, 'Audits');
 INSERT INTO reference_event_types (id, description) values (3, 'Reports');
 
 CREATE TABLE "reference_event_subtypes" (
-  "id" integer NOT NULL,
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "description" varchar(100) NOT NULL
 );
 
 INSERT INTO reference_event_subtypes (id, description) values (-1, 'Not applicable');
 
 CREATE TABLE "reference_notification_types" (
-  "id" integer NOT NULL,
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "description" varchar(100) NOT NULL
 );
 
 INSERT INTO reference_notification_types (id, description) values (1, 'Email');
 
 CREATE TABLE "reference_severity_types" (
-  "id" integer NOT NULL,
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "description" varchar(100) NOT NULL
 );
 
@@ -175,7 +175,7 @@ INSERT INTO reference_severity_types (id, description) values (2, 'Warning');
 INSERT INTO reference_severity_types (id, description) values (3, 'Critical');
 
 CREATE TABLE "reference_subsystem_types" (
-  "id" integer NOT NULL,
+  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "description" varchar(100) NOT NULL
 );
 
@@ -254,5 +254,6 @@ CREATE TABLE "pool_usage_stats" (
   "pool_name" VARCHAR(100) NOT NULL,
   "date" DATETIME NOT NULL,
   "used_bytes" INTEGER NOT NULL,
-  "available_bytes" INTEGER NOT NULL
+  "available_bytes" INTEGER NOT NULL,
+  unique(pool_name, date)
 );

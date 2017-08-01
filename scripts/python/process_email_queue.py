@@ -7,11 +7,15 @@ import datetime
 import atexit
 atexit.register(lock.release_lock, 'process_email_queue')
 
+'''
+Process and send all queued emails
+'''
+
 def main():
     lg = None
     try:
         lg, err = logger.get_script_logger(
-            'Process email queue', '/var/log/integralstor/scripts.log', level=logging.DEBUG)
+            'Process email queue', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
 
         logger.log_or_print('Processing email queue initiated.', lg, level='info')
         lck, err = lock.get_lock('process_email_queue')

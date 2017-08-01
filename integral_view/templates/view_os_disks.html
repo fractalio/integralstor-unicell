@@ -1,0 +1,130 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  System disks information
+{%endblock%}
+
+{% block inside_content %}
+
+  {%if hw_platform%}
+    {%if hw_platform == 'dell' and idrac_url %}
+      <div class="row" style="width:98%;margin:0 auto">
+        <a href="{{idrac_url}}" target=_new> <h5>Click here to view detailed hardware status</h5></a>
+      </div>
+    {%endif%}
+  {%endif%}
+
+  <h4> OS Disks information</h4>
+  <table class="table table-striped table-responsive" style="width:800px">
+    <tr>
+      <th > Disk serial number </th>
+      <th > Disk details</th>
+      <th> S.M.A.R.T status </th>
+      {%if hw_platform%}
+        {%if hw_platform == 'dell' and idrac_url %}
+          <th> Disk identification</th>
+        {%endif%}
+      {%endif%}
+    </tr>
+    {%for sn, disk in disk_status.items %}
+      {%if disk.os_device %}
+        <tr>
+          <td> 
+            {{sn}}  (OS disk) 
+            {%if disk.hw_raid%}
+              <br>
+              <b>(Under hardware RAID)</b>
+            {%endif%}
+          </td>
+          <td> Capacity : {{disk.capacity}}
+                <br>
+                {%if disk.rotational %}
+                  Type : Rotational
+                {%else%}
+                  Type : SSD
+                {%endif%}
+                <br>
+                Number of partitions : {{disk.partitions|length}}
+                <br>
+                SCSI bus address : {{disk.scsi_info}}
+                <br>
+                Name : {{disk.name}}
+                <br>
+                ID : {{disk.id}}
+          </td>
+          <td>
+            {{disk.status}} &nbsp;&nbsp;
+            {%if not disk.hw_raid %}
+              {%if disk.status == 'PASSED' or disk.status == 'OK'%}
+                <i class="fa fa-check-circle green fa-2x"></i>
+              {%else%}
+                <i class="fa fa-remove red fa-2x"></i>
+              {%endif%}
+            {%else%}
+              {%if disk.status.lower == 'ok'%}
+                <i class="fa fa-check green fa-2x"></i>
+              {%else%}
+                <i class="fa fa-remove red fa-2x"></i>
+              {%endif%}<br/>
+            {%endif%}
+          </td>
+          {%if hw_platform%}
+            {%if hw_platform == 'dell' and idrac_url %}
+              <td>
+                <div class="btn-group btn-group-xs pull-right" >
+                  <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for disk specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                  <ul class="dropdown-menu">
+                    <li><a  class="action-dropdown" href="/identify_disk?action=blink&disk_type=os&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to physically identify this disk" > <i class="fa fa-lightbulb-o fa-fw"></i>Blink disk LED</a> 
+                    <li><a  class="action-dropdown" href="/identify_disk?action=unblink&disk_type=os&hw_platform=dell&controller=0&target_id={{disk.target_id}}&channel={{disk.channel}}&enclosure_id={{disk.enclosure_id}}"  title="Select to turn off disk identification LED" > <i class="fa fa-remove fa-fw"></i>Turn off disk LED</a> 
+                  </ul>
+                </div>
+              </td>
+            {%endif%}
+          {%endif%}
+        </tr>
+      {%endif%}
+    {%endfor%}
+  </table>
+
+  <h4> OS filesystem status </h4>
+  <table class="table table-striped table-responsive" style="width:800px">
+    <tr>
+      <th > Filesystem </th>
+      <th > Capacity</th>
+      <th > Used</th>
+      <th > Free</th>
+      <th > Free (%)</th>
+    </tr>
+    {%for info in os_disk_stats %}
+    <tr>
+      <td > {{info.fs_name}} </td>
+      <td > {{info.capacity}}</td>
+      <td > {{info.used}}</td>
+      <td > {{info.free}}</td>
+      <td > {{info.percentage_free_str}}</td>
+    </tr>
+
+    {%endfor%}
+
+
+{% endblock %}
+
+{%block help_header%}
+  View disk status
+{%endblock%}
+
+{%block help_body%}
+  <p> 
+  This screen displays the status of all the disks in the system. The information includes the S.M.A.R.T information and the disk position in the chassis. If there is an issue with a disk, then a button next to the disk will give you the option of replacing the disk. Clicking on this button will take you through a wizard for the disk replacement process.
+  </p>
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_os_disks_tab")
+  </script>
+{% endblock%}
+
+
+

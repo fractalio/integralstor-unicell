@@ -56,7 +56,7 @@ def main():
     lg = None
     try:
         lg, err = logger.get_script_logger(
-            'Generate status', '/var/log/integralstor/scripts.log', level=logging.DEBUG)
+            'Generate status', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
 
         logger.log_or_print('Generate status initiated.', lg, level='info')
 
