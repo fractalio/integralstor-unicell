@@ -1,5 +1,5 @@
-[fractalio]
+[integralstor]
 enabled=0
-name= Fractalio - Base
+name= integralstor - Base
 baseurl=file:///opt/integralstor/integralstor_rpms
 gpgcheck=0

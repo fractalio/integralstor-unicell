@@ -17,7 +17,7 @@ rsync -av /mnt/ .
 find . -name TRANS.TBL -exec rm -f {} \;
 
 ### copy all the Packages and createrepo for ur software(*Make sure you dont get any deppendancy error here) ###
-cp /root/centos7/integralstor_centos7_rpms/*.rpm /root/centos7/integralstor_centos7_dir/Packages
+cp /root/centos7/integralstor_centos7_repo/*.rpm /root/centos7/integralstor_centos7_dir/Packages
 rpm --initdb --dbpath /root/centos7/integralstor_centos7_dir/Packages/
 rpm -ivh --test --dbpath /root/centos7/integralstor_centos7_dir/Packages/ /root/centos7/integralstor_centos7_dir/Packages/*.rpm
 cd /root/centos7/integralstor_centos7_dir
@@ -71,4 +71,4 @@ fi
 
 ### unmount original iso after creating custom iso
 umount /mnt
-md5sum /tmp/centos7/integralstor.iso >/tmp/centos7/checksum_integralstor.txt
+md5sum /tmp/centos7/integralstor.iso >/tmp/centos7/integralstor.checksum

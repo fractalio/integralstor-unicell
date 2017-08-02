@@ -1,0 +1,5 @@
+#!/bin/sh
+ 
+if [ ! -c /dev/zfs ] ; then
+        exec /sbin/modprobe zfs >/dev/null 2>&1
+fi
