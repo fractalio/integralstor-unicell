@@ -3,8 +3,7 @@
 ### Adding neccesary users and groups ###
 groupadd integralstor -g 1000
 useradd integralstor -g 1000
-groupadd replicator -g 1001
-useradd replicator -g 1001
+useradd replicator -g 1000
 groupadd console -g 1002
 useradd console -g 1002
 useradd nagios
@@ -14,7 +13,7 @@ echo "replicator123" | passwd --stdin replicator
 echo "console123" | passwd --stdin console
 echo "nagios123" | passwd --stdin nagios
 echo "integralstor    ALL=(ALL)    ALL" >> /etc/sudoers
-echo "replicator    ALL=(ALL)    NOPASSWD: /usr/sbin/zfs" >> /etc/sudoers
+echo "replicator    ALL=(ALL)    NOPASSWD: /usr/sbin/zfs,/usr/bin/rsync,/bin/rsync" >> /etc/sudoers
 echo "console    ALL=(ALL)    NOPASSWD: ALL" >> /etc/sudoers
 
 ### Changing MIN_UID and MIN_GID to start from 1500 for local users ###
@@ -62,10 +61,6 @@ sed -e '/requiretty/s/^/#/g' -i /etc/sudoers    #serach for requiretty and comme
 rm -f /etc/ssh/sshd_config
 mv /etc/ssh/temp_file /etc/ssh/sshd_config
 /usr/sbin/sshd start
-ssh-keygen -t rsa -f /root/.ssh/id_rsa -N ''
-mkdir -p /home/replicator/.ssh
-ssh-keygen -t rsa -f /home/replicator/.ssh/id_rsa -N ''
-
 
 ### Editing the /etc/yum.repos.d/CentOS-Base.repo ###
 # ..to disable base, updates and extras repositories. ###
@@ -364,21 +359,21 @@ ln -s /opt/integralstor/integralstor/install/conf_files/afpd.conf /etc/netatalk/
 echo "hosts: files mdns4_minimal dns mdns mdns4" >> /etc/nsswitch.conf
 
 ### Turn on other services ###
-systemctl start rpcbind && systemctl enable rpcbind
-systemctl start nfs-server && systemctl enable nfs-server
-systemctl start winbind && systemctl enable winbind
-systemctl start smb && systemctl enable smb
-systemctl start tgtd && systemctl enable tgtd
-systemctl start ntpd && systemctl enable ntpd
-systemctl start crond && systemctl enable crond
-systemctl start ramdisk && systemctl enable ramdisk
-systemctl start vsftpd && systemctl enable vsftpd
-systemctl start shellinaboxd && systemctl enable shellinaboxd
-systemctl start uwsginew && systemctl enable uwsginew
-systemctl start nginx && systemctl enable nginx
-systemctl start nrpe && systemctl enable nrpe
-systemctl start avahi-daemon && systemctl enable avahi-daemon
-systemctl start netatalk && systemctl enable netatalk
+systemctl start rpcbind &> /dev/null && systemctl enable rpcbind &> /dev/null
+systemctl start nfs-server &> /dev/null && systemctl enable nfs-server &> /dev/null
+systemctl start winbind &> /dev/null && systemctl enable winbind &> /dev/null
+systemctl start smb &> /dev/null && systemctl enable smb &> /dev/null
+systemctl start tgtd &> /dev/null && systemctl enable tgtd &> /dev/null
+systemctl start ntpd &> /dev/null && systemctl enable ntpd &> /dev/null
+systemctl start crond &> /dev/null && systemctl enable crond &> /dev/null
+systemctl start ramdisk &> /dev/null && systemctl enable ramdisk &> /dev/null
+systemctl start vsftpd &> /dev/null && systemctl enable vsftpd &> /dev/null
+systemctl start shellinaboxd &> /dev/null && systemctl enable shellinaboxd &> /dev/null
+systemctl start uwsginew &> /dev/null && systemctl enable uwsginew &> /dev/null
+systemctl start nginx &> /dev/null && systemctl enable nginx &> /dev/null
+systemctl start nrpe &> /dev/null && systemctl enable nrpe &> /dev/null
+systemctl start avahi-daemon &> /dev/null && systemctl enable avahi-daemon &> /dev/null
+systemctl start netatalk &> /dev/null && systemctl enable netatalk &> /dev/null
 
 systemctl daemon-reload
 udevadm control --reload-rules
