@@ -215,7 +215,7 @@
       <div class="box box-warning ">
     {%endif%}
         <div class="box-body">
-          <h5> ZFS Pool usage
+          <h5> ZFS pool usage
             {% if not num_high_usage_pools %}
                 <i class="fa fa-check-circle green fa-1x"></i>
               {%else%}
@@ -238,9 +238,9 @@
             {%for pool in node.pools%}
               <tr>
                 <td colspan=1> <a href="/view_zfs_pool?name={{pool.pool_name}}">{{pool.pool_name}}</a> </td>
-                <td colspan=3> {{pool.usage.capacity.value}} </td>
+                <td colspan=3> {{pool.usage.used_percent}} </td>
                 <td colspan=2> 
-                  {% if pool.usage.capacity.value < 75 %}
+                  {% if pool.usage.used_percent < 75 %}
                     <i class="fa fa-check-circle green fa-2x"></i>
                   {%else%}
                     <i class="fa fa-remove red fa-2x"></i>

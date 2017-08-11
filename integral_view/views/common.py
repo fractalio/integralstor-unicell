@@ -292,7 +292,7 @@ def view_dashboard(request, page):
         num_degraded_pools = 0
         num_high_usage_pools = 0
         for pool in pools:
-            if pool['usage']['capacity']['value'] > 75:
+            if pool['usage']['used_percent'] > 75:
                 num_high_usage_pools += 1
             if pool['config']['pool']['root']['status']['state'] == 'ONLINE':
                 pass
