@@ -71,7 +71,7 @@ CREATE TABLE "tasks" (
   "initiate_time" datetime NOT NULL,
   "last_run_time" datetime,
   "status" varchar(50) NOT NULL DEFAULT 'queued',
-  FOREIGN KEY(task_type_id) REFERENCES task_types(task_type_id)
+  FOREIGN KEY(task_type_id) REFERENCES reference_task_types(id)
 );
 
 CREATE TABLE "subtasks" (
@@ -81,7 +81,7 @@ CREATE TABLE "subtasks" (
   "task_id" integer NOT NULL,
   "status" varchar(100) NOT NULL DEFAULT 'queued',
   "return_code" varchar(10),
-  FOREIGN KEY(task_id) REFERENCES tasks(task_id)
+  FOREIGN KEY(task_id) REFERENCES tasks(task_id) ON DELETE CASCADE
 );
 
 CREATE TABLE "reference_task_types" (
