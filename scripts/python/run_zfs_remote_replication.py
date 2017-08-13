@@ -13,23 +13,16 @@ def run_zfs_remote_replication(remote_replication_id):
             raise Exception('Could not fetch replication details: %s' % err)
         replication = rr[0]
         mode = replication['mode']
-
         if mode == 'zfs':
-            zfs_entries = replication['zfs'][0]
-            source_dataset = zfs_entries['source_dataset']
-            target_ip = zfs_entries['target_ip']
-            target_pool = zfs_entries['target_pool']
-            target_user_name = zfs_entries['target_user_name']
-            description = replication['description']
+            source_dataset = replication['zfs'][0]['source_dataset']
             now = datetime.now()
             now_str = now.strftime('%Y-%m-%d-%H-%M')
             ret, err = zfs.create_snapshot(
-                source_dataset, 'remote_repl_snap_%s' % now_str)
+                source_dataset, 'zfs_remote_repl_%s' % now_str)
             if err:
                 raise Exception(err)
-
             ret, err = remote_replication.run_zfs_remote_replication(
-                description, {'source_dataset': source_dataset, 'target_ip': target_ip, 'target_user_name': target_user_name, 'target_pool': target_pool})
+                remote_replication_id)
             if err:
                 raise Exception(err)
         else:

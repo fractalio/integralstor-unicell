@@ -14,25 +14,15 @@ def run_rsync_remote_replication(remote_replication_id):
         mode = replication['mode']
 
         if mode == 'rsync':
-            rsync_entries = replication['rsync'][0]
-            rsync_type = rsync_entries['rsync_type']
-            source_path = rsync_entries['source_path']
-            target_path = rsync_entries['target_path']
-            short_switches = rsync_entries['short_switches']
-            long_switches = rsync_entries['long_switches']
-            target_user_name = rsync_entries['target_user_name']
-            target_ip = rsync_entries['target_ip']
-            description = replication['description']
-
             ret, err = remote_replication.run_rsync_remote_replication(
-                description, {'rsync_type': rsync_type, 'source_path': source_path, 'target_path': target_path, 'short_switches': short_switches, 'long_switches': long_switches, 'target_ip': target_ip, 'target_user_name': target_user_name})
+                remote_replication_id)
             if err:
                 raise Exception(err)
         else:
             raise Exception('Invalid replication mode')
 
     except Exception, e:
-        return False, 'Error adding rsync remote replication task : %s' % e
+        return False, 'Error adding rsync remote replication task: %s' % e
     else:
         return True, None
 
