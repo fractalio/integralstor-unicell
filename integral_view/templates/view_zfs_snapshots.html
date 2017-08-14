@@ -5,7 +5,14 @@
 {%endblock%}
 
 {%block global_actions %}
-    <a class="btn btn-default btn-sm pull-right"  href="/create_zfs_snapshot" title="Create a new snapshot" style="color:#000"> <i class="fa fa-plus-square-o fa-fw "></i>&nbsp;Create snapshot </a>
+              <div class="btn-group btn-group-sm pull-right">
+                <a class="btn btn-default dropdown-toggle " data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i> &nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a class="action-dropdown" href="/create_zfs_snapshot" title="Create a new snapshot" style="color:#000"> <i class="fa fa-plus-square-o fa-fw "></i>&nbsp;Create snapshot </a></li>
+                  <li class="divider"></li>
+                  <li><a class="action-dropdown" href="/delete_all_zfs_snapshots/" title="Delete all snapshots" style="color:#000"> <i class="fa fa-trash-o fa-fw "></i>&nbsp;Delete snapshots </a></li>
+                </ul>
+              </div>
 {%endblock%}
 
 {%block inside_content %}

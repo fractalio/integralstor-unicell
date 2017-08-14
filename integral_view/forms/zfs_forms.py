@@ -20,6 +20,11 @@ class CommonPropertiesForm(forms.Form):
                 ["The name cannot start with a number."])
             del cd["name"]
 
+        if 'name' in cd and cd['name'].lower() in ['none']:
+            self._errors["name"] = self.error_class(
+                ["'None' is a reserved word, please try some other name"])
+            del cd["name"]
+
         return cd
 
 
@@ -276,5 +281,24 @@ class RenameSnapshotForm(forms.Form):
     ds_name = forms.CharField(widget=forms.HiddenInput)
     snapshot_name = forms.CharField(widget=forms.HiddenInput)
     new_snapshot_name = forms.CharField()
+
+
+class DeleteSnapshotsForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        child_fs = None
+        child_fs_ch = []
+        if kwargs:
+            if 'child_fs' in kwargs:
+                child_fs = kwargs.pop('child_fs')
+        super(DeleteSnapshotsForm, self).__init__(*args, **kwargs)
+        if child_fs:
+            for fs in child_fs:
+                child_fs_ch.append((fs,fs))
+
+        self.fields['filesystems'] = forms.MultipleChoiceField(
+            widget=forms.widgets.CheckboxSelectMultiple,
+            choices=child_fs_ch,
+            required=True)
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

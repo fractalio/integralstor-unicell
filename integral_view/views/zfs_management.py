@@ -1186,7 +1186,7 @@ def delete_zfs_dataset(request):
                 else:
                     raise Exception(err)
 
-            if type == 'dataset':
+            if type == 'filesystem':
                 audit_str = "Deleted ZFS dataset %s" % name
                 audit.audit("delete_zfs_dataset", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_zfs_pool?ack=dataset_deleted&name=%s' % pool_name)
@@ -1501,6 +1501,75 @@ def delete_zfs_snapshot(request):
         return_dict["page_title"] = 'Delete a ZFS snapshot'
         return_dict['tab'] = 'view_zfs_snapshots_tab'
         return_dict["error"] = 'Error deleting a ZFS snapshot'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def delete_all_zfs_snapshots(request):
+    return_dict = {}
+    try:
+        pool_names, err = zfs.get_all_pool_names()
+        if err:
+            raise exception(err)
+        fs_names, err = zfs.get_all_datasets_and_pools(dataset_type='filesystem')
+        if err:
+            raise exception(err)
+        all_child_fs = []
+        child_fs = []
+        if pool_names and fs_names:
+            # Remove root zfs filesystems from the list
+            all_child_fs = [fs for fs in fs_names if fs not in pool_names]
+            for fs in all_child_fs:
+                # Include only the filesystem that contain snapshots
+                has_snaps, err = zfs.get_snapshots(fs)
+                if has_snaps:
+                    child_fs.append(fs)
+        return_dict['child_fs'] = child_fs
+
+        if request.method == "GET":
+            form = zfs_forms.DeleteSnapshotsForm(
+                child_fs=child_fs)
+            return_dict['form'] = form
+            return django.shortcuts.render_to_response("delete_all_zfs_snapshots.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+        else:
+            form = zfs_forms.DeleteSnapshotsForm(
+                request.POST, child_fs=child_fs)
+            return_dict['form'] = form
+            if not form.is_valid():
+                return django.shortcuts.render_to_response("delete_all_zfs_snapshots.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+            cd = form.cleaned_data
+
+            filesystems = []
+            if 'filesystems' in cd and cd['filesystems']:
+                filesystems = [fs for fs in cd['filesystems']]
+
+            audit_fail_str = 'Failed deleting snapshots of - '
+            audit_str = 'Deleted snapshots of - '
+            is_fail_str = False
+            for fs in filesystems:
+                result, err = zfs.delete_all_snapshots(fs)
+                if not result:
+                    if not err:
+                        audit_fail_str = '%s %s,' % (audit_fail_str, fs)
+                    else:
+                        audit_fail_str = '%s %s,' % (audit_fail_str, fs)
+                elif result:
+                    audit_str = '%s %s,' % (audit_str, fs)
+            if is_fail_str:
+                audit_str = '%s %s' % (audit_str, audit_fail_str)
+                audit.audit("delete_zfs_snapshot", audit_str, request)
+                raise Exception(audit_str)
+            else:
+                audit.audit("delete_zfs_snapshot", audit_str, request)
+
+            return django.http.HttpResponseRedirect('/view_zfs_snapshots?ack=deleted')
+    except Exception, e:
+        return_dict['base_template'] = "storage_base.html"
+        return_dict["page_title"] = 'Delete ZFS snapshots'
+        return_dict['tab'] = 'view_zfs_snapshots_tab'
+        return_dict["error"] = 'Error deleting ZFS snapshots'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

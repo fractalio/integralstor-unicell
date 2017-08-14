@@ -1,0 +1,59 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  Delete ZFS snapshots 
+{%endblock%}
+
+{%block inside_content %}
+  <p ><h4>Select the ZFS datasets(filesystems) for which snapshots must be deleted.</h4> </p>
+  <br>
+  <form action="/delete_all_zfs_snapshots/" method="POST">
+    {%csrf_token%}
+
+    {% if form.filesystems.field.choices %}
+    <table  class="table">
+    <colgroup width="30%" />
+      <tr>
+        <td>
+	  <ul style="list-style:none;">
+	  {% for fs in form.filesystems.field.choices %}
+	    <li>
+	    <label for="id_{{fs.0}}">
+	      <input id="id_{{fs.0}}" name="filesystems" type="checkbox" value="{{fs.0}}" />
+	    {{fs.1}}
+	    </label>
+	    </li>
+	  {% endfor %}
+	  </ul>
+	</td>
+        <td> {{ form.filesystems.errors }} </td>
+      </tr>
+    </table>
+    {% else %}
+    <p id="p-warning-text">No ZFS datasets(filesystems) with snapshots available.</p>
+    {% endif %}
+    <br>
+    <br>
+
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_zfs_snapshots'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-danger" {% if not form.filesystems.field.choices %} disabled {% endif %} onClick ="$('#processing').modal('show');">Confirm and delete</button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Deleting ZFS snapshots 
+{%endblock%}
+
+{%block help_body%}
+  <p>Confirming this operation results in the selected ZFS dataset's snapshots being deleted from the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_snapshots_tab")
+  </script>
+{% endblock %}
