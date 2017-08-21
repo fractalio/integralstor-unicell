@@ -1,8 +1,7 @@
 #!/usr/bin/python
 import sys
 from integralstor_utils import zfs
-from integralstor import remote_replication
-from datetime import datetime
+from integralstor import remote_replication, datetime_utils
 
 
 def run_zfs_remote_replication(remote_replication_id):
@@ -14,11 +13,17 @@ def run_zfs_remote_replication(remote_replication_id):
         replication = rr[0]
         mode = replication['mode']
         if mode == 'zfs':
+            now_local_epoch, err = datetime_utils.get_epoch(when='now')
+            if err:
+                raise Exception(err)
+            now_local_str, err = datetime_utils.convert_from_epoch(
+                now_local_epoch, return_format='str', str_format='%Y%m%d%H%M', to='local')
+            if err:
+                raise Exception(err)
+
             source_dataset = replication['zfs'][0]['source_dataset']
-            now = datetime.now()
-            now_str = now.strftime('%Y-%m-%d-%H-%M')
             ret, err = zfs.create_snapshot(
-                source_dataset, 'zfs_remote_repl_%s' % now_str)
+                source_dataset, 'zrr_%s_%s' % (remote_replication_id, now_str)
             if err:
                 raise Exception(err)
             ret, err = remote_replication.run_zfs_remote_replication(

@@ -17,8 +17,8 @@ secondary_last=""
 secondary_last_snapshot=""
 
 get_primary_snapshot () {
-  primary_last=$(sudo zfs list -t snapshot -o name -s creation | grep $source | grep zfs_remote_repl | tail -1)
-  primary_initial=$(sudo zfs list -t snapshot -o name -s creation | grep $source | grep zfs_remote_repl | head -1)
+  primary_last=$(sudo zfs list -t snapshot -o name -s creation | grep $source | grep zrr_ | tail -1)
+  primary_initial=$(sudo zfs list -t snapshot -o name -s creation | grep $source | grep zrr_ | head -1)
 
   #Get the snapshot names. The Hack. Needs a better code.
   IFS=’@’ read -a primary_initial_snapshot <<< "${primary_initial}"
@@ -30,7 +30,7 @@ get_secondary_snapshot () {
 
   #Last successful snapshot from destination server
   # Sort by creation date so that you always get the latest snapshot by date and not name
-  secondary_last=$(ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs list -t snapshot -o name -s creation | grep $destination/$source_dataset | grep zfs_remote_repl | tail -1")
+  secondary_last=$(ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "sudo zfs list -t snapshot -o name -s creation | grep $destination/$source_dataset | grep zrr_ | tail -1")
   IFS=’@’ read -a secondary_last_snapshot <<< "${secondary_last}"
   if [[ -z "${secondary_last_snapshot[1]}" ]]; then
     echo "No remote replication snapshots found on the destination."

@@ -123,6 +123,14 @@
 	<td> {{ form.target_ip.errors }} </td>
       </tr>
 
+      {% if form.select_mode.value == "rsync" %}
+      <tr>
+       <th> Is it between IntegralSTOR units? </th>
+        <td> {{ form.is_between_integralstor }} </td>
+        <td> {{ form.is_between_integralstor.errors }} </td>
+      </tr>
+      {% endif %}
+
       {% if form.select_mode.value == "zfs" %}
       <tr>
 	<th> Target IntegralSTOR pool name<sup class="required" /></th>
@@ -135,8 +143,8 @@
 	</td>
 	<td> {{ form.target_pool.errors }} </td>
       </tr>
-
       {% endif %}
+
     </table>
 
     {% if form.select_mode.value == "rsync" %}

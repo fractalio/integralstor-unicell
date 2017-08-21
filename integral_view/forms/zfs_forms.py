@@ -240,6 +240,13 @@ class CreateSnapshotForm(forms.Form):
                 ch.append(tup)
         self.fields['target'] = forms.ChoiceField(choices=ch)
 
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        if name and name.lower().startswith(('rrr_', 'zrr_')):
+            self._errors["name"] = self.error_class(
+                ["Can't start with 'rrr_' or 'zrr_', please try some other name"])
+        return name
+
 
 class ViewSnapshotsForm(forms.Form):
 
@@ -281,6 +288,14 @@ class RenameSnapshotForm(forms.Form):
     ds_name = forms.CharField(widget=forms.HiddenInput)
     snapshot_name = forms.CharField(widget=forms.HiddenInput)
     new_snapshot_name = forms.CharField()
+
+
+    def clean_new_snapshot_name(self):
+        new_snapshot_name = self.cleaned_data['new_snapshot_name']
+        if new_snapshot_name and new_snapshot_name.lower().startswith(('rrr_', 'zrr_')):
+            self._errors["new_snapshot_name"] = self.error_class(
+                ["Can't start with 'rrr_' or 'zrr_', please try some other name"])
+        return new_snapshot_name
 
 
 class DeleteSnapshotsForm(forms.Form):

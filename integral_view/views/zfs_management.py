@@ -1402,6 +1402,7 @@ def view_zfs_zvol(request):
 def view_zfs_snapshots(request):
     return_dict = {}
     try:
+        import re
 
         datasets, err = zfs.get_all_datasets_and_pools()
         if err:
@@ -1424,6 +1425,17 @@ def view_zfs_snapshots(request):
         snap_list, err = zfs.get_snapshots(name)
         if err:
             raise Exception(err)
+
+        # Do not list the remote repl. temporary snapshots
+        # pattern:      POOLNAME/FSNAME@A_B_C_tmp
+        #               where, A: 'rrr_' for rsync remote repl.
+        #                         'zrr_' for ZFS remote repl.
+        #                      B: remote_replication_id
+        #                      C: datetime_utils str_format='%Y%m%d%H%M'
+        rr_snap_re = ".*@(rrr_|zrr_)[0-9]*_[0-9]*_tmp$"
+        for d in snap_list[:]:
+            if re.match(rr_snap_re, d['name'].strip()):
+                snap_list.remove(d)
 
         if "ack" in request.GET:
             if request.GET["ack"] == "created":

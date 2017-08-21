@@ -127,6 +127,7 @@ CREATE TABLE "rsync_replications" (
   "source_path" varchar(200) NOT NULL,
   "target_path" varchar(200) NOT NULL,
   "target_ip" varchar(30) NOT NULL,
+  "is_between_integralstor" boolean DEFAULT 'False',
   "target_user_name" varchar(100) NOT NULL,
   "remote_replication_id" integer NOT NULL REFERENCES remote_replications(remote_replication_id) ON DELETE CASCADE
 );

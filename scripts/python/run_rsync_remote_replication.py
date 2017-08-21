@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import sys
 from integralstor import remote_replication
-# from datetime import datetime
 
 
 def run_rsync_remote_replication(remote_replication_id):
@@ -10,16 +9,16 @@ def run_rsync_remote_replication(remote_replication_id):
             remote_replication_id)
         if err:
             raise Exception('Could not fetch replication details: %s' % err)
+
         replication = rr[0]
         mode = replication['mode']
-
-        if mode == 'rsync':
-            ret, err = remote_replication.run_rsync_remote_replication(
-                remote_replication_id)
-            if err:
-                raise Exception(err)
-        else:
+        if mode != 'rsync':
             raise Exception('Invalid replication mode')
+
+        ret, err = remote_replication.run_rsync_remote_replication(
+            remote_replication_id)
+        if err:
+            raise Exception(err)
 
     except Exception, e:
         return False, 'Error adding rsync remote replication task: %s' % e

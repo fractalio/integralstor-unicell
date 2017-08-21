@@ -259,9 +259,15 @@ def _create_rsync_remote_replication(request, cleaned_data):
         target_path = None
         target_ip = cd['target_ip']
         target_user_name = "replicator"
-        switches_formed = None
+        switches_formed = {}
+        switches_formed['short'] = ''
+        switches_formed['long'] = ''
         switches = {}
         description = ''
+        is_between_integralstor = False
+
+        if 'is_between_integralstor' in cd and cd['is_between_integralstor'] == True:
+            is_between_integralstor = True
 
         rsync_type = cd['rsync_type']
         if rsync_type == 'push':
@@ -293,7 +299,6 @@ def _create_rsync_remote_replication(request, cleaned_data):
                     if v['is_arg']:
                         v['arg_value'] = cd['%s_arg' % v['id']]
                 switches.update(s)
-
         if switches:
             # pass the switches dictionary to form the switch part of
             # the rsync command as a string. Two strings will be
@@ -328,7 +333,7 @@ def _create_rsync_remote_replication(request, cleaned_data):
         # python script as a crontab entry that runs rsync replication.
 
         ids, err = remote_replication.add_remote_replication('rsync', {'rsync_type': rsync_type, 'short_switches': switches_formed['short'], 'long_switches': switches_formed[
-                                                             'long'], 'source_path': source_path, 'target_path': target_path, 'target_ip': target_ip, 'target_user_name': target_user_name, 'description': description, 'schedule': schedule})
+                                                             'long'], 'source_path': source_path, 'target_path': target_path, 'target_ip': target_ip, 'is_between_integralstor': is_between_integralstor, 'target_user_name': target_user_name, 'description': description, 'schedule': schedule})
         if err:
             raise Exception(err)
 
