@@ -1,0 +1,101 @@
+{% extends 'dashboard_base.html' %}
+
+{%block tab_header %}
+  Historical ZFS pool availability statistics
+{%endblock%}
+
+{% block inside_content %}
+
+    {% if not pools %}
+      No active pools present.
+    {%endif%}
+
+        <div id="chartdiv" style="width: 85%; height: 400px;display: inline-block;"></div>
+        <script type="text/javascript" src="/static/jqplot/jquery.jqplot.js"></script>
+        <script type="text/javascript" src="/static/jqplot/plugins/jqplot.highlighter.js"></script>
+        <script type="text/javascript" src="/static/jqplot/plugins/jqplot.pointLabels.js"></script>
+        <script type="text/javascript" src="/static/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
+        <link rel="stylesheet" type="text/css" href="/static/jqplot/jquery.jqplot.css" />
+        <script type="text/javascript">
+            var api_url = '/api_get_pool_usage_stats';
+            var counts = [];
+            $.ajax({
+                async:false,
+                method:"GET",
+                url:api_url,
+                success:function(returned_data){
+                    console.log(returned_data.usage);
+                    var lines = returned_data.usage;
+                    var lines = []
+                    for (var i=0;i<lines.length;i++) {
+                        var line = []
+                        for (var j=0;j<lines[i].length;j++) 
+                            line.push(lines[i][j]);
+                        lines.push(line);
+                    }
+                    var line_labels = [];
+                    for (i=0;i<returned_data.pool_names.length;i++) 
+                        line_labels.push({label:returned_data.pool_names[i]});
+                    var jqplot_options = {
+                        title: 'ZFS pool available space',
+                        seriesDefaults: { 
+                            showMarker:true,
+                            pointLabels: { show:false} 
+                        },
+                        series:line_labels,
+                        legend: {
+                            show: true,
+                            placement : "outside",
+                        },
+                        grid: {
+                            backgroundColor: '#ffffff',
+                        },
+                        axes: {
+                            xaxis: {
+                                label: "Date",
+                                tickOptions:{
+                                    formatString:'%b&nbsp;%#d'
+                                },
+                                renderer:$.jqplot.DateAxisRenderer,
+                            },
+                            yaxis:{
+                                label: "Available space (TB)",
+                                tickOptions:{
+                                    formatString:'%.2f'
+                                },
+                            },
+                        },
+                        showLabel:true,
+                        pad: 0,
+                        highlighter: {
+                            show: true,
+                            sizeAdjust: 7.5
+                        }
+                    }
+                    $.jqplot('chartdiv',  returned_data.usage, jqplot_options);
+                },
+                error:function(error_data){
+                    console.log("error");
+                    console.log(error_data);
+                },
+            })
+
+        </script>
+{% endblock %}
+
+{%block help_header%}
+    View historical pool availability
+{%endblock%}
+
+{%block help_body%}
+  <p> 
+    This screen displays the historical pool availability for all existing pools.
+  </p>
+{%endblock%}
+
+
+{% block tab_active %}
+    <script>
+        make_tab_active("zfs_space_util_tab")
+    </script>
+{% endblock%}

@@ -26,7 +26,7 @@ from integral_view.views.local_user_management import view_local_users, create_l
 
 from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share, update_nfs_share
 
-from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, update_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, delete_all_zfs_snapshots, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, update_zfs_slog, delete_zfs_slog, scrub_zfs_pool, clear_zfs_pool, create_zfs_zvol, view_zfs_zvol, import_all_zfs_pools, create_zfs_spares, delete_zfs_spare, expand_zfs_pool, delete_zfs_quota, update_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, update_zfs_l2arc, delete_zfs_l2arc, view_zfs_snapshot_schedules, update_zfs_dataset_advanced_properties
+from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, update_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, delete_all_zfs_snapshots, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, update_zfs_slog, delete_zfs_slog, scrub_zfs_pool, clear_zfs_pool, create_zfs_zvol, view_zfs_zvol, import_all_zfs_pools, create_zfs_spares, delete_zfs_spare, expand_zfs_pool, delete_zfs_quota, update_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, update_zfs_l2arc, delete_zfs_l2arc, view_zfs_snapshot_schedules, update_zfs_dataset_advanced_properties, api_get_pool_usage_stats, view_zfs_historical_usage
 
 from integral_view.views.networking_management import view_interfaces, view_interface, view_bond, update_interface_state, update_interface_address, create_bond, delete_bond, view_hostname, update_hostname, view_dns_nameservers, update_dns_nameservers, delete_vlan, create_vlan
 
@@ -301,6 +301,10 @@ urlpatterns = patterns('',
                            login_required(delete_remote_replication)),
 
                        # From views/zfs_management.py
+                       url(r'^api_get_pool_usage_stats/',
+                           api_get_pool_usage_stats),
+                       url(r'^view_zfs_historical_usage/',
+                           login_required(view_zfs_historical_usage)),
                        url(r'^view_zfs_pools/', login_required(view_zfs_pools)),
                        url(r'^view_zfs_pool/', login_required(view_zfs_pool)),
                        url(r'^update_zfs_quota/',

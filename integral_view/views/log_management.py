@@ -55,6 +55,7 @@ def view_audits(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+
 def view_alerts(request):
     return_dict = {}
     try:
@@ -74,6 +75,7 @@ def view_alerts(request):
         return_dict["error"] = 'Error loading system alerts'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
 
 def view_hardware_logs(request):
     return_dict = {}
@@ -173,17 +175,18 @@ def download_log(request):
                             raise Exception('Unknown platform')
                 else:
 
-                    system_logs = [('/var/log/boot.log', 'boot.log'), ('/var/log/dmesg', 'dmesg'), ('/var/log/messages','messages'),
-                                    ('/var/log/smblog.vfs', 'samba'), ('/var/log/samba/log.winbindd','winbind')]
+                    system_logs = [('/var/log/boot.log', 'boot.log'), ('/var/log/dmesg', 'dmesg'), ('/var/log/messages', 'messages'),
+                                   ('/var/log/smblog.vfs', 'samba'), ('/var/log/samba/log.winbindd', 'winbind'), ('/var/log/integralstor/logs/scripts.log', 'scripts')]
 
                     now_local_epoch, err = datetime_utils.get_epoch(when='now')
                     if err:
                         raise Exception(err)
-                    now_local_str, err = datetime_utils.convert_from_epoch(now_local_epoch, return_format='str', str_format = '%Y_%m_%d_%H_%M', to='local')
+                    now_local_str, err = datetime_utils.convert_from_epoch(
+                        now_local_epoch, return_format='str', str_format='%Y_%m_%d_%H_%M', to='local')
                     if err:
                         raise Exception(err)
 
-                    zf_name = 'IntegralSTOR_system_logs_%s.zip'%now_local_str
+                    zf_name = 'IntegralSTOR_system_logs_%s.zip' % now_local_str
 
                     try:
                         out = io.BytesIO()
@@ -196,8 +199,8 @@ def download_log(request):
                         raise Exception(
                             "Error compressing log file : %s" % str(e))
 
-
-                    response = django.http.HttpResponse(out.getvalue(), content_type='application/x-compressed')
+                    response = django.http.HttpResponse(
+                        out.getvalue(), content_type='application/x-compressed')
                     response['Content-disposition'] = 'attachment; filename=%s' % (
                         zf_name)
 
@@ -213,8 +216,6 @@ def download_log(request):
         return_dict["error"] = 'Error downloading system logs'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
-
-
 
 
 def download_sys_info(request):
@@ -295,10 +296,10 @@ def upload_sys_info(request):
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
-
 def refresh_alerts(request, random=None):
     try:
-        new_alerts_present, err = alerts.new_alerts_present(request.user.username)
+        new_alerts_present, err = alerts.new_alerts_present(
+            request.user.username)
         if err:
             raise Exception(err)
         if new_alerts_present:

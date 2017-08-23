@@ -1,11 +1,41 @@
 import django
 import django.template
 
-from integralstor_utils import zfs, audit, ramdisk, config, command, db
+from integralstor_utils import zfs, ramdisk, config, command, db
 from integralstor_utils import cifs as common_cifs, django_utils
-from integralstor import nfs, local_users, iscsi_stgt, system_info
+from integralstor import nfs, local_users, iscsi_stgt, system_info, audit
 
 from integral_view.forms import zfs_forms
+
+
+def view_zfs_historical_usage(request):
+    return_dict = {}
+    try:
+        pools, err = zfs.get_pools()
+        if err:
+            raise Exception(err)
+        return_dict['pools'] = pools
+        return django.shortcuts.render_to_response('view_historical_zfs_space_util.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    except Exception, e:
+        return_dict['base_template'] = "dashboard_base.html"
+        return_dict["page_title"] = 'ZFS pools usage'
+        return_dict['tab'] = 'zfs_space_util_tab'
+        return_dict["error"] = 'Error loading ZFS hostical space usage'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def api_get_pool_usage_stats(request):
+    data = {}
+    try:
+        data, err = zfs.get_historical_pool_usage_stats()
+        if err:
+            raise Exception(err)
+        # print data
+    except Exception, e:
+        return django.http.JsonResponse({'error': str(e)})
+    else:
+        return django.http.JsonResponse(data)
 
 
 def view_zfs_pools(request):
@@ -1511,7 +1541,8 @@ def delete_all_zfs_snapshots(request):
         pool_names, err = zfs.get_all_pool_names()
         if err:
             raise exception(err)
-        fs_names, err = zfs.get_all_datasets_and_pools(dataset_type='filesystem')
+        fs_names, err = zfs.get_all_datasets_and_pools(
+            dataset_type='filesystem')
         if err:
             raise exception(err)
         all_child_fs = []
