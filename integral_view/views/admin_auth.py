@@ -1,4 +1,3 @@
-
 import django
 import django.template
 from django.contrib import auth
@@ -10,7 +9,8 @@ import os
 import integral_view
 from integral_view.forms import admin_forms, pki_forms
 from integral_view.utils import iv_logging
-from integralstor_utils import audit, mail, config, certificates, nginx, command, scheduler_utils, django_utils
+from integralstor_utils import audit, mail, config, certificates, nginx, command, django_utils
+from integralstor import tasks_utils
 
 
 def login(request):
@@ -318,7 +318,7 @@ def update_https_mode(request):
         redirect_url = redirect_url + \
             request.META["HTTP_HOST"] + \
             "/view_https_mode?ack=set_to_%s" % change_to
-        restart, err = scheduler_utils.create_task('Chaging IntegralView access mode', [
+        restart, err = tasks_utils.create_task('Chaging IntegralView access mode', [
             {'Restarting Web Server': 'service nginx restart'}], 2)
         if err:
             raise Exception(err)

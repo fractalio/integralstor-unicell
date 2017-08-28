@@ -1,4 +1,5 @@
-from integralstor_utils import scheduler_utils, config, logger, lock
+from integralstor_utils import config, logger, lock
+from integralstor import tasks_utils
 import logging
 import sys
 import atexit
@@ -24,7 +25,7 @@ def main():
         db_path, err = config.get_db_path()
         if err:
             raise Exception(err)
-        ret, err = scheduler_utils.process_tasks()
+        ret, err = tasks_utils.process_tasks()
         if err:
             raise Exception(err)
     except Exception, e:

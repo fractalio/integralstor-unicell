@@ -2,8 +2,8 @@ import django
 import django.template
 
 from integral_view.forms import system_forms
-from integralstor_utils import django_utils, cifs as cifs_utils, logger, ntp, vsftp, scheduler_utils, zfs, networking, pki
-from integralstor import cifs as cifs_integralstor, nfs, iscsi_stgt, local_users, audit, alerts, mail, datetime_utils, remote_replication, rsync
+from integralstor_utils import django_utils, cifs as cifs_utils, logger, ntp, vsftp, zfs, networking, pki, logs
+from integralstor import cifs as cifs_integralstor, nfs, iscsi_stgt, local_users, audit, alerts, mail, datetime_utils, remote_replication, rsync, tasks_utils
 
 
 def reset_to_factory_defaults(request):
@@ -99,8 +99,8 @@ def reset_to_factory_defaults(request):
                         elif key == 'delete_remote_replications':
                             result, err = remote_replication.delete_all_remote_replications()
                         elif key == 'delete_tasks_and_logs':
-                            res1, err1 = scheduler_utils.delete_all_tasks()
-                            res2, err2 = scheduler_utils.delete_all_logs()
+                            res1, err1 = tasks_utils.delete_all_tasks()
+                            res2, err2 = logs.delete_all_logs()
                             err = None
                             result = False
                             if err1 and err2:

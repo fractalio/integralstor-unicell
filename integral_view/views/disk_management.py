@@ -1,8 +1,8 @@
 import django
 import django.template
 
-from integralstor_utils import config, disks, command, zfs, scheduler_utils, django_utils
-from integralstor import system_info, manifest_status, audit
+from integralstor_utils import config, disks, command, zfs, django_utils
+from integralstor import system_info, manifest_status, audit, tasks_utils
 
 
 def view_disks(request):
@@ -271,7 +271,7 @@ def replace_disk(request):
                             {'Online the new disk': 'zpool online -e %s %s' % (pool, new_id)})
                         cmd_list.append(
                             {'Regenerate the system configuration': '%s/generate_manifest.py' % common_python_scripts_path})
-                        ret, err = scheduler_utils.create_task(
+                        ret, err = tasks_utils.create_task(
                             'Disk replacement', cmd_list, task_type_id=1, attempts=1)
                         if err:
                             raise Exception(err)
