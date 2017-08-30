@@ -58,7 +58,7 @@ def view_system_info(request):
         if "from" in request.GET:
             frm = request.GET["from"]
             return_dict['frm'] = frm
-        return_dict['node'] = si[si.keys()[0]]
+        return_dict['node'] = si
         return django.shortcuts.render_to_response("view_system_info.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
         return_dict['base_template'] = "system_base.html"
@@ -75,30 +75,30 @@ def update_manifest(request):
     try:
         if request.method == "GET":
             from integralstor import manifest_status as iu
-            mi, err = iu.generate_manifest_info()
+            mi, err = iu.generate_manifest_info(rescan_for_disks = True)
             # print mi, err
             if err:
                 raise Exception(err)
             if not mi:
                 raise Exception('Could not load new configuration')
-            return_dict["mi"] = mi[mi.keys()[0]]  # Need the hostname here.
+            return_dict["mi"] = mi  # Need the hostname here.
             return django.shortcuts.render_to_response("update_manifest.html", return_dict, context_instance=django.template.context.RequestContext(request))
         elif request.method == "POST":
-            common_python_scripts_path, err = config.get_common_python_scripts_path()
+            python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
             ss_path, err = config.get_system_status_path()
             if err:
                 raise Exception(err)
-            #(ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(common_python_scripts_path, ss_path))
+            #(ret,rc), err = command.execute_with_rc("python %s/generate_manifest.py %s"%(python_scripts_path, ss_path))
             ret, err = command.get_command_output(
-                "python %s/generate_manifest.py %s" % (common_python_scripts_path, ss_path))
+                "python %s/generate_manifest.py %s" % (python_scripts_path, ss_path))
             # print 'mani', ret, err
             if err:
                 raise Exception(err)
             #(ret,rc), err = command.execute_with_rc("python %s/generate_status.py %s"%(config.get_python_scripts_path(),config.get_system_status_path()))
             ret, err = command.get_command_output(
-                "python %s/generate_status.py %s" % (common_python_scripts_path, ss_path))
+                "python %s/generate_status.py %s" % (python_scripts_path, ss_path))
             # print 'stat', ret, err
             if err:
                 raise Exception(err)
@@ -106,7 +106,7 @@ def update_manifest(request):
     except Exception, e:
         return_dict['base_template'] = "system_base.html"
         return_dict["page_title"] = 'Reload system configuration'
-        return_dict['tab'] = 'node_info_tab'
+        return_dict['tab'] = 'system_info_tab'
         return_dict["error"] = 'Error reloading system configuration'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -186,9 +186,9 @@ def view_dashboard(request, page):
         if not si:
             raise Exception('Error loading system configuration')
 
-        node_name = si.keys()[0]
-        node = si[node_name]
-        return_dict['node'] = node
+        #node_name = si.keys()[0]
+        #node = si[node_name]
+        return_dict['node'] = si
         # print node.keys()
 
         # By default show error page
@@ -210,9 +210,9 @@ def view_dashboard(request, page):
         num_hw_raid_bad_disks = 0
         num_hw_raid_ctrl_disks = 0
         num_smart_ctrl_disks = 0
-        num_disks = len(node['disks'])
+        num_disks = len(si['disks'])
         disks_ok = True
-        for sn, disk in node['disks'].items():
+        for sn, disk in si['disks'].items():
             if 'status' in disk:
                 if 'hw_raid' in disk:
                     if not disk['hw_raid']:
@@ -239,11 +239,11 @@ def view_dashboard(request, page):
         return_dict['num_hw_raid_ctrl_disks'] = num_hw_raid_ctrl_disks
         return_dict['num_smart_ctrl_disks'] = num_smart_ctrl_disks
 
-        if 'ipmi_status' in node:
-            num_sensors = len(node['ipmi_status'])
+        if 'ipmi_status' in si:
+            num_sensors = len(si['ipmi_status'])
             num_bad_sensors = 0
             ipmi_ok = True
-            for sensor in node['ipmi_status']:
+            for sensor in si['ipmi_status']:
                 if sensor['status'] in ['ok', 'nr', 'na']:
                     continue
                 else:
@@ -306,7 +306,7 @@ def view_dashboard(request, page):
         return_dict['num_high_usage_pools'] = num_high_usage_pools
 
         load_avg_ok = True
-        if (node["load_avg"]["5_min"] > node["load_avg"]["cpu_cores"]) or (node["load_avg"]["15_min"] > node["load_avg"]["cpu_cores"]):
+        if (si["load_avg"]["5_min"] > si["load_avg"]["cpu_cores"]) or (si["load_avg"]["15_min"] > si["load_avg"]["cpu_cores"]):
             load_avg_ok = False
         return_dict['load_avg_ok'] = load_avg_ok
 
@@ -370,8 +370,7 @@ def view_dashboard(request, page):
                             value_list.append(a[1])
                         value_dict[key] = value_list
             return_dict["data_dict_queue"] = value_dict
-            return_dict['node_name'] = node_name
-            return_dict['node'] = si[node_name]
+            return_dict['node'] = si
             d = {}
             template = "view_cpu_stats.html"
         elif page == "sys_health":
@@ -400,7 +399,7 @@ def view_dashboard(request, page):
                 for a in mem["memused"]:
                     time_list.append(a[0])
                     value_list.append((a[1] / (1024 * 1024)))
-            return_dict['memory_status'] = si[node_name]['memory']
+            return_dict['memory_status'] = si['memory']
             template = "view_memory_stats.html"
         # Network
         elif page == "network":
@@ -425,7 +424,7 @@ def view_dashboard(request, page):
                         value_dict[key] = value_list
 
             return_dict["data_dict"] = value_dict
-            return_dict["network_status"] = si[node_name]['interfaces']
+            return_dict["network_status"] = si['interfaces']
             template = "view_network_stats.html"
         return_dict["labels"] = time_list
         return_dict["data"] = value_list

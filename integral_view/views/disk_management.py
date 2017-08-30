@@ -40,10 +40,10 @@ def view_disks(request):
             if err:
                 raise Exception(err)
             return_dict['os_disk_stats'] = os_disk_stats
-        return_dict['node'] = si[si.keys()[0]]
+        return_dict['node'] = si
         return_dict['system_info'] = si
-        return_dict["disk_status"] = si[si.keys()[0]]['disks']
-        return_dict['node_name'] = si.keys()[0]
+        return_dict["disk_status"] = si['disks']
+        return_dict['node_name'] = si['fqdn']
         if type == 'os':
             return django.shortcuts.render_to_response('view_os_disks.html', return_dict, context_instance=django.template.context.RequestContext(request))
         else:
@@ -129,14 +129,14 @@ def replace_disk(request):
             if 'node' in request.POST:
                 node = request.POST["node"]
             else:
-                node = si.keys()[0]
+                node = si['fqdn']
             serial_number = request.POST["serial_number"]
 
             if "conf" in request.POST:
                 if "node" not in request.POST or "serial_number" not in request.POST:
                     raise Exception(
                         "Incorrect access method. Please use the menus")
-                elif request.POST["node"] not in si:
+                elif request.POST["node"] != si['fqdn']:
                     raise Exception("Unknown node. Please use the menus")
                 elif "step" not in request.POST:
                     raise Exception("Incomplete request. Please use the menus")
@@ -164,7 +164,7 @@ def replace_disk(request):
                                 raise Exception(
                                     'Incomplete request. Please try again')
                             new_serial_number = request.POST['new_serial_number']
-                            all_disks, err = disks.get_disk_info_all()
+                            all_disks, err = disks.get_disk_info_status_all(rescan=True)
                             if new_serial_number not in all_disks:
                                 raise Exception('Invalid disk selection')
                             # print new_serial_number
@@ -173,8 +173,8 @@ def replace_disk(request):
                             return_dict['new_id'] = all_disks[new_serial_number]['id']
 
                         pool = None
-                        if serial_number in si[node]["disks"]:
-                            disk = si[node]["disks"][serial_number]
+                        if serial_number in si["disks"]:
+                            disk = si["disks"][serial_number]
                             if "pool" in disk:
                                 pool = disk["pool"]
                             disk_id = disk["id"]
@@ -230,7 +230,7 @@ def replace_disk(request):
                         return_dict["serial_number"] = serial_number
                         return_dict["pool"] = pool
                         return_dict["old_id"] = old_id
-                        old_disks = si[node]["disks"].keys()
+                        old_disks = si["disks"].keys()
                         result = False
                         rc, err = manifest_status.get_disk_info_and_status()
                         if err:
@@ -296,7 +296,7 @@ def replace_disk(request):
                     if 'node' in request.POST:
                         return_dict["node"] = request.POST["node"]
                     else:
-                        node = si.keys()[0]
+                        node = si['fqdn']
                     return_dict["serial_number"] = request.POST["serial_number"]
                     template = "replace_disk_conf.html"
         return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))

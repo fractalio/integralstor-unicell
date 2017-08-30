@@ -42,10 +42,44 @@
 </script>
 
   <table class="table table-bordered table-striped table-hover" style="width:60%">
+    {%if node.hardware_specific_info %}
+      {%if node.hardware_specific_info.system_manufacturer%}
+        <tr>
+          <th> Hardware manufacturer </th>
+          <td>
+            {{node.hardware_specific_info.system_manufacturer}} 
+          </td>
+        </tr>
+      {%endif%}
+      {%if node.hardware_specific_info.product_name%}
+        <tr>
+          <th> Hardware product name </th>
+          <td>
+            {{node.hardware_specific_info.product_name}} 
+          </td>
+        </tr>
+      {%endif%}
+      {%if node.hardware_specific_info.system_version%}
+        <tr>
+          <th> Hardware system version</th>
+          <td>
+            {{node.hardware_specific_info.system_version}} 
+          </td>
+        </tr>
+      {%endif%}
+      {%if node.hardware_specific_info.system_serial_number%}
+        <tr>
+          <th> Hardware system serial number</th>
+          <td>
+            {{node.hardware_specific_info.system_serial_number}} 
+          </td>
+        </tr>
+      {%endif%}
+    {%endif%}
     <tr>
       <th> CPU </th>
       <td>
-        {{node.cpu_model}}
+        {{node.cpu_model}} {%if node.cpu_cores%} ({{node.cpu_cores}} core(s)){%endif%}
       </td>
     </tr>
     <tr>

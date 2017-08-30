@@ -48,11 +48,12 @@ def main():
             f.write('\n\n')
             ret, err = generate_memory_section(f)
             f.write('\n\n')
+            ret, err = generate_dmidecode_section(f)
+            print ret, err
+            f.write('\n\n')
             hw_platform, err = config.get_hardware_platform()
             if hw_platform:
                 if hw_platform == 'dell':
-                    ret, err = generate_command_based_section(f, 'dmidecode -s system-serial-number', 'Dell service tag')
-                    f.write('\n\n')
                     ret, err = generate_dell_hw_status(f)
                     f.write('\n\n')
             ret, err = generate_alerts_section(f, start_time)
@@ -288,6 +289,24 @@ def generate_command_based_section(f, cmd, section_name):
         f.write( '--------------------- %s END ------------------------\n\n'%section_name)
     except Exception, e:
         return False, 'Error generating %s section: %s'%(section_name, str(e))
+    else:
+        return True, None
+
+def generate_dmidecode_section(f):
+    try:
+        f.write( '--------------------- Hardware information BEGIN------------------------\n\n')
+        lines, err = command.get_command_output('dmidecode -s system-manufacturer')
+        f.write( 'System manufacturer : %s\n'%lines[0])
+        lines, err = command.get_command_output('dmidecode -s system-product-name')
+        f.write( 'System product name : %s\n'%lines[0])
+        lines, err = command.get_command_output('dmidecode -s system-version')
+        f.write( 'System version : %s\n'%lines[0])
+        lines, err = command.get_command_output('dmidecode -s system-serial-number')
+        f.write( 'System serial number (service tag) : %s\n'%lines[0])
+        f.write( '\n')
+        f.write( '--------------------- Hardware information END ------------------------\n\n')
+    except Exception, e:
+        return False, 'Error generating hardware information section: %s'%(str(e))
     else:
         return True, None
 
