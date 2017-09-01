@@ -66,4 +66,39 @@ class AuditNotificationsForm(forms.Form):
                 self._errors["recipient_list"] = self.error_class(
                     ["The recipient list is required."])
         return cd
+
+class LogNotificationsForm(forms.Form):
+    recipient_list = admin_forms.MultipleEmailField()
+    def __init__(self, *args, **kwargs):
+        reference_notification_types = None
+        if kwargs and 'reference_notification_types' in kwargs:
+            reference_notification_types = kwargs.pop('reference_notification_types')
+        reference_event_subtypes = None
+        if kwargs and 'reference_event_subtypes' in kwargs:
+            reference_event_subtypes = kwargs.pop('reference_event_subtypes')
+        super(LogNotificationsForm,
+              self).__init__(*args, **kwargs)
+        ch = []
+        if reference_notification_types:
+            for id, description in reference_notification_types.items():
+                ch.append((id, description))
+        self.fields['notification_type_id'] = forms.ChoiceField(choices=ch)
+
+
+        ch = []
+        if reference_event_subtypes:
+            for res in reference_event_subtypes:
+                if res['event_type_id'] != 3:
+                    continue
+                ch.append((res['event_subtype_id'], res['description']))
+        self.fields['event_subtype_id'] = forms.ChoiceField(choices=ch)
+
+    def clean(self):
+        cd = super(LogNotificationsForm, self).clean()
+        #print 'form cd', cd
+        if int(cd['notification_type_id']) == 1:
+            if 'recipient_list' not in cd or (not cd['recipient_list']):
+                self._errors["recipient_list"] = self.error_class(
+                    ["The recipient list is required."])
+        return cd
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

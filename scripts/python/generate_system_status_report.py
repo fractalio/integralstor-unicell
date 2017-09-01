@@ -1,7 +1,8 @@
-from integralstor import alerts, datetime_utils, audit, manifest_status
+from integralstor import alerts, datetime_utils, audit, manifest_status, mail
 from integralstor_utils import db, logger, command, zfs, lock, disks, config
 
 import logging
+import socket
 import sys
 import shutil
 import os
@@ -43,46 +44,71 @@ def main():
         tmp_file_name_with_path = '/tmp/%s'%tmp_file_name
         with open(tmp_file_name_with_path, 'w') as f:
             ret, err = generate_global_header(f)
+            #print ret, err
             f.write('\n')
+            ret, err = generate_dmidecode_section(f)
+            #print ret, err
+            f.write('\n\n')
             ret, err = generate_cpu_section(f)
+            #print ret, err
             f.write('\n\n')
             ret, err = generate_memory_section(f)
+            #print ret, err
             f.write('\n\n')
-            ret, err = generate_dmidecode_section(f)
-            print ret, err
+            ret, err = generate_command_based_section(f, 'nmcli con', 'Networking connections')
+            #print ret, err
+            f.write('\n\n')
+            ret, err = generate_command_based_section(f, 'ip addr', 'IP addresses')
+            #print ret, err
             f.write('\n\n')
             hw_platform, err = config.get_hardware_platform()
+            #print ret, err
             if hw_platform:
                 if hw_platform == 'dell':
                     ret, err = generate_dell_hw_status(f)
+                    #print ret, err
                     f.write('\n\n')
-            ret, err = generate_alerts_section(f, start_time)
-            f.write('\n\n')
-            ret, err = generate_audits_section(f, start_time)
-            f.write('\n\n')
-            ret, err = generate_command_based_section(f, 'nmcli con', 'Networking connections')
-            f.write('\n\n')
-            ret, err = generate_command_based_section(f, 'ip addr', 'IP addresses')
-            f.write('\n\n')
             ret, err = generate_disks_status_section(f)
+            #print ret, err
             f.write('\n\n')
             ret, err = generate_command_based_section(f, 'df -HT --exclude-type=devtmpfs --exclude-type=tmpfs --exclude-type=zfs', 'OS disk space usage')
+            #print ret, err
             f.write('\n\n')
             ret, err = generate_zfs_info_section(f)
+            #print ret, err
             f.write('\n\n')
             ret, err = generate_command_based_section(f, 'zpool list', 'ZFS pool space usage')
+            #print ret, err
             f.write('\n\n')
             ret, err = generate_command_based_section(f, 'zfs list -t filesystem -o name,used,avail,refer,mountpoint,dedup,compression,quota,xattr,recordsize,acltype', 'ZFS datasets')
+            #print ret, err
             f.write('\n\n')
             ret, err = generate_command_based_section(f, 'zfs list -t volume -o name,used,avail,refer,mountpoint,dedup,compression,volsize,volblocksize', 'ZFS zvols')
+            #print ret, err
             f.write('\n\n')
             ret, err = generate_command_based_section(f, 'zpool status -v', 'ZFS pool status')
+            #print ret, err
+            f.write('\n\n')
+            ret, err = generate_audits_section(f, start_time, past_x_days)
+            #print ret, err
+            f.write('\n\n')
+            ret, err = generate_alerts_section(f, start_time, past_x_days)
+            #print ret, err
             f.write('\n\n')
         try:
             os.makedirs('/var/log/integralstor/reports/integralstor_status')
         except:
             pass
-        shutil.move(tmp_file_name_with_path, '/var/log/integralstor/reports/integralstor_status/%s'%tmp_file_name)
+        final_file_name_with_path = '/var/log/integralstor/reports/integralstor_status/%s'%tmp_file_name
+        shutil.move(tmp_file_name_with_path, final_file_name_with_path)
+        d, err = mail.load_email_settings()
+        if not err and d and 'support_email_addresses' in d and d['support_email_addresses']:
+            #Email settings present so send it out to the support email address
+            email_header = '%s - IntegralSTOR system status report'%socket.getfqdn()
+            email_body = 'Please find the latest IntegralSTOR system status report'
+            processed_successfully, err = mail.enqueue(d['support_email_addresses'], email_header, email_body, attachment_file_location = final_file_name_with_path, delete_attachment_file = False)
+            if err:
+                raise Exception(err)
 
     except Exception, e:
         #print str(e)
@@ -110,7 +136,8 @@ def generate_global_header(f):
         f.write('\n\n')
         f.write('################### IntegralSTOR system status report ####################\n\n')
         f.write('                    IntegralSTOR version : %s                                 \n\n'%ver)
-        f.write('                    Report generated at : %s                                 \n\n'%date_str)
+        f.write('                    Hostname             : %s                                 \n\n'%socket.getfqdn())
+        f.write('                    Report generated at  : %s                                 \n\n'%date_str)
         f.write('##########################################################################\n\n')
         f.write('\n\n')
     except Exception, e:
@@ -161,16 +188,17 @@ def generate_dell_hw_status(f):
 
 def generate_memory_section(f):
     try:
-        mem_info, err = manifest_status.get_mem_info()
+        mem_info, err = manifest_status.get_mem_info_status()
         if err:
             raise Exception(err)
+        #print mem_info
         f.write( '--------------------- RAM info BEGIN ------------------------\n\n')
         f.write( 'Total memory : %3.2f %s\n'%(mem_info['mem_total']['value'], mem_info['mem_total']['unit']))
         f.write( 'Free memory : %3.2f %s\n'%(mem_info['mem_free']['value'], mem_info['mem_free']['unit']))
         f.write( '\n')
         f.write( '--------------------- RAM info END ------------------------\n\n')
     except Exception, e:
-        return False, 'Error generating CPU section: %s'%str(e)
+        return False, 'Error generating memory section: %s'%str(e)
     else:
         return True, None
 
@@ -214,13 +242,13 @@ def _get_count(type):
     else:
         return ret, None
 
-def generate_alerts_section(f, start_time):
+def generate_alerts_section(f, start_time, past_x_days):
     try:
         alerts_list, err = alerts.get_alerts(start_time = start_time)
         if err:
             raise Exception(err)
         #print alerts_list
-        f.write( '--------------------- Recent alerts BEGIN ------------------------\n\n')
+        f.write( '--------------------- Alerts in the last %d days BEGIN ------------------------\n\n'%past_x_days)
         for al in alerts_list:
             f.write( 'Subsystem : %s\n'%al['subsystem'])
             f.write( 'Severity : %s\n'%al['severity'])
@@ -235,13 +263,13 @@ def generate_alerts_section(f, start_time):
     else:
         return True, None
 
-def generate_audits_section(f, start_time):
+def generate_audits_section(f, start_time, past_x_days):
     try:
         audit_list, err = audit.get_entries(start_time = start_time)
         if err:
             raise Exception(err)
         #print audit_list
-        f.write( '--------------------- Recent audited actions BEGIN ------------------------\n\n')
+        f.write( '--------------------- Audited actions in the last %d days BEGIN ------------------------\n\n'%past_x_days)
         for au in audit_list:
             f.write( 'Action performed : %s\n'%au['action'])
             f.write( 'Action performed by : %s\n'%au['username'])

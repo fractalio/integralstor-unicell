@@ -61,7 +61,7 @@ class ConfigureEmailForm(forms.Form):
     username = forms.CharField(required=True)
     pswd = forms.CharField(widget=forms.PasswordInput())
     tls = forms.BooleanField(required=False)
-    rcpt_list = MultipleEmailField()
+    rcpt_list = MultipleEmailField(required=False)
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

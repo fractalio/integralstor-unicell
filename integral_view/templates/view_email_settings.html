@@ -37,22 +37,6 @@
           {% if  email_settings.tls %} Yes {%else%} No {%endif%}
         </td>
       </tr>
-      <tr>
-        <th> Send email on alerts </th>
-        <td>
-          {% if  email_settings.email_alerts %} Yes {%else%} No {%endif%}
-        </td>
-      </tr>
-      <tr>
-        <th> Send email on audits </th>
-        <td>
-          {% if  email_settings.email_audit %} Yes {%else%} No {%endif%}
-        </td>
-      </tr>
-      <tr>
-        <th> Email recipient list </th>
-        <td> {{ email_settings.rcpt_list }} </td>
-      </tr>
     </table>
 
     <a href="/update_email_settings/" role="button" class="btn btn-default btn-sm"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify</a>

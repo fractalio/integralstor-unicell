@@ -174,7 +174,7 @@ def create_scheduled_notification(request):
         if err:
             raise Exception(err)
 
-        reference_table_entries, err = event_notifications.get_reference_table_entries(['reference_event_types','reference_notification_types', 'reference_severity_types', 'reference_subsystem_types'])
+        reference_table_entries, err = event_notifications.get_reference_table_entries(['reference_event_types','reference_event_subtypes', 'reference_notification_types', 'reference_severity_types', 'reference_subsystem_types'])
         if err:
             raise Exception(err)
         if 'event_type_id' not in req_params or int(req_params['event_type_id']) not in reference_table_entries['reference_event_types'].keys():
@@ -188,6 +188,9 @@ def create_scheduled_notification(request):
             elif event_type_id == 2: 
                 form = monitoring_forms.AuditNotificationsForm(reference_notification_types = reference_table_entries['reference_notification_types'])
                 template = 'create_audit_notification.html'
+            elif event_type_id == 3: 
+                form = monitoring_forms.LogNotificationsForm(reference_notification_types = reference_table_entries['reference_notification_types'], reference_event_subtypes = reference_table_entries['reference_event_subtypes'])
+                template = 'create_report_notification.html'
             return_dict['form'] = form
             return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
 
@@ -200,6 +203,9 @@ def create_scheduled_notification(request):
             elif event_type_id == 2: 
                 form = monitoring_forms.AuditNotificationsForm(request.POST, reference_notification_types = reference_table_entries['reference_notification_types'])
                 template = 'create_audit_notification.html'
+            elif event_type_id == 3: 
+                form = monitoring_forms.LogNotificationsForm(request.POST, reference_notification_types = reference_table_entries['reference_notification_types'], reference_event_subtypes = reference_table_entries['reference_event_subtypes'])
+                template = 'create_report_notification.html'
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response(template, return_dict, context_instance=django.template.context.RequestContext(request))
@@ -212,6 +218,10 @@ def create_scheduled_notification(request):
                 subsystem_type_id = int(cd['subsystem_type_id'])
             else:
                 subsystem_type_id = -1
+            if 'event_subtype_id' in cd:
+                event_subtype_id = int(cd['event_subtype_id'])
+            else:
+                event_subtype_id = -1 
             if 'severity_type_id' in cd:
                 severity_type_id = int(cd['severity_type_id'])
             else:
@@ -220,7 +230,7 @@ def create_scheduled_notification(request):
                 enc_id, err = mail.create_event_notification_configuration(cd['recipient_list'])
                 if err:
                     raise Exception(err)
-            audit_str, err = event_notifications.create_event_notification(schedule, event_type_id, -1, subsystem_type_id, int(cd['notification_type_id']), severity_type_id, enc_id, reference_table_entries = reference_table_entries)
+            audit_str, err = event_notifications.create_event_notification(schedule, event_type_id, event_subtype_id, subsystem_type_id, int(cd['notification_type_id']), severity_type_id, enc_id, reference_table_entries = reference_table_entries)
             if err:
                 if int(cd['notification_type_id']) == 1:
                     mail.delete_event_notification_configuration(enc_id)
@@ -232,6 +242,8 @@ def create_scheduled_notification(request):
             if event_type_id == 1:
                 audit.audit("create_alert_notification", audit_str, request)
             elif event_type_id == 2:
+                audit.audit("create_audit_notification", audit_str, request)
+            elif event_type_id == 3:
                 audit.audit("create_audit_notification", audit_str, request)
 
             return django.http.HttpResponseRedirect('/view_scheduled_notifications?ack=created')

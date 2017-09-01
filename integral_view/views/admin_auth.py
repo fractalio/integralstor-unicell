@@ -9,8 +9,8 @@ import os
 import integral_view
 from integral_view.forms import admin_forms, pki_forms
 from integral_view.utils import iv_logging
-from integralstor_utils import audit, mail, config, certificates, nginx, command, django_utils
-from integralstor import tasks_utils
+from integralstor_utils import config, certificates, nginx, command, django_utils
+from integralstor import tasks_utils, audit, mail
 
 
 def login(request):
@@ -162,10 +162,6 @@ def view_email_settings(request):
                 d["tls"] = True
             else:
                 d["tls"] = False
-            if d["email_alerts"]:
-                d["email_alerts"] = True
-            else:
-                d["email_alerts"] = False
             return_dict["email_settings"] = d
         ret, err = django_utils.get_request_parameter_values(
             request, ['ack', 'err', 'sent_mail'])
@@ -179,7 +175,7 @@ def view_email_settings(request):
             return_dict["sent_mail"] = ret['sent_mail']
         return django.shortcuts.render_to_response('view_email_settings.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
-        return_dict['base_template'] = "system_base.html"
+        return_dict['base_template'] = "services_base.html"
         return_dict["page_title"] = 'View email notification settings'
         return_dict['tab'] = 'email_tab'
         return_dict["error"] = 'Error viewing email notification settings'
@@ -203,12 +199,8 @@ def update_email_settings(request):
                     d["tls"] = True
                 else:
                     d["tls"] = False
-                if 'email_alerts' in d and d["email_alerts"]:
-                    d["email_alerts"] = True
-                else:
-                    d["email_alerts"] = False
                 form = admin_forms.ConfigureEmailForm(initial={'server': d["server"], 'port': d["port"], 'tls': d["tls"], 'username': d[
-                                                      "username"], 'email_alerts': d["email_alerts"], 'email_audit': d['email_audit'], 'rcpt_list': d["rcpt_list"], 'pswd': ""})
+                                                      "username"], 'pswd': ""})
         else:
             form = admin_forms.ConfigureEmailForm(request.POST)
             if form.is_valid():
@@ -218,7 +210,8 @@ def update_email_settings(request):
                 if err:
                     raise Exception(err)
 
-                ret, err = mail.send_mail(cd["server"], cd["port"], cd["username"], cd["pswd"], cd["tls"], cd["rcpt_list"], "Test email from IntegralStor",
+                if 'rcpt_list' in cd:
+                    ret, err = mail.send_mail(cd["server"], cd["port"], cd["username"], cd["pswd"], cd["tls"], cd["rcpt_list"], "Test email from IntegralStor",
                                           "This is a test email sent by the IntegralStor system in order to confirm that your email settings are working correctly.")
                 if err:
                     raise Exception(err)
@@ -229,7 +222,7 @@ def update_email_settings(request):
         return_dict["form"] = form
         return django.shortcuts.render_to_response(url, return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
-        return_dict['base_template'] = "system_base.html"
+        return_dict['base_template'] = "services_base.html"
         return_dict["page_title"] = 'Change email notification settings'
         return_dict['tab'] = 'email_tab'
         return_dict["error"] = 'Error changing email notification settings'

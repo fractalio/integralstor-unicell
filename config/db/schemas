@@ -4,7 +4,8 @@ CREATE TABLE "email_config" (
   "port" integer NOT NULL,
   "username" varchar(40) NOT NULL,
   "pswd" varchar(40) NOT NULL,
-  "tls" bool NOT NULL);
+  "tls" bool NOT NULL,
+  "support_email_addresses" varchar(200) default "support@fractalio.com");
 
 CREATE TABLE "samba_shares" (
   share_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -151,11 +152,17 @@ INSERT INTO reference_event_types (id, description) values (2, 'Audits');
 INSERT INTO reference_event_types (id, description) values (3, 'Reports');
 
 CREATE TABLE "reference_event_subtypes" (
-  "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  "description" varchar(100) NOT NULL
+  "event_type_id" integer NOT NULL,
+  "event_subtype_id" integer NOT NULL,
+  "description" varchar(100) NOT NULL,
+  FOREIGN KEY(event_type_id) REFERENCES reference_event_types(id),
+  UNIQUE(event_type_id, event_subtype_id)
 );
 
-INSERT INTO reference_event_subtypes (id, description) values (-1, 'Not applicable');
+INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (1, -1, 'Not applicable');
+INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (2, -1, 'Not applicable');
+INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (3, 1, 'System status report');
+INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (3, 2, 'URbackup report');
 
 CREATE TABLE "reference_notification_types" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
