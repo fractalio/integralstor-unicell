@@ -9,18 +9,38 @@
   <form id="import_form" name="import_form" action="/import_zfs_pool/" method="POST">
     {%csrf_token%}
     <table class="table" style="width:800px">
-      <tr>
+    {% if form.name %}
+        <tr>
+        <h5> Available pools: </h5>
+        {% for choice in form.name.field.choices %}
+            <h5 style="padding-left: 8em;"> - {{choice.1}} </h5>
+        {% endfor %}
+        </tr>
+
+        <tr>
         <th> Pool name:</th>
         <td>
-          <input type="text"  name="name" class="form-control" id="id_name" placeholder="Enter the name of the pool" />
+          <select id = "id_name" name="name" class="form-control">
+            {% for choice in form.name.field.choices %}
+                    <option id="id_{{choice.1}}" value="{{choice.0}}">{{choice.1}}</option>
+            {%endfor%}
+          </select>
         </td>
         <td> {{ form.name.errors }} </td>
-      </tr>
-      </table>
+        <td>&nbsp;</td>
+        </tr>
+
+    {% else %}
+        <tr>
+        <h5 id="p-warning-text"> No pools to import! </h5>
+        </tr>
+    {% endif %}
+
+    </table>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <a href="/view_zfs_pools" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
-      <button type="submit" class="btn btn-primary cover-page">Import </button>
+      <button type="submit" class="btn btn-primary cover-page"  {% if not form.name %} disabled {% endif %}>Import </button>
     </div>
   </form>
 {%endblock%}
@@ -30,7 +50,7 @@
 {%endblock%}
 
 {%block help_body%}
-  <p>Use this screen to import a ZFS pool from the data disks that has been previously exported. If successfully imported, the pool will show up in the list of pools.</p>
+  <p>Use this screen to import a ZFS pool from the data disks that has been previously exported/destroyed. If successfully imported, the pool will show up in the list of pools.</p>
 {%endblock%}
 
 {% block tab_active %}

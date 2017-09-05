@@ -141,7 +141,20 @@ class QuotaForm(forms.Form):
 
 
 class ImportPoolForm(forms.Form):
-    name = forms.CharField()
+    def __init__(self, *args, **kwargs):
+        pools = []
+        if kwargs and ('exported_pools' and 'destroyed_pools' in kwargs):
+            [pools.append(name) for name in kwargs.pop('exported_pools')]
+            [pools.append(name) for name in kwargs.pop('destroyed_pools')]
+
+        super(ImportPoolForm, self).__init__(*args, **kwargs)
+        ch = []
+        if pools:
+            for pool in pools:
+                tup = (str(pool), str(pool))
+                ch.append(tup)
+
+            self.fields['name'] = forms.ChoiceField(choices=ch, widget=forms.Select())
 
 
 class CreatePoolForm(forms.Form):
