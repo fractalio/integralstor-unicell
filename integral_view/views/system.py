@@ -2,8 +2,8 @@ import django
 import django.template
 
 from integral_view.forms import system_forms
-from integralstor_utils import django_utils, cifs as cifs_utils, logger, ntp, vsftp, zfs, networking, pki, logs
-from integralstor import cifs as cifs_integralstor, nfs, iscsi_stgt, local_users, audit, alerts, mail, datetime_utils, remote_replication, rsync, tasks_utils
+from integralstor_utils import django_utils, logger, ntp, vsftp, zfs, networking, pki, logs
+from integralstor import cifs, nfs, iscsi_stgt, local_users, audit, alerts, mail, datetime_utils, remote_replication, rsync, tasks_utils
 
 
 def reset_to_factory_defaults(request):
@@ -70,9 +70,9 @@ def reset_to_factory_defaults(request):
                         if not cd[key]:
                             continue
                         if key == 'delete_cifs_shares' and cd[key]:
-                            result, err = cifs_utils.delete_all_shares()
+                            result, err = cifs.delete_all_shares()
                             if result:
-                                cifs_integralstor.reload_configuration()
+                                cifs.reload_configuration()
                         elif key == 'delete_nfs_exports':
                             result, err = nfs.delete_all_exports()
                         elif key == 'delete_rsync_shares':
@@ -112,9 +112,9 @@ def reset_to_factory_defaults(request):
                             else:
                                 result = True
                         elif key == 'reset_cifs_settings':
-                            result, err = cifs_utils.delete_auth_settings()
+                            result, err = cifs.delete_auth_settings()
                             if not err:
-                                cifs_integralstor.reload_configuration()
+                                cifs.reload_configuration()
                         elif key == 'reset_ntp_settings':
                             result, err = ntp.update_integralstor_ntp_servers(
                                 ['0.centos.pool.ntp.org', '1.centos.pool.ntp.org', '2.centos.pool.ntp.org', '3.centos.pool.ntp.org'])

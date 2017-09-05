@@ -2,8 +2,8 @@ import django
 import django.template
 
 from integralstor_utils import zfs, ramdisk, config, command, db
-from integralstor_utils import cifs as common_cifs, django_utils
-from integralstor import nfs, local_users, iscsi_stgt, system_info, audit
+from integralstor_utils import django_utils
+from integralstor import nfs, local_users, iscsi_stgt, system_info, audit, cifs
 
 from integral_view.forms import zfs_forms
 
@@ -601,7 +601,7 @@ def delete_zfs_pool(request):
         nfs_shares, err = nfs.get_shares_on_subpath('%s/' % name)
         if err:
             raise Exception(err)
-        cifs_shares, err = common_cifs.get_shares_on_subpath('%s/' % name)
+        cifs_shares, err = cifs.get_shares_on_subpath('%s/' % name)
         if err:
             raise Exception(err)
         luns, err = iscsi_stgt.get_luns_on_subpath('%s/' % name)
@@ -1177,7 +1177,7 @@ def delete_zfs_dataset(request):
         nfs_shares, err = nfs.get_shares_on_subpath('%s/' % name)
         if err:
             raise Exception(err)
-        cifs_shares, err = common_cifs.get_shares_on_subpath('%s/' % name)
+        cifs_shares, err = cifs.get_shares_on_subpath('%s/' % name)
         if err:
             raise Exception(err)
         luns, err = iscsi_stgt.get_luns_on_subpath('%s/' % name)

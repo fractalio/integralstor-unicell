@@ -9,9 +9,9 @@ from django.contrib.auth.decorators import login_required
 import django.http
 
 from integralstor_utils import command, zfs, stats, config, django_utils
-from integralstor_utils import cifs as cifs_common, services_management
+from integralstor_utils import services_management
 
-from integralstor import system_info, iscsi_stgt, nfs, audit, datetime_utils
+from integralstor import system_info, iscsi_stgt, nfs, audit, datetime_utils, cifs
 
 
 @login_required
@@ -310,7 +310,7 @@ def view_dashboard(request, page):
             load_avg_ok = False
         return_dict['load_avg_ok'] = load_avg_ok
 
-        shares_list, err = cifs_common.get_shares_list()
+        shares_list, err = cifs.get_shares_list()
         if err:
             raise Exception(err)
         return_dict['num_cifs_shares'] = len(shares_list)

@@ -6,10 +6,9 @@ import os
 import integral_view
 from integral_view.forms import samba_shares_forms
 
-from integralstor_utils import audit, zfs, acl, django_utils, config
-from integralstor_utils import cifs as cifs_common
+from integralstor_utils import zfs, acl, django_utils, config
 
-from integralstor import cifs as cifs_integralstor
+from integralstor import cifs, audit
 from integralstor import local_users
 
 
@@ -17,7 +16,7 @@ def view_cifs_shares(request):
     return_dict = {}
     try:
         template = 'logged_in_error.html'
-        shares_list, err = cifs_common.get_shares_list()
+        shares_list, err = cifs.get_shares_list()
         if err:
             raise Exception(err)
 
@@ -67,7 +66,7 @@ def view_cifs_share(request):
             return_dict["ack_message"] = "Information updated successfully"
 
         valid_users_list = None
-        share, err = cifs_common.get_share_info(access_mode, index)
+        share, err = cifs.get_share_info(access_mode, index)
         if err:
             raise Exception(err)
         if not share:
@@ -110,10 +109,10 @@ def update_cifs_share(request):
 
     return_dict = {}
     try:
-        user_list, err = cifs_integralstor.get_user_list()
+        user_list, err = cifs.get_user_list()
         if err:
             raise Exception(err)
-        group_list, err = cifs_integralstor.get_group_list()
+        group_list, err = cifs.get_group_list()
         if err:
             raise Exception(err)
 
@@ -123,7 +122,7 @@ def update_cifs_share(request):
                 raise Exception("Unknown share specified")
 
             share_id = request.GET["share_id"]
-            share_dict, err = cifs_common.get_share_info("by_id", share_id)
+            share_dict, err = cifs.get_share_info("by_id", share_id)
             if err:
                 raise Exception(err)
 
@@ -199,11 +198,11 @@ def update_cifs_share(request):
                 else:
                     hosts_deny = None
                 # print hosts_deny
-                ret, err = cifs_common.update_share(
+                ret, err = cifs.update_share(
                     share_id, name, comment, False, read_only, path, browseable, None, None, hosts_allow=hosts_allow, hosts_deny=hosts_deny)
                 if err:
                     raise Exception(err)
-                ret, err = cifs_integralstor.generate_smb_conf()
+                ret, err = cifs.generate_smb_conf()
                 if err:
                     raise Exception(err)
 
@@ -239,10 +238,10 @@ def delete_cifs_share(request):
             share_id = request.POST["share_id"]
             name = request.POST["name"]
             #logger.debug("Delete share request for name %s"%name)
-            ret, err = cifs_common.delete_share(share_id)
+            ret, err = cifs.delete_share(share_id)
             if err:
                 raise Exception(err)
-            ret, err = cifs_integralstor.generate_smb_conf()
+            ret, err = cifs.generate_smb_conf()
             if err:
                 raise Exception(err)
 
@@ -381,11 +380,11 @@ def create_cifs_share(request):
                 # print hosts_deny
 
                 guest_ok = True
-                ret, err = cifs_common.create_share(
+                ret, err = cifs.create_share(
                     name, comment, True, read_only, path, path, browseable, None, None, "integralstor_novol", hosts_allow=hosts_allow, hosts_deny=hosts_deny)
                 if err:
                     raise Exception(err)
-                ret, err = cifs_integralstor.generate_smb_conf()
+                ret, err = cifs.generate_smb_conf()
                 if err:
                     raise Exception(err)
 
@@ -406,7 +405,7 @@ def create_cifs_share(request):
 def update_auth_method(request):
     return_dict = {}
     try:
-        d, err = cifs_common.get_auth_settings()
+        d, err = cifs.get_auth_settings()
         if err:
             raise Exception(err)
         return_dict["samba_global_dict"] = d
@@ -423,10 +422,10 @@ def update_auth_method(request):
                 return_dict["error"] = "Selected authentication method is the same as before."
                 return django.shortcuts.render_to_response('update_cifs_auth_method.html', return_dict, context_instance=django.template.context.RequestContext(request))
 
-            ret, err = cifs_common.update_auth_method(security)
+            ret, err = cifs.update_auth_method(security)
             if err:
                 raise Exception(err)
-            ret, err = cifs_integralstor.generate_smb_conf()
+            ret, err = cifs.generate_smb_conf()
             if err:
                 raise Exception(err)
 
@@ -443,7 +442,7 @@ def update_auth_method(request):
 def view_samba_server_settings(request):
     return_dict = {}
     try:
-        d, err = cifs_common.get_auth_settings()
+        d, err = cifs.get_auth_settings()
         if err:
             raise Exception(err)
 
@@ -468,7 +467,7 @@ def update_samba_server_settings(request):
     return_dict = {}
     try:
         if request.method == "GET":
-            d, err = cifs_common.get_auth_settings()
+            d, err = cifs.get_auth_settings()
             if err:
                 raise Exception(err)
             ini = {}
@@ -504,27 +503,27 @@ def update_samba_server_settings(request):
             if form.is_valid():
                 cd = form.cleaned_data
                 # print "Calling auth save settings"
-                ret, err = cifs_common.update_auth_settings(cd)
+                ret, err = cifs.update_auth_settings(cd)
                 print "save settings done"
                 if err:
                     raise Exception(err)
                 if cd["security"] == "ads":
-                    ret, err = cifs_common.generate_krb5_conf()
+                    ret, err = cifs.generate_krb5_conf()
                     if err:
                         raise Exception(err)
-                ret, err = cifs_integralstor.generate_smb_conf()
+                ret, err = cifs.generate_smb_conf()
                 if err:
                     raise Exception(err)
                 if cd["security"] == "ads":
-                    rc, err = cifs_integralstor.kinit(
+                    rc, err = cifs.kinit(
                         "administrator", cd["password"], cd["realm"])
                     if err:
                         raise Exception(err)
-                    rc, err = cifs_integralstor.net_ads_join(
+                    rc, err = cifs.net_ads_join(
                         "administrator", cd["password"], cd["password_server"])
                     if err:
                         raise Exception(err)
-                ret, err = cifs_integralstor.reload_configuration()
+                ret, err = cifs.reload_configuration()
                 if err:
                     raise Exception(err)
             else:
