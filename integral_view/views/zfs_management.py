@@ -436,21 +436,52 @@ def create_zfs_pool(request):
             pool_types.append(('raid60', 'RAID-60'))
 
         if request.method == "GET":
-            # Return the conf page
             form = zfs_forms.CreatePoolForm(pool_types=pool_types, num_free_disks=len(
                 free_disks), initial={'num_disks': len(free_disks)})
             return_dict['form'] = form
             return_dict['num_disks'] = len(free_disks)
             return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            form = zfs_forms.CreatePoolForm(
-                request.POST, pool_types=pool_types, num_free_disks=len(free_disks))
-            return_dict['form'] = form
-            return_dict['num_disks'] = len(free_disks)
-            if not form.is_valid():
-                return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance=django.template.context.RequestContext(request))
-            cd = form.cleaned_data
-            # print cd
+            cd = None
+            return_dict = {}
+            if request.POST.get('is_confirmation') == 'False':
+                form = zfs_forms.CreatePoolForm(
+                    request.POST, pool_types=pool_types, num_free_disks=len(free_disks))
+                return_dict['form'] = form
+                return_dict['num_disks'] = len(free_disks)
+                if not form.is_valid():
+                    return django.shortcuts.render_to_response("create_zfs_pool.html", return_dict, context_instance=django.template.context.RequestContext(request))
+                cd = form.cleaned_data
+                return_dict['pool'] = cd
+
+                exported_pools, err = zfs.get_exported_pool_names()
+                if err:
+                    raise Exception(err)
+                destroyed_pools, err = zfs.get_exported_pool_names(get_destroyed=True)
+                if err:
+                    raise Exception(err)
+                return_dict['exported_pools'] = exported_pools
+                return_dict['destroyed_pools'] = destroyed_pools
+
+                # All okay, return confirmation page
+                # Cleaned data(cd) is held by this template as a hidden
+                # input type by the name 'pool'. This is not elegant,
+                # but no easier alternative to pass the forms' cleaned
+                # values
+                return django.shortcuts.render_to_response("create_zfs_pool_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+            # Fetch the cleaned values returned by the form earlier
+            post_conf = request.POST.get('pool')
+
+            # Since dict returned in request.POST is in an ugly string
+            # form, convert that to an iteratable dict form
+            import ast
+            cd = {}
+            cd_dict = ast.literal_eval(post_conf)
+            for k,v in cd_dict.items():
+                cd[k] = cd_dict[k]
+
+            # Go ahead with the pool creation
             vdev_list = None
             if cd['pool_type'] in ['raid5', 'raid6']:
                 vdev_list, err = zfs.create_pool_data_vdev_list(

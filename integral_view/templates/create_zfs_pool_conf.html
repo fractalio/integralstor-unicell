@@ -1,0 +1,121 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  Create ZFS pool - Confirmation
+{%endblock%}
+
+{%block inside_content %}
+
+  <form id="create_form" name="create_form" action="" method="post">
+    {%csrf_token%}
+    <input type=hidden name="is_confirmation" id="id_is_confirmation" value="True">
+    <input type=hidden name="pool" id="id_pool" value="{{pool}}">
+
+    <table class="table" style="width:800px">
+    <colgroup width="40%" />
+      <tr>
+        <th> Pool name:</th>
+        <td>
+        {{ pool.name }}
+        </td>
+      </tr>
+      <tr>
+        <th> Underlying storage type:</th>
+        <td>
+        {{ pool.disk_type }}
+        </td>
+      </tr>
+      <tr>
+        <th> Data protection schema:</th>
+        <td>
+        {{ pool.pool_type }}
+        </td>
+      </tr>
+      {% if pool.pool_type != 'raid10' %}
+          <tr>
+            <th> Number of disks in the RAID :</th>
+            <td>
+            {% if pool.pool_type == 'mirror' %}
+            2
+            {% else %}
+            {{ pool.num_raid_disks }}
+            {% endif %}
+            </td>
+          </tr>
+      {% endif %}
+      {% if pool.pool_type == 'raid10' or pool.pool_type == 'raid50' or pool.pool_type == 'raid60'  %}
+          <tr>
+            <th> Stripe width:</th>
+            <td>
+            {{ pool.stripe_width }}
+            </td>
+          </tr>
+      {% endif %}
+      <tr>
+        <th> Deduplication:</th>
+        {% if pool.dedup == True %}
+        <td> Enabled </td>
+        {% else %}
+        <td> Disabled </td>
+        {% endif %}
+      </tr>
+    </table>
+    <br />
+
+    {% if exported_pools or destroyed_pools %}
+        <h5 id="p-warning-text">
+        The following list of ZFS pool(s) have been exported/destroyed. If you confirm the action to create a new pool "{{pool.name}}", you may NOT be able to recover or import these pools later.
+        </h5>
+        <p><a href="/import_zfs_pool/">Click here to import any of these pool(s)</a></p>
+
+        <table class="table" style="width:800px">
+        {% if exported_pools %}
+            <th> Exported pools: </th>
+            <tr>
+            <td>
+            <ul style="padding-left: 8em;">
+            {% for name in exported_pools %}
+                <li><p> {{name}} </p></li>
+            {% endfor %}
+            </ul>
+            </td>
+            </tr>
+        {% endif %}
+        {% if destroyed_pools %}
+            <th> Destroyed pools: </th>
+            <tr>
+            <td>
+            <ul style="padding-left: 8em;">
+            {% for name in destroyed_pools %}
+                <li><p> {{name}} </p></li>
+            {% endfor %}
+            </ul>
+            </td>
+            </tr>
+        {% endif %}
+
+        </table>
+    {% endif %}
+
+    <br />
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_zfs_pools" role="button" class="btn btn-danger"> Cancel</a>&nbsp;&nbsp;
+      <a href="/create_zfs_pool/" role="button" class="btn btn-default"> Back</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary cover-page">Confirm</button>
+    </div>
+  </form>
+{%endblock%}
+
+{%block help_header%}
+  Confirm ZFS pool configuration
+{%endblock%}
+
+{%block help_body%}
+  <p>The settings will take effect upon confirmation of this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

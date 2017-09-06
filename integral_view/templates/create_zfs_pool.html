@@ -6,10 +6,12 @@
 
 {%block inside_content %}
 
-  <form id="create_form" name="create_form" action="/create_zfs_pool/" method="post">
+  <form id="create_form" name="create_form" action="" method="post">
     {%csrf_token%}
+    <input type=hidden name="is_confirmation" id="id_is_confirmation" value="False">
     {{ form.num_disks}}
     <table class="table" style="width:800px">
+     <colgroup width="40%" />
       <tr>
         <th> Pool name:</th>
         <td>
