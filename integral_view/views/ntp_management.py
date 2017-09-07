@@ -4,7 +4,7 @@ import django
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
-from integralstor import system_info, django_utils, ntp, services_management
+from integralstor import system_info, django_utils, ntp, services_management, audit
 
 import integral_view
 from integral_view.forms import common_forms
@@ -65,9 +65,12 @@ def update_ntp_settings(request):
                 else:
                     slist = server_list.split(' ')
                 ret, err = ntp.update_integralstor_ntp_servers(slist)
-                print ret, err
+                # print ret, err
                 if err:
                     raise Exception(err)
+                audit_str = "Modified NTP servers to %s" % server_list
+                audit.audit("update_ntp_servers",
+                            audit_str, request)
                 return django.http.HttpResponseRedirect("/view_ntp_settings?ack=saved")
             else:
                 # invalid form
@@ -92,6 +95,9 @@ def sync_ntp(request):
             raise Exception(err)
         else:
             if 'ntp_sync' in output and output['ntp_sync'] == True and 'server_used' in output:
+                audit_str = "Performed a one time NTP sync to server %s" % output['server_used']
+                audit.audit("ntp_sync",
+                            audit_str, request)
                 return django.http.HttpResponseRedirect("/view_ntp_settings?ack=ntp_synced&server_used=%s" % output['server_used'])
             else:
                 raise Exception("NTP sync failed")
