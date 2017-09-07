@@ -1,6 +1,6 @@
 from django import forms
 
-from integralstor_utils import config
+from integralstor import config
 
 
 class AddAcesForm(forms.Form):

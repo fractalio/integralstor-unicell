@@ -1,5 +1,4 @@
-from integralstor import alerts, audit, mail
-from integralstor_utils import db, logger, lock
+from integralstor import alerts, audit, mail, lock, logger, db
 
 import logging
 import sys

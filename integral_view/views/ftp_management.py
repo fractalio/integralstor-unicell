@@ -2,8 +2,7 @@ import django
 import django.template
 import os
 
-from integralstor_utils import audit, zfs, certificates, vsftp
-from integralstor import local_users
+from integralstor import local_users, audit, vsftp, zfs, pki
 from integral_view.forms import ftp_management_forms
 
 
@@ -44,7 +43,7 @@ def update_ftp_configuration(request):
             for ds in pool["datasets"]:
                 if ds['properties']['type']['value'] == 'filesystem':
                     ds_list.append(ds["name"])
-        cert_list, err = certificates.get_certificates()
+        cert_list, err = pki.get_ssl_certificates()
         if err:
             raise Exception(err)
         cert_name_list = []

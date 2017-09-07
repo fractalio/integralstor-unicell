@@ -1,7 +1,6 @@
 from django import forms
-import integralstor_utils
 import common_forms
-from integralstor_utils import networking
+from integralstor import networking
 from integral_view.forms import folder_management_forms
 
 

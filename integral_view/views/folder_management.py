@@ -13,8 +13,7 @@ import json
 import integral_view
 from integral_view.forms import samba_shares_forms, folder_management_forms
 
-from integralstor_utils import audit, zfs, acl, django_utils, config
-from integralstor import cifs as cifs_integralstor, local_users, nfs
+from integralstor import acl, cifs, local_users, nfs, audit, django_utils, file_processing, zfs, config
 
 
 def _sticky_bit_enabled(path):
@@ -212,10 +211,10 @@ def create_aces(request):
         aces, err = acl.get_all_aces(path)
         if err:
             raise Exception(err)
-        user_list, err = cifs_integralstor.get_user_list()
+        user_list, err = cifs.get_user_list()
         if err:
             raise Exception(err)
-        group_list, err = cifs_integralstor.get_group_list()
+        group_list, err = cifs.get_group_list()
         if err:
             raise Exception(err)
         new_users, err = acl.get_new_ug_list(aces, user_list, 'user')

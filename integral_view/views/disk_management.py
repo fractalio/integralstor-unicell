@@ -1,8 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import config, disks, command, zfs, django_utils
-from integralstor import system_info, manifest_status, audit, tasks_utils
+from integralstor import system_info, manifest_status, audit, tasks_utils, django_utils, disks, zfs, config, command
 
 
 def view_disks(request):
@@ -31,7 +30,7 @@ def view_disks(request):
         if hw_platform:
             return_dict['hw_platform'] = hw_platform
             if hw_platform == 'dell':
-                from integralstor_utils.platforms import dell
+                from integralstor.platforms import dell
                 idrac_url, err = dell.get_idrac_addr()
                 if idrac_url:
                     return_dict['idrac_url'] = idrac_url
@@ -51,7 +50,7 @@ def view_disks(request):
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
         return_dict["page_title"] = 'Disks'
-        return_dict['tab'] = 'view_%s_disks_tab'%type
+        return_dict['tab'] = 'view_%s_disks_tab' % type
         return_dict["error"] = 'Error loading disk information'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -88,12 +87,12 @@ def identify_disk(request):
         enclosure_id = ret['enclosure_id']
         target_id = ret['target_id']
         controller_number = ret['controller_number']
-        from integralstor_utils.platforms import dell
+        from integralstor.platforms import dell
         result, err = dell.blink_unblink_disk(
             action, controller_number, channel, enclosure_id, target_id)
         if not result:
             raise Exception(err)
-        return django.http.HttpResponseRedirect('/view_disks?ack=%s&type=%s' %(action, disk_type))
+        return django.http.HttpResponseRedirect('/view_disks?ack=%s&type=%s' % (action, disk_type))
 
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
@@ -164,7 +163,8 @@ def replace_disk(request):
                                 raise Exception(
                                     'Incomplete request. Please try again')
                             new_serial_number = request.POST['new_serial_number']
-                            all_disks, err = disks.get_disk_info_status_all(rescan=True)
+                            all_disks, err = disks.get_disk_info_status_all(
+                                rescan=True)
                             if new_serial_number not in all_disks:
                                 raise Exception('Invalid disk selection')
                             # print new_serial_number
@@ -261,7 +261,7 @@ def replace_disk(request):
                         old_id = request.POST["old_id"]
                         new_id = request.POST["new_id"]
                         new_serial_number = request.POST["new_serial_number"]
-                        common_python_scripts_path, err = config.get_common_python_scripts_path()
+                        python_scripts_path, err = config.get_python_scripts_path()
                         if err:
                             raise Exception(err)
                         cmd_list = []
@@ -270,7 +270,7 @@ def replace_disk(request):
                         cmd_list.append(
                             {'Online the new disk': 'zpool online -e %s %s' % (pool, new_id)})
                         cmd_list.append(
-                            {'Regenerate the system configuration': '%s/generate_manifest.py' % common_python_scripts_path})
+                            {'Regenerate the system configuration': '%s/generate_manifest.py' % python_scripts_path})
                         ret, err = tasks_utils.create_task(
                             'Disk replacement', cmd_list, task_type_id=1, attempts=1)
                         if err:

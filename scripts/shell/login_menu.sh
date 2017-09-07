@@ -157,8 +157,8 @@ view_node_config(){
 }
 
 generate_manifest_and_status(){
-  sudo python /opt/integralstor/integralstor_utils/scripts/python/generate_manifest.py
-  sudo python /opt/integralstor/integralstor_utils/scripts/python/generate_status.py
+  sudo python /opt/integralstor/integralstor/scripts/python/generate_manifest.py
+  sudo python /opt/integralstor/integralstor/scripts/python/generate_status.py
   pause
 }
 

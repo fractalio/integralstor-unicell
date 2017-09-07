@@ -2,7 +2,7 @@ from django import forms
 import common_forms
 import pytz
 import datetime
-from integralstor_utils import networking
+from integralstor import networking
 
 
 class DateTimeForm(forms.Form):

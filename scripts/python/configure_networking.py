@@ -3,7 +3,7 @@ import socket
 import re
 import sys
 import time
-from integralstor_utils import networking, command, config
+from integralstor import networking, command, config
 
 
 def configure_interface():

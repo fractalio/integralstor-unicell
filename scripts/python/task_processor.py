@@ -1,5 +1,4 @@
-from integralstor_utils import config, logger, lock
-from integralstor import tasks_utils
+from integralstor import tasks_utils, lock, logger, config
 import logging
 import sys
 import atexit

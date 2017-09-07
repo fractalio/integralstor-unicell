@@ -161,7 +161,6 @@ CREATE TABLE "reference_event_subtypes" (
 
 INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (1, -1, 'Alerts');
 INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (2, -1, 'Audits');
-INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (3, -1, 'Reports - Unspecified');
 INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (3, 1, 'System status report');
 INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (3, 2, 'URbackup report');
 
@@ -223,7 +222,7 @@ CREATE TABLE "event_notification_triggers" (
   "superadmin_only" bool NOT NULL default 0,
   "cron_task_id" integer NOT NULL,
   FOREIGN KEY(event_type_id) REFERENCES reference_event_types(id),
-  FOREIGN KEY(event_subtype_id) REFERENCES reference_event_subtypes(event_subtype_id),
+  FOREIGN KEY(event_type_id, event_subtype_id) REFERENCES reference_event_subtypes(event_type_id, event_subtype_id),
   FOREIGN KEY(subsystem_type_id) REFERENCES reference_subsystem_types(id),
   FOREIGN KEY(severity_type_id) REFERENCES reference_severity_types(id),
   FOREIGN KEY(notification_type_id) REFERENCES reference_notification_types(id),

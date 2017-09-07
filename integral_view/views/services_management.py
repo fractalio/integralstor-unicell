@@ -4,8 +4,7 @@ import os
 
 import urllib
 
-from integralstor_utils import audit, services_management
-from integralstor import local_users
+from integralstor import local_users, audit, services_management
 
 
 def view_services(request):

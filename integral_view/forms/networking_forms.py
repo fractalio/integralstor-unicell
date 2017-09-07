@@ -1,8 +1,7 @@
 from django import forms
 
-import integralstor_utils
 import common_forms
-from integralstor_utils import networking
+from integralstor import networking
 
 
 class EditHostnameForm(forms.Form):

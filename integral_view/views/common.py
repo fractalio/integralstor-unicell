@@ -8,10 +8,8 @@ import django
 from django.contrib.auth.decorators import login_required
 import django.http
 
-from integralstor_utils import command, zfs, stats, config, django_utils
-from integralstor_utils import services_management
 
-from integralstor import system_info, iscsi_stgt, nfs, audit, datetime_utils, cifs
+from integralstor import system_info, iscsi_stgt, nfs, audit, datetime_utils, cifs, django_utils, stats, services_management, zfs, command, config
 
 
 @login_required
@@ -37,13 +35,15 @@ def view_system_info(request):
         si, err = system_info.load_system_config()
         if err:
             raise Exception(err)
-        now_epoch, err = datetime_utils.get_epoch(when='now', num_previous_days=0)
+        now_epoch, err = datetime_utils.get_epoch(
+            when='now', num_previous_days=0)
         if err:
             raise Exception(err)
-        now, err = datetime_utils.convert_from_epoch(now_epoch, return_format='datetime', to='local')
+        now, err = datetime_utils.convert_from_epoch(
+            now_epoch, return_format='datetime', to='local')
         if err:
             raise Exception(err)
-        milliseconds = int(now_epoch*1000)
+        milliseconds = int(now_epoch * 1000)
         if err:
             raise Exception(err)
         system_timezone, err = datetime_utils.get_system_timezone()
@@ -53,7 +53,7 @@ def view_system_info(request):
         return_dict['time'] = now
         return_dict['milliseconds'] = milliseconds
         return_dict['system_timezone'] = system_timezone['system_timezone']
-        #print return_dict['system_timezone']
+        # print return_dict['system_timezone']
         return_dict['system_info'] = si
         if "from" in request.GET:
             frm = request.GET["from"]
@@ -75,7 +75,7 @@ def update_manifest(request):
     try:
         if request.method == "GET":
             from integralstor import manifest_status as iu
-            mi, err = iu.generate_manifest_info(rescan_for_disks = True)
+            mi, err = iu.generate_manifest_info(rescan_for_disks=True)
             # print mi, err
             if err:
                 raise Exception(err)
@@ -382,7 +382,7 @@ def view_dashboard(request, page):
             if hw_platform:
                 return_dict['hw_platform'] = hw_platform
                 if hw_platform == 'dell':
-                    from integralstor_utils.platforms import dell
+                    from integralstor.platforms import dell
                     idrac_url, err = dell.get_idrac_addr()
                     if idrac_url:
                         return_dict['idrac_url'] = idrac_url

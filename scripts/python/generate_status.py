@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-from integralstor_utils import lock, config, logger
-from integralstor import alerts, manifest_status
+from integralstor import alerts, manifest_status, lock, logger, config
 import json
 import os
 import shutil

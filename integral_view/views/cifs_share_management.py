@@ -6,9 +6,7 @@ import os
 import integral_view
 from integral_view.forms import samba_shares_forms
 
-from integralstor_utils import zfs, acl, django_utils, config
-
-from integralstor import cifs, audit
+from integralstor import cifs, audit, acl, django_utils, zfs, config
 from integralstor import local_users
 
 

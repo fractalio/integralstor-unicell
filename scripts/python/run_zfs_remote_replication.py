@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import sys
-from integralstor_utils import zfs
-from integralstor import remote_replication, datetime_utils
+from integralstor import remote_replication, datetime_utils, zfs
 
 
 def run_zfs_remote_replication(remote_replication_id):

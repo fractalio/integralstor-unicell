@@ -1,9 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import zfs, ramdisk, config, command, db
-from integralstor_utils import django_utils
-from integralstor import nfs, local_users, iscsi_stgt, system_info, audit, cifs
+from integralstor import nfs, local_users, iscsi_stgt, system_info, audit, cifs, django_utils, ramdisk, zfs, config, command, db
 
 from integral_view.forms import zfs_forms
 
@@ -379,18 +377,12 @@ def import_all_zfs_pools(request):
 def import_zfs_pool(request):
     return_dict = {}
     try:
-        exported_pools, err = zfs.get_exported_pool_names()
-        if err:
-            raise Exception(err)
-        destroyed_pools, err = zfs.get_exported_pool_names(get_destroyed=True)
-        if err:
-            raise Exception(err)
         if request.method == 'GET':
-            form = zfs_forms.ImportPoolForm(exported_pools=exported_pools, destroyed_pools=destroyed_pools)
+            form = zfs_forms.ImportPoolForm()
             return_dict['form'] = form
             return django.shortcuts.render_to_response("import_zfs_pool.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            form = zfs_forms.ImportPoolForm(request.POST, exported_pools=exported_pools, destroyed_pools=destroyed_pools)
+            form = zfs_forms.ImportPoolForm(request.POST)
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response("import_zfs_pool.html", return_dict, context_instance=django.template.context.RequestContext(request))

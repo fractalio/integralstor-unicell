@@ -1,6 +1,5 @@
 
-from integralstor import event_notifications, audit, mail
-from integralstor_utils import db, logger
+from integralstor import event_notifications, audit, mail, logger, db
 
 import logging
 import sys

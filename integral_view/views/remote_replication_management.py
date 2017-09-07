@@ -2,11 +2,10 @@ import ast
 import django
 import django.template
 
-
-from integralstor_utils import zfs, config, django_utils
-from integralstor import audit, rsync, remote_replication, scheduler_utils
+from integralstor import audit, rsync, remote_replication, scheduler_utils, django_utils, zfs, config
 
 from integral_view.forms import remote_replication_forms
+
 
 def view_remote_replications(request):
     return_dict = {}

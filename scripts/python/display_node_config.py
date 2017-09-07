@@ -1,5 +1,5 @@
 
-from integralstor_utils import networking, command
+from integralstor import networking, command
 import os
 import socket
 import sys

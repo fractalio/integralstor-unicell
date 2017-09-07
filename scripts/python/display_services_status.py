@@ -1,6 +1,6 @@
 import os
 import sys
-from integralstor_utils import services_management
+from integralstor import services_management
 
 
 def display_services_status():

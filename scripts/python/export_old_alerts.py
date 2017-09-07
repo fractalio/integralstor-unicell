@@ -1,5 +1,4 @@
-from integralstor import alerts
-from integralstor_utils import db, logger
+from integralstor import alerts, logger, db
 
 import logging
 import sys

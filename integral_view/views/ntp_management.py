@@ -4,8 +4,7 @@ import django
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
-from integralstor_utils import ntp, services_management, django_utils
-from integralstor import system_info
+from integralstor import system_info, django_utils, ntp, services_management
 
 import integral_view
 from integral_view.forms import common_forms

@@ -1,8 +1,7 @@
 
 from django import forms
 
-import integralstor_utils
-from integralstor_utils import networking
+from integralstor import networking
 
 
 class MultipleServerField(forms.CharField):

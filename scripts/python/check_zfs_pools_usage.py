@@ -1,5 +1,4 @@
-from integralstor import alerts
-from integralstor_utils import db, logger, command, zfs, lock
+from integralstor import alerts, lock, logger, zfs, db, command
 
 import logging
 import sys

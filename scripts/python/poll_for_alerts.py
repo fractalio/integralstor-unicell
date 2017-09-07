@@ -3,8 +3,7 @@ import sys
 import time
 import logging
 
-from integralstor_utils import config, lock, db, logger
-from integralstor import alerts, system_info
+from integralstor import alerts, system_info, lock, logger, config, db
 
 import atexit
 import time
@@ -53,7 +52,7 @@ def main():
         hw_platform, err = config.get_hardware_platform()
         if hw_platform:
             if hw_platform == 'dell':
-                from integralstor_utils.platforms import dell
+                from integralstor.platforms import dell
                 alerts_dict, err = dell.get_alert_logs()
                 if alerts_dict:
                     current_time = int(time.time())

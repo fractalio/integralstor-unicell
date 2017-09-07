@@ -6,8 +6,7 @@ import datetime
 import shutil
 import sys
 import logging
-from integralstor_utils import lock, config, logger
-from integralstor import manifest_status
+from integralstor import manifest_status, lock, logger, config
 
 
 def gen_manifest(path):

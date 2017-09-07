@@ -1,6 +1,6 @@
 import os
 import sys
-from integralstor_utils import networking, config, command
+from integralstor import networking, config, command
 
 
 def remove_bond():
@@ -60,7 +60,7 @@ def remove_bond():
         python_scripts_path, err = config.get_python_scripts_path()
         if err:
             raise Exception(err)
-        common_python_scripts_path, err = config.get_common_python_scripts_path()
+        python_scripts_path, err = config.get_python_scripts_path()
         if err:
             raise Exception(err)
         status_path, err = config.get_system_status_path()
@@ -68,11 +68,11 @@ def remove_bond():
             raise Exception(err)
 
         ret, err = command.get_command_output(
-            "python %s/generate_manifest.py %s" % (common_python_scripts_path, status_path))
+            "python %s/generate_manifest.py %s" % (python_scripts_path, status_path))
         if err:
             raise Exception(err)
         ret, err = command.get_command_output(
-            "python %s/generate_status.py %s" % (common_python_scripts_path, status_path))
+            "python %s/generate_status.py %s" % (python_scripts_path, status_path))
         if err:
             raise Exception(err)
         print 'Regenerating manifest and status... Done'

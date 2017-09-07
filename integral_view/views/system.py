@@ -2,8 +2,7 @@ import django
 import django.template
 
 from integral_view.forms import system_forms
-from integralstor_utils import django_utils, logger, ntp, vsftp, zfs, networking, pki, logs
-from integralstor import cifs, nfs, iscsi_stgt, local_users, audit, alerts, mail, datetime_utils, remote_replication, rsync, tasks_utils
+from integralstor import cifs, nfs, iscsi_stgt, local_users, audit, alerts, mail, datetime_utils, remote_replication, rsync, tasks_utils, django_utils, vsftp, ntp, pki, logs, logger, zfs, networking
 
 
 def reset_to_factory_defaults(request):

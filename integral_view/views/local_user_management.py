@@ -5,8 +5,7 @@ import django.template
 import integral_view
 from integral_view.forms import local_user_forms
 
-from integralstor_utils import audit, django_utils, config
-from integralstor import local_users
+from integralstor import local_users, audit, django_utils, config
 
 
 def view_local_users(request):

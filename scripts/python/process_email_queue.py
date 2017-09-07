@@ -1,6 +1,5 @@
 
-from integralstor import mail
-from integralstor_utils import db, lock, logger
+from integralstor import mail, lock, logger, db
 
 import logging
 import datetime

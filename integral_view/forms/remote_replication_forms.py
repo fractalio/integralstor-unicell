@@ -22,7 +22,8 @@ class RsyncMode(forms.Form):
     remote_path = forms.CharField()
     rsync_type = forms.ChoiceField(choices=[('push', 'local host to remote host(push)'), (
         'pull', 'remote host to local host(pull)'), ('local', 'within the local host')])
-    is_between_integralstor = forms.BooleanField(widget=forms.CheckboxInput(attrs={'checked' : 'checked'}), required=False)
+    is_between_integralstor = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'checked': 'checked'}), required=False)
     # is_between_integralstor = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -37,7 +38,8 @@ class RsyncMode(forms.Form):
         super(RsyncMode, self).__init__(*args, **kwargs)
         if switches:
             for switch, val in switches.items():
-                switch_ch.append(({switch: switches[switch]}, val['description']))
+                switch_ch.append(
+                    ({switch: switches[switch]}, val['description']))
                 if val['is_arg'] == True:
                     self.fields['%s_arg' %
                                 val['id']] = forms.CharField(required=False)

@@ -9,8 +9,7 @@ from django.contrib import auth
 from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 
-from integralstor_utils import config, db, django_utils
-from integralstor import alerts, audit, datetime_utils
+from integralstor import alerts, audit, datetime_utils, django_utils, config, db
 
 import integral_view
 from integral_view.forms import log_management_forms, common_forms
@@ -87,7 +86,7 @@ def view_hardware_logs(request):
             raise Exception('Unknown hardware platform')
         return_dict['hw_platform'] = hw_platform
         if hw_platform == 'dell':
-            from integralstor_utils.platforms import dell
+            from integralstor.platforms import dell
             logs_dict, err = dell.get_alert_logs()
             if logs_dict:
                 return_dict['logs_dict'] = logs_dict
@@ -155,7 +154,7 @@ def download_log(request):
                         if not hw_platform or hw_platform != 'dell':
                             raise Exception('Unknown hardware platform')
                         if hw_platform == 'dell':
-                            from integralstor_utils.platforms import dell
+                            from integralstor.platforms import dell
                             logs_dict, err = dell.get_alert_logs()
                             if err:
                                 raise Exception(err)

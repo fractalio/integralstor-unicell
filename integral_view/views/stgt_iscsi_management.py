@@ -1,6 +1,5 @@
 
-from integralstor_utils import audit, zfs, django_utils
-from integralstor import iscsi_stgt
+from integralstor import iscsi_stgt, audit, django_utils, zfs
 
 from integral_view.forms import iscsi_stgt_forms
 

@@ -1,8 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import zfs, audit, django_utils
-from integralstor import nfs
+from integralstor import nfs, audit, django_utils, zfs
 
 import integral_view
 from integral_view.forms import nfs_shares_forms

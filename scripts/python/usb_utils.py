@@ -3,7 +3,7 @@ import subprocess
 import sys
 import time
 
-from integralstor_utils import command, config
+from integralstor import command, config
 
 
 def _header():

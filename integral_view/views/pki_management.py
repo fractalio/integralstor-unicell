@@ -1,8 +1,8 @@
 import django
 import django.template
 
-from integralstor_utils import audit, pki, django_utils
 from integral_view.forms import pki_forms
+from integralstor import audit, django_utils, pki
 
 import os
 

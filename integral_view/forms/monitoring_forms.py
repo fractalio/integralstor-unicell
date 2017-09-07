@@ -1,8 +1,10 @@
 from django import forms
 import admin_forms
 
+
 class AlertNotificationsForm(forms.Form):
     recipient_list = admin_forms.MultipleEmailField()
+
     def __init__(self, *args, **kwargs):
         reference_subsystem_types = None
         reference_severity_types = None
@@ -12,7 +14,8 @@ class AlertNotificationsForm(forms.Form):
         if kwargs and 'reference_severity_types' in kwargs:
             reference_severity_types = kwargs.pop('reference_severity_types')
         if kwargs and 'reference_notification_types' in kwargs:
-            reference_notification_types = kwargs.pop('reference_notification_types')
+            reference_notification_types = kwargs.pop(
+                'reference_notification_types')
         super(AlertNotificationsForm,
               self).__init__(*args, **kwargs)
         ch = []
@@ -37,19 +40,22 @@ class AlertNotificationsForm(forms.Form):
 
     def clean(self):
         cd = super(AlertNotificationsForm, self).clean()
-        #print 'form cd', cd
+        # print 'form cd', cd
         if int(cd['notification_type_id']) == 1:
             if 'recipient_list' not in cd or (not cd['recipient_list']):
                 self._errors["recipient_list"] = self.error_class(
                     ["The recipient list is required."])
         return cd
 
+
 class AuditNotificationsForm(forms.Form):
     recipient_list = admin_forms.MultipleEmailField()
+
     def __init__(self, *args, **kwargs):
         reference_notification_types = None
         if kwargs and 'reference_notification_types' in kwargs:
-            reference_notification_types = kwargs.pop('reference_notification_types')
+            reference_notification_types = kwargs.pop(
+                'reference_notification_types')
         super(AuditNotificationsForm,
               self).__init__(*args, **kwargs)
         ch = []
@@ -60,19 +66,22 @@ class AuditNotificationsForm(forms.Form):
 
     def clean(self):
         cd = super(AuditNotificationsForm, self).clean()
-        #print 'form cd', cd
+        # print 'form cd', cd
         if int(cd['notification_type_id']) == 1:
             if 'recipient_list' not in cd or (not cd['recipient_list']):
                 self._errors["recipient_list"] = self.error_class(
                     ["The recipient list is required."])
         return cd
 
+
 class LogNotificationsForm(forms.Form):
     recipient_list = admin_forms.MultipleEmailField()
+
     def __init__(self, *args, **kwargs):
         reference_notification_types = None
         if kwargs and 'reference_notification_types' in kwargs:
-            reference_notification_types = kwargs.pop('reference_notification_types')
+            reference_notification_types = kwargs.pop(
+                'reference_notification_types')
         reference_event_subtypes = None
         if kwargs and 'reference_event_subtypes' in kwargs:
             reference_event_subtypes = kwargs.pop('reference_event_subtypes')
@@ -84,7 +93,6 @@ class LogNotificationsForm(forms.Form):
                 ch.append((id, description))
         self.fields['notification_type_id'] = forms.ChoiceField(choices=ch)
 
-
         ch = []
         if reference_event_subtypes:
             for res in reference_event_subtypes:
@@ -95,7 +103,7 @@ class LogNotificationsForm(forms.Form):
 
     def clean(self):
         cd = super(LogNotificationsForm, self).clean()
-        #print 'form cd', cd
+        # print 'form cd', cd
         if int(cd['notification_type_id']) == 1:
             if 'recipient_list' not in cd or (not cd['recipient_list']):
                 self._errors["recipient_list"] = self.error_class(

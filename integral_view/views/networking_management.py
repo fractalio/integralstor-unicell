@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor_utils import networking, audit, command, config, unicode_utils, django_utils
+from integralstor import audit, django_utils, unicode_utils, networking, command, config
 from django.contrib.auth.decorators import login_required
 
 import socket
@@ -412,7 +412,7 @@ def create_bond(request):
             python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
-            common_python_scripts_path, err = config.get_common_python_scripts_path()
+            python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
             status_path, err = config.get_system_status_path()
@@ -420,12 +420,12 @@ def create_bond(request):
                 raise Exception(err)
 
             ret, err = command.get_command_output(
-                "python %s/generate_manifest.py %s" % (common_python_scripts_path, status_path))
+                "python %s/generate_manifest.py %s" % (python_scripts_path, status_path))
             if err:
                 raise Exception(err)
 
             ret, err = command.get_command_output(
-                "python %s/generate_status.py %s" % (common_python_scripts_path, status_path))
+                "python %s/generate_status.py %s" % (python_scripts_path, status_path))
             if err:
                 raise Exception(err)
 
@@ -469,7 +469,7 @@ def delete_bond(request):
             python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
-            common_python_scripts_path, err = config.get_common_python_scripts_path()
+            python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
             status_path, err = config.get_system_status_path()
@@ -477,12 +477,12 @@ def delete_bond(request):
                 raise Exception(err)
 
             ret, err = command.get_command_output(
-                "python %s/generate_manifest.py %s" % (common_python_scripts_path, status_path))
+                "python %s/generate_manifest.py %s" % (python_scripts_path, status_path))
             if err:
                 raise Exception(err)
 
             ret, err = command.get_command_output(
-                "python %s/generate_status.py %s" % (common_python_scripts_path, status_path))
+                "python %s/generate_status.py %s" % (python_scripts_path, status_path))
             if err:
                 raise Exception(err)
 
@@ -572,7 +572,7 @@ def update_hostname(request):
             python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
-            common_python_scripts_path, err = config.get_common_python_scripts_path()
+            python_scripts_path, err = config.get_python_scripts_path()
             if err:
                 raise Exception(err)
             ss_path, err = config.get_system_status_path()
@@ -580,12 +580,12 @@ def update_hostname(request):
                 raise Exception(err)
 
             ret, err = command.get_command_output(
-                "python %s/generate_manifest.py %s" % (common_python_scripts_path, ss_path))
+                "python %s/generate_manifest.py %s" % (python_scripts_path, ss_path))
             if err:
                 raise Exception(err)
 
             ret, err = command.get_command_output(
-                "python %s/generate_status.py %s" % (common_python_scripts_path, ss_path))
+                "python %s/generate_status.py %s" % (python_scripts_path, ss_path))
 
             audit_str = "Hostname set to %s." % cd['hostname']
             if 'domain_name' in cd:

@@ -1,10 +1,9 @@
 
-from integralstor_utils import networking, command
+from integralstor import networking, command, config
 import os
 import socket
 import sys
 
-from integralstor_utils import config
 
 
 def display_status():

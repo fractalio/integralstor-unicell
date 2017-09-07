@@ -4,9 +4,7 @@ import sys
 import glob
 import logging
 
-from integralstor import datetime_utils
-
-from integralstor_utils import lock, config, logger
+from integralstor import datetime_utils, lock, logger, config
 
 import atexit
 atexit.register(lock.release_lock, 'remove_old_files')

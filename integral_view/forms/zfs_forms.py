@@ -154,7 +154,8 @@ class ImportPoolForm(forms.Form):
                 tup = (str(pool), str(pool))
                 ch.append(tup)
 
-            self.fields['name'] = forms.ChoiceField(choices=ch, widget=forms.Select())
+            self.fields['name'] = forms.ChoiceField(
+                choices=ch, widget=forms.Select())
 
 
 class CreatePoolForm(forms.Form):
@@ -302,7 +303,6 @@ class RenameSnapshotForm(forms.Form):
     snapshot_name = forms.CharField(widget=forms.HiddenInput)
     new_snapshot_name = forms.CharField()
 
-
     def clean_new_snapshot_name(self):
         new_snapshot_name = self.cleaned_data['new_snapshot_name']
         if new_snapshot_name and new_snapshot_name.lower().startswith(('rrr_', 'zrr_')):
@@ -322,7 +322,7 @@ class DeleteSnapshotsForm(forms.Form):
         super(DeleteSnapshotsForm, self).__init__(*args, **kwargs)
         if child_fs:
             for fs in child_fs:
-                child_fs_ch.append((fs,fs))
+                child_fs_ch.append((fs, fs))
 
         self.fields['filesystems'] = forms.MultipleChoiceField(
             widget=forms.widgets.CheckboxSelectMultiple,

@@ -10,8 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
-import integralstor_utils
-from integralstor_utils import config
+from integralstor import config
 platform_root, err = config.get_platform_root()
 STATIC_DIR_PATH = '%s/integral_view/static' % platform_root
 TEMPLATE_DIR_PATH = "%s/integral_view/templates" % platform_root

@@ -9,8 +9,7 @@ import os
 import integral_view
 from integral_view.forms import admin_forms, pki_forms
 from integral_view.utils import iv_logging
-from integralstor_utils import config, certificates, nginx, command, django_utils
-from integralstor import tasks_utils, audit, mail
+from integralstor import tasks_utils, audit, mail, django_utils, pki, nginx, config, command
 
 
 def login(request):
@@ -212,7 +211,7 @@ def update_email_settings(request):
 
                 if 'rcpt_list' in cd:
                     ret, err = mail.send_mail(cd["server"], cd["port"], cd["username"], cd["pswd"], cd["tls"], cd["rcpt_list"], "Test email from IntegralStor",
-                                          "This is a test email sent by the IntegralStor system in order to confirm that your email settings are working correctly.")
+                                              "This is a test email sent by the IntegralStor system in order to confirm that your email settings are working correctly.")
                 if err:
                     raise Exception(err)
                 if ret:
@@ -266,7 +265,7 @@ def update_https_mode(request):
         change_to = ret['change_to']
         return_dict['change_to'] = change_to
 
-        cert_list, err = certificates.get_certificates()
+        cert_list, err = pki.get_ssl_certificates()
         if err:
             raise Exception(err)
         if not cert_list:

@@ -1,5 +1,4 @@
-from integralstor import audit
-from integralstor_utils import db, logger
+from integralstor import audit, logger, db
 
 import logging
 import sys

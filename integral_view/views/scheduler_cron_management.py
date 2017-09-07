@@ -6,8 +6,7 @@ import django.http
 import os
 import os.path
 
-from integralstor_utils import config, command, audit, django_utils
-from integralstor import tasks_utils 
+from integralstor import tasks_utils, django_utils, audit, config, command
 
 
 def view_background_tasks(request):

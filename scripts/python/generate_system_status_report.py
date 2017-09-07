@@ -1,5 +1,4 @@
-from integralstor import alerts, datetime_utils, audit, manifest_status, mail
-from integralstor_utils import db, logger, command, zfs, lock, disks, config
+from integralstor import alerts, datetime_utils, audit, manifest_status, mail, lock, disks, logger, db, command, config
 
 import logging
 import socket
@@ -169,7 +168,7 @@ def generate_dell_hw_status(f):
         if hw_platform:
             if hw_platform == 'dell':
                 f.write( '--------------------- Dell hardware status BEGIN ------------------------\n\n')
-                from integralstor_utils.platforms import dell
+                from integralstor.platforms import dell
                 psu_status, err = dell.get_psu_status()
                 if err:
                     raise Exception(err)
