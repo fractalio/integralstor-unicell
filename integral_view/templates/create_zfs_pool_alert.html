@@ -1,0 +1,63 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+  Create ZFS pool - Alert
+{%endblock%}
+
+{%block inside_content %}
+
+    {% if exported_pools or destroyed_pools %}
+        <h5 id="p-warning-text">
+        The following list of ZFS pool(s) have been exported/destroyed. If you proceed to force create a new pool, you may NOT be able to recover or import these pools later.
+        </h5>
+        <p><a href="/import_zfs_pool/">Click here to import any of these pool(s)</a></p>
+
+        <table class="table" style="width:800px">
+        {% if exported_pools %}
+            <th> Exported pools: </th>
+            <tr>
+            <td>
+            <ul style="padding-left: 8em;">
+            {% for name in exported_pools %}
+                <li><p> {{name}} </p></li>
+            {% endfor %}
+            </ul>
+            </td>
+            </tr>
+        {% endif %}
+        {% if destroyed_pools %}
+            <th> Destroyed pools: </th>
+            <tr>
+            <td>
+            <ul style="padding-left: 8em;">
+            {% for name in destroyed_pools %}
+                <li><p> {{name}} </p></li>
+            {% endfor %}
+            </ul>
+            </td>
+            </tr>
+        {% endif %}
+
+        </table>
+    {% endif %}
+
+    <br />
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_zfs_pools" role="button" class="btn btn-primary"> Cancel</a>&nbsp;&nbsp;
+      <a href="/create_zfs_pool?is_ok=True" role="button" class="btn btn-danger"> Proceed</a>&nbsp;&nbsp;
+    </div>
+{%endblock%}
+
+{%block help_header%}
+  Alert: Exported ZFS pools are present
+{%endblock%}
+
+{%block help_body%}
+  <p>If you choose to force create the ZFS pool by overwriting the disks, click 'Proceed' to continue.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}

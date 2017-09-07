@@ -428,7 +428,25 @@ def create_zfs_pool(request):
             pool_types.append(('raid60', 'RAID-60'))
 
         if request.method == "GET":
-            # Return the conf page
+            req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                     'is_ok'])
+            if err:
+                raise Exception(err)
+            # Check if any exported/destroyed pools are available
+            if 'is_ok' not in req_ret or req_ret['is_ok'] != 'True':
+                avail_pools = {}
+                exported_pools, err = zfs.get_exported_pool_names()
+                if err:
+                    raise Exception(err)
+                destroyed_pools, err = zfs.get_exported_pool_names(get_destroyed=True)
+                if err:
+                    raise Exception(err)
+                # Alert if exported/destroyed pools are present
+                if exported_pools or destroyed_pools:
+                    avail_pools['exported_pools'] = exported_pools
+                    avail_pools['destroyed_pools'] = destroyed_pools
+                    return django.shortcuts.render_to_response("create_zfs_pool_alert.html", avail_pools, context_instance=django.template.context.RequestContext(request))
+            # Return the configuration page
             form = zfs_forms.CreatePoolForm(pool_types=pool_types, num_free_disks=len(
                 free_disks), initial={'num_disks': len(free_disks)})
             return_dict['form'] = form
