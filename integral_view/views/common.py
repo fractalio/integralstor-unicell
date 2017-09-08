@@ -102,6 +102,9 @@ def update_manifest(request):
             # print 'stat', ret, err
             if err:
                 raise Exception(err)
+            audit_str = 'Reloaded system configuration after hardware scan'
+            audit.audit('update_manifest',
+                        audit_str, request)
             return django.http.HttpResponseRedirect("/view_system_info/")
     except Exception, e:
         return_dict['base_template'] = "system_base.html"
