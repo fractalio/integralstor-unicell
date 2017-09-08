@@ -1,4 +1,4 @@
-from integralstor import audit, logger, db
+from integralstor import audit, logger, db, config
 
 import logging
 import sys
@@ -7,8 +7,11 @@ import datetime
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Export old audit messages', '/var/log/integralstor/scripts.log', level=logging.DEBUG)
+            'Export old audit messages', scripts_log, level=logging.DEBUG)
         logger.log_or_print('Processing export of old audits initiated.', lg, level='info')
 
         if len(sys.argv) != 3:

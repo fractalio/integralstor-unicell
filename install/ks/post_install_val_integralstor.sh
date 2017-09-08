@@ -84,7 +84,7 @@ for path in $DIR_LIST; do
     fi
 done
 
-FILE_LIST="/opt/integralstor/ramdisks.conf /opt/integralstor/platform /var/log/integralstor/integralstor/integral_view.log /etc/init/start-ttys.conf /etc/init/integralstor_menu.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/ramdisk /etc/vsftpd/vsftpd.conf /etc/modprobe.d/zfs.conf /etc/sysconfig/shellinaboxd /etc/nsswitch.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/xinetd.d/rsync /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/uwsgi /etc/init.d/ramdisk /etc/modprobe.d/zfs.conf /etc/zfs/zed.d/zed.rc /etc/vsftpd/vsftpd.conf"
+FILE_LIST="/opt/integralstor/ramdisks.conf /opt/integralstor/platform /var/log/integralstor/logs/scripts/integral_view.log /etc/init/start-ttys.conf /etc/init/integralstor_menu.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/ramdisk /etc/vsftpd/vsftpd.conf /etc/modprobe.d/zfs.conf /etc/sysconfig/shellinaboxd /etc/nsswitch.conf /etc/nginx/sites-enabled/integral_view_nginx.conf /etc/xinetd.d/rsync /etc/uwsgi/vassals/integral_view_uwsgi.ini /etc/init.d/uwsgi /etc/init.d/ramdisk /etc/modprobe.d/zfs.conf /etc/zfs/zed.d/zed.rc /etc/vsftpd/vsftpd.conf"
 
 for path in $FILE_LIST; do
     if [[ ! -e "$path" ]]; then
@@ -118,7 +118,7 @@ grep nsswitch.conf /etc/nsswitch.conf >> /tmp/tmp_nsswitch || echo "No nsswitch.
 echo "######################		end of /etc/nsswitch		######################"
 
 echo "######################	rc.local of /usr/bin/uwsgi		######################"
-grep /var/log/integralstor/integralstor/integral_view.log /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written /usr/bin/uwsgi"
+grep /var/log/integralstor/logs/scripts/integral_view.log /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written /usr/bin/uwsgi"
 grep /sbin/zed /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written /sbin/zed"
 grep "modprobe ipmi_devintf" /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written modprobe ipmi_devintf"
 grep "/sbin/modprobe zfs" /etc/rc.local >> /tmp/tmp_rc.local || echo "'rc.local' not written '/sbin/modprobe zfs'"

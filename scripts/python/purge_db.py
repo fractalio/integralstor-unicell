@@ -1,4 +1,4 @@
-from integralstor import alerts, audit, mail, lock, logger, db
+from integralstor import alerts, audit, mail, lock, logger, db, config
 
 import logging
 import sys
@@ -14,8 +14,11 @@ Purge the DB of all old unwanted entries based on certain criteria
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Purge database', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Purge database', scripts_log, level=logging.DEBUG)
 
         logger.log_or_print('Database purge initiated.', lg, level='info')
         if len(sys.argv) != 4:

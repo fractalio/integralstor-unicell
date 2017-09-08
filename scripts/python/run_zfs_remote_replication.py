@@ -22,7 +22,7 @@ def run_zfs_remote_replication(remote_replication_id):
 
             source_dataset = replication['zfs'][0]['source_dataset']
             ret, err = zfs.create_snapshot(
-                source_dataset, 'zrr_%s_%s' % (remote_replication_id, now_str)
+                source_dataset, 'zrr_%s_%s' % (remote_replication_id, now_local_str))
             if err:
                 raise Exception(err)
             ret, err = remote_replication.run_zfs_remote_replication(

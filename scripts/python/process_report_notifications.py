@@ -1,5 +1,4 @@
-
-from integralstor import event_notifications, audit, mail, logger, db
+from integralstor import event_notifications, audit, mail, logger, db, config
 
 import logging
 import sys
@@ -14,8 +13,14 @@ Process all events that match the specified report notification
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Process report notifications', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Process report notifications', scripts_log, level=logging.DEBUG)
+        status_reports_dir, err = config.get_staus_reports_dir_path()
+        if err:
+            raise Exception(err)
         num_args = len(sys.argv)
         if num_args != 2:
             raise Exception('Usage : python process_report_notifications <event_notification_trigger_id>')
@@ -40,7 +45,7 @@ def main():
                 if ent['event_subtype_id'] == 1:
                     #System status repor
                     #Find the latest system status report and mail it out
-                    all_files = glob.glob('/var/log/integralstor/reports/integralstor_status/*') 
+                    all_files = glob.glob('%s/*' % status_reports_dir) 
                     latest_file = max(all_files, key=os.path.getctime)
                     attachment_location = latest_file
                     email_header = 'IntegralSTOR system status report'

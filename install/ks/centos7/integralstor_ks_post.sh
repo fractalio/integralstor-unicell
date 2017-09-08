@@ -77,11 +77,11 @@ sed -i '/\[contrib\]/a enabled=0' /etc/yum.repos.d/CentOS-Base.repo
 /usr/bin/mkdir -p /opt/integralstor
 /usr/bin/mkdir -p /opt/integralstor/pki
 /usr/bin/mkdir -p /run/samba
-/usr/bin/mkdir -p /var/log/integralstor/integralstor
+/usr/bin/mkdir -p /var/log/integralstor/logs/scripts
 /usr/bin/mkdir -p /opt/integralstor/integralstor/tmp
 mkdir -p /opt/integralstor/integralstor/config/status
 mkdir -p /etc/logrotate.d_old
-touch /var/log/integralstor/integralstor/integral_view.log
+touch /var/log/integralstor/logs/scripts/integral_view.log
 
 ### Install integralstor_utils ###
 cd /opt/integralstor

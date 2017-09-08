@@ -14,8 +14,11 @@ atexit.register(lock.release_lock, 'integralstor_poll_for_alerts')
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Poll for alerts', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Poll for alerts', scripts_log, level=logging.DEBUG)
 
         lck, err = lock.get_lock('integralstor_poll_for_alerts')
         if err:

@@ -4,7 +4,7 @@ Description=uWSGI instance to serve myapp
 [Service]
 Type=forking
 ExecStartPre=-/usr/bin/bash -c 'mkdir -p /run/uwsgi; chown root:nginx /run/uwsgi'
-ExecStart=/usr/bin/bash -c 'cd /opt/integralstor/integralstor/integral_view; /usr/bin/uwsgi --emperor /etc/uwsgi/vassals --uid root --gid root >/var/log/integralstor/integralstor/integral_view.log 2>&1 &'
+ExecStart=/usr/bin/bash -c 'cd /opt/integralstor/integralstor/integral_view; /usr/bin/uwsgi --emperor /etc/uwsgi/vassals --uid root --gid root >/var/log/integralstor/logs/scripts/integral_view.log 2>&1 &'
 ExecStop=/usr/bin/bash -c '/usr/bin/pkill /usr/bin/uwsgi; /usr/bin/pkill uwsgi'
 
 [Install]

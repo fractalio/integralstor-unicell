@@ -1,5 +1,4 @@
-
-from integralstor import mail, lock, logger, db
+from integralstor import mail, lock, logger, db, config
 
 import logging
 import datetime
@@ -13,8 +12,11 @@ Process and send all queued emails
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Process email queue', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Process email queue', scripts_log, level=logging.DEBUG)
 
         logger.log_or_print('Processing email queue initiated.', lg, level='info')
         lck, err = lock.get_lock('process_email_queue')

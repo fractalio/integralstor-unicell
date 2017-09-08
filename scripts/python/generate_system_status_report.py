@@ -17,8 +17,14 @@ Generate a text report of the status of the IntegralSTOR system.
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'System status report generation', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'System status report generation', scripts_log, level=logging.DEBUG)
+        status_reports_dir, err = config.get_staus_reports_dir_path()
+        if err:
+            raise Exception(err)
 
         lck, err = lock.get_lock('generate_system_status_report')
         if err:
@@ -95,10 +101,10 @@ def main():
             #print ret, err
             f.write('\n\n')
         try:
-            os.makedirs('/var/log/integralstor/reports/integralstor_status')
+            os.makedirs(status_reports_dir)
         except:
             pass
-        final_file_name_with_path = '/var/log/integralstor/reports/integralstor_status/%s'%tmp_file_name
+        final_file_name_with_path = '%s/%s' % (status_reports_dir, tmp_file_name)
         shutil.move(tmp_file_name_with_path, final_file_name_with_path)
         d, err = mail.load_email_settings()
         if not err and d and 'support_email_addresses' in d and d['support_email_addresses']:

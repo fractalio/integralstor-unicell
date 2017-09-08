@@ -1,5 +1,4 @@
-
-from integralstor import event_notifications, audit, mail, logger, db
+from integralstor import event_notifications, audit, mail, logger, db, config
 
 import logging
 import sys
@@ -12,8 +11,11 @@ Process all events that match the specified audit notification
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Process audit events', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Process audit events', scripts_log, level=logging.DEBUG)
         num_args = len(sys.argv)
         if num_args != 2:
             raise Exception('Usage : python process_audit_notifications <event_notification_trigger_id>')

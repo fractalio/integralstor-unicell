@@ -173,9 +173,12 @@ def download_log(request):
                         else:
                             raise Exception('Unknown platform')
                 else:
+                    scripts_log, err = config.get_scripts_log_path()
+                    if err:
+                        raise Exception(err)
 
                     system_logs = [('/var/log/boot.log', 'boot.log'), ('/var/log/dmesg', 'dmesg'), ('/var/log/messages', 'messages'),
-                                   ('/var/log/smblog.vfs', 'samba'), ('/var/log/samba/log.winbindd', 'winbind'), ('/var/log/integralstor/logs/scripts.log', 'scripts')]
+                                   ('/var/log/smblog.vfs', 'samba'), ('/var/log/samba/log.winbindd', 'winbind'), (scripts_log, 'scripts')]
 
                     now_local_epoch, err = datetime_utils.get_epoch(when='now')
                     if err:

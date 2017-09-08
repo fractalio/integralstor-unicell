@@ -16,8 +16,11 @@ Record the pool usage stats for the current time.
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Pool usage stats record', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Pool usage stats record', scripts_log, level=logging.DEBUG)
 
         lck, err = lock.get_lock('record_pool_usage_stats')
         if err:

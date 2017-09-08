@@ -20,7 +20,13 @@ def remove_old_files(lg=None, older_than_days=7):
             raise Exception(err)
         if not lck:
             raise Exception('Could not acquire lock.')
-        patterns = ['/var/log/integralstor/logs/exported_logs/alerts_*', '/var/log/integralstor/reports/integralstor_status/*']
+        exported_logs_dir, err = config.get_exported_logs_dir_path()
+        if err:
+            raise Exception(err)
+        status_report_dir, err = config.get_status_reports_dir_path()
+        if err:
+            raise Exception(err)
+        patterns = [exported_logs_dir + '/alerts_*', status_report_dir + '/*']
         now, err = datetime_utils.get_epoch()
         #print now
         for pattern in patterns:
@@ -47,8 +53,11 @@ def remove_old_files(lg=None, older_than_days=7):
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Remove old files', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Remove old files', scripts_log, level=logging.DEBUG)
 
         logger.log_or_print('Old file removal initiated.', lg, level='info')
         if len(sys.argv) != 2:

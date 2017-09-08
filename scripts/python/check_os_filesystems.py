@@ -1,4 +1,4 @@
-from integralstor import alerts, lock, services_management, disks, logger, db, command
+from integralstor import alerts, lock, services_management, disks, logger, db, command, config
 
 import logging
 import sys
@@ -14,8 +14,11 @@ def main():
     lg = None
     try:
         stop_services = False
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'OS file system check', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'OS file system check', scripts_log, level=logging.DEBUG)
 
         lck, err = lock.get_lock('check_os_filesystems')
         if err:

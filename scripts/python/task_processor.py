@@ -9,8 +9,11 @@ def main():
 
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Task processor', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Task processor', scripts_log, level=logging.DEBUG)
 
         lck, err = lock.get_lock('task_processor')
         if err:

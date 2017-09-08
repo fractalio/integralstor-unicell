@@ -15,8 +15,14 @@ Generates a zip file of all the files in the /var/log/integralstor directory exc
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Current logs archive generation', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Current logs archive generation', scripts_log, level=logging.DEBUG)
+        logs_archives_dir, err = config.get_logs_archives_dir_path()
+        if err:
+            raise Exception(err)
 
         lck, err = lock.get_lock('generate_current_logs_archive')
         if err:
@@ -35,11 +41,11 @@ def main():
 
         zf_name = 'IntegralSTOR_system_logs_%s.zip'%now_local_str
         try:
-            os.makedirs('/var/log/integralstor/archives/log_archives/')
+            os.makedirs(logs_archives_dir)
         except:
             pass
 
-        zf = zipfile.ZipFile('/var/log/integralstor/archives/log_archives/%s'%zf_name, 'w')
+        zf = zipfile.ZipFile('%s/%s' % (logs_archives_dir,zf_name), 'w')
         for root, dirs, files in os.walk('/var/log/integralstor'):
             if root.startswith('/var/log/integralstor/archives'):
                 continue

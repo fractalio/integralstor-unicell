@@ -54,8 +54,11 @@ def main():
 
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Generate status', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Generate status', scripts_log, level=logging.DEBUG)
 
         logger.log_or_print('Generate status initiated.', lg, level='info')
 

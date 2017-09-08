@@ -187,7 +187,7 @@ done
 echo
 echo "Creating integralstor specific Files..."
 
-FILE_LIST="$working_dir/integralstor-${version_number}/var/log/integralstor/integralstor/integral_view.log $working_dir/integralstor-${version_number}/opt/integralstor/ramdisks.conf $working_dir/integralstor-${version_number}/var/log/integralstor/integralstor/ramdisks"
+FILE_LIST="$working_dir/integralstor-${version_number}/var/log/integralstor/logs/scripts/integral_view.log $working_dir/integralstor-${version_number}/opt/integralstor/ramdisks.conf $working_dir/integralstor-${version_number}/var/log/integralstor/integralstor/ramdisks"
 for file in $FILE_LIST; do
     if [[ ! -e "$file" ]]; then
         echo "'$file' File Does Not Exist Creating..."

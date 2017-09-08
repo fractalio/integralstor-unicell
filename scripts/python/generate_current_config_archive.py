@@ -15,8 +15,14 @@ Generate a zip file of all the configuration related files.
 def main():
     lg = None
     try:
+        scripts_log, err = config.get_scripts_log_path()
+        if err:
+            raise Exception(err)
         lg, err = logger.get_script_logger(
-            'Current configuration archive generation', '/var/log/integralstor/logs/scripts.log', level=logging.DEBUG)
+            'Current configuration archive generation', scripts_log, level=logging.DEBUG)
+        config_archives_dir, err = config.get_config_archives_dir_path()
+        if err:
+            raise Exception(err)
 
         lck, err = lock.get_lock('generate_current_config_archive')
         if err:
@@ -43,12 +49,12 @@ def main():
 
         zf_name = 'IntegralSTOR_system_configuration_%s.zip'%now_local_str
         try:
-            os.makedirs('/var/log/integralstor/archives/config_archives/')
+            os.makedirs(config_archives_dir)
         except:
             pass
 
         try:
-            zf = zipfile.ZipFile('/var/log/integralstor/archives/config_archives/%s'%zf_name, 'w')
+            zf = zipfile.ZipFile('%s/%s' % (config_archives_dir, zf_name), 'w')
             for entry in config_file_list:
                 if os.path.exists(entry[0]):
                     zf.write(entry[0], arcname=entry[1])
