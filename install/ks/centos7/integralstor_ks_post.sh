@@ -116,6 +116,14 @@ sed -i 's/START_HOURS_RANGE=3-22/START_HOURS_RANGE=0-1/' /etc/anacrontab
 rm -rf /etc/nsswitch.conf
 cp /opt/integralstor/integralstor/install/conf_files/nsswitch.conf /etc
 
+# Copy NFS exports file containing default entries
+mv /etc/exports /etc/BAK.exports
+cp /opt/integralstor/integralstor/install/conf_files/exports /etc/
+
+# Copy smb.conf containing default entries
+mv /etc/samba/smb.conf /etc/samba/BAK.smb.conf
+cp /opt/integralstor/integralstor/install/conf_files/smb.conf /etc/samba/
+
 ### Configure nginx ###
 mkdir /etc/nginx/sites-enabled
 cd /etc/nginx
