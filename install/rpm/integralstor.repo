@@ -1,5 +1,0 @@
-[integralstor]
-enabled=0
-name= integralstor - Base
-baseurl=file:///opt/integralstor/integralstor_rpms
-gpgcheck=0

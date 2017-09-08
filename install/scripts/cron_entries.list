@@ -1,0 +1,59 @@
+MAILTO=""
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/dell/srvadmin/bin
+
+*/10 * * * * /usr/lib64/sa/sa1 1 1 -S DISK &> /tmp/out_status
+
+* * * * * /opt/integralstor/integralstor_utils/scripts/python/generate_status.py &> /tmp/out_status
+
+* * * * * /usr/bin/python /opt/integralstor/integralstor/scripts/python/task_processor.py &> /tmp/out_task_processor
+
+# Generate alerts for background tasks failures and dell hardware alerts
+* * * * * /opt/integralstor/integralstor/scripts/python/poll_for_alerts.py &> /tmp/out_integralstor_alerts
+
+# OS filesystem space check 
+# python check_os_filesystems.py <warning_percentage> <critical_percentage>
+# raises alerts when the limits are crossed and stops data services
+# (ftp, smb, winbind, vsftp, urbackup-server) if greater than the critical percentage
+*/5 * * * * /opt/integralstor/integralstor/scripts/python/check_os_filesystems.py 75 90 &> /tmp/out_os_filesystems
+
+# ZFS filesystem space check
+# python check_zfs_pools_usage.py <warning_percentage> <critical_percentage>
+# raises alerts but currently does NOT stop data services
+*/2 * * * * /opt/integralstor/integralstor/scripts/python/check_zfs_pools_usage.py 80 85 &> /tmp/out_zfs_usage
+
+# Generate current configuration files archive
+# python generate_current_config_archive.py
+# generates a zip of samba, krb5, integralview DBs, ftp, vsftp, targets, resolv.conf, hosts, passwd, group files
+@daily /opt/integralstor/integralstor/scripts/python/generate_current_config_archive.py &> /tmp/out_config_archive
+
+# Generate current log files archive
+# python generate_current_logs_archive.py
+# Generates an archive of all logs files in /var/log/integralstor
+@daily /opt/integralstor/integralstor/scripts/python/generate_current_logs_archive.py &> /tmp/out_logs_archive
+
+# Generate system status report
+# python generate_system_status_report.py <past_x_days_of_alerts_audits>
+@daily /opt/integralstor/integralstor/scripts/python/generate_system_status_report.py 7 &> /tmp/out_system_status_report
+
+# Send out pending emails from the email queue
+# python process_email_queue.py
+# will attempt to send out emails in the email_queue db table
+*/2 * * * * /opt/integralstor/integralstor/scripts/python/process_email_queue.py &> /tmp/out_email_queue
+
+# Purge db of all old entries and possible export them to files
+# (currently does it for alerts and audits)
+# python purge_db.py <alerts_older_than_x_days> <min_audits_to_export> <audit_export_count>
+@daily /opt/integralstor/integralstor/scripts/python/purge_db.py 30 500 250 &> /tmp/out_purge_db
+
+# Record pool usage info for that day into the db
+# python record_pool_usage_stats.py
+@daily /opt/integralstor/integralstor/scripts/python/record_pool_usage_stats.py &> /tmp/out_pool_usage
+
+# Remove old logs and reports
+# python remove_old_files.py <older_than_days>
+@daily /opt/integralstor/integralstor/scripts/python/remove_old_files.py 15 &> /tmp/out_old_files
+
+@reboot /usr/sbin/modprobe ipmi_devintf &> /tmp/logs-ipmi_devinfo_modprobe
+@reboot /usr/sbin/modprobe zfs &> /tmp/logs-zfs_modprobe
+

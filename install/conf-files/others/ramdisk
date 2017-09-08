@@ -1,0 +1,113 @@
+#!/bin/bash
+# chkconfig: 2345 05 95
+# description: create ramdisk and adds it as slog to zpool
+#
+
+### BEGIN INIT INFO
+# Provides: ramdisk
+# Required-Start:
+# Required-Stop:
+# Should-Start: 
+# Should-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop: 1
+# Short-Description: Mount/umount the zfs filesystems
+# Description: ZFS is an advanced filesystem designed to simplify managing
+#              and protecting your data.  This service mounts the ZFS
+#              filesystems and starts all related zfs services.
+### END INIT INFO
+
+. /etc/init.d/functions
+
+BASE=ramdisk
+RETVAL=0
+LOCKFILE=/var/lock/subsys/${BASE}
+file=/opt/integralstor/integralstor/install/conf-files/services/ramdisks.conf
+start() {
+
+cat $file | while read line
+   do
+   array=($line)
+   poolname=${array[0]}
+   poolpath=${array[1]}
+   ramdisksize=${array[2]}
+
+   if [ -e $LOCKFILE ] ; then
+     echo "$BASE is already started"
+     exit 1
+   fi
+
+   echo -n $"Starting $BASE:"
+
+   if [ ! -e $poolpath ] ; then
+     mkdir -p $poolpath
+   fi
+
+   mount -t tmpfs -o size=$ramdisksizem tmpfs $poolpath
+   dd if=/dev/zero of=$poolpath/ramfile bs=1024 count=1M > /dev/null 2>&1
+   zpool status | grep logs > /dev/null 2>&1
+   if (( ! $? )) ; then
+   zpool remove $poolname $poolpath/ramfile
+   fi
+   zpool add $poolname log $poolpath/ramfile
+   RETVAL=$?
+   echo
+     [ $RETVAL -eq 0 ] && touch $LOCKFILE
+   return $RETVAL
+   done
+}
+
+stop() {
+cat $file | while read line
+   do
+   array=($line)
+   poolname=${array[0]}
+   poolpath=${array[1]}
+   ramdisksize=${array[2]}
+   echo -n $"Stopping $BASE:"
+   #zfs umount -a
+   zpool remove $poolname $poolpath/ramfile
+   umount $poolpath
+   RETVAL=$?
+   #> $file
+   echo
+     [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+   return $RETVAL
+   done
+}
+
+restart() {
+    stop
+    start
+}
+
+status() {
+   if [ ! -e $LOCKFILE ] ; then
+     echo "$BASE is stopped"
+   else
+     echo "$BASE is running"
+   fi
+   RETVAL=$?
+   return $RETVAL
+}
+
+
+case $1 in
+    start)
+        $1
+            ;;
+    stop)
+        $1
+            ;;
+    restart)
+        $1
+        ;;
+    status)
+        status
+        ;;
+    *)
+              echo "Usage: $prog {start| stop| status| restart}"
+              exit 1
+esac
+
+exit $?
