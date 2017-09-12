@@ -306,12 +306,7 @@ def refresh_alerts(request, random=None):
             raise Exception(err)
         if new_alerts_present:
             import json
-            alerts_list, err = alerts.get_alerts()
-            if err:
-                raise Exception(err)
-            if not alerts_list:
-                raise Exception('Error loading alerts')
-            new_alerts = json.dumps([dict(alert=pn) for pn in alerts_list])
+            new_alerts = json.dumps(new_alerts_present)
             return django.http.HttpResponse(new_alerts, content_type='application/json')
         else:
             clss = "btn btn-default btn-sm"

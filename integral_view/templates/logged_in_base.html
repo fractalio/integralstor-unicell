@@ -19,16 +19,15 @@
 
 
     <script type="text/javascript">
-      function get_alerts(){
+      function check_alerts(){
         $.get('/refresh_alerts/',function(data){
-          $.each(data,function(){
-            var alerts = $.parseJSON(JSON.stringify(this));
+          if (data == true) {
             $("#alerts_icon").removeClass("white").addClass("yellow faa-flash animated");
-          });
+          }
         });
       }
-      var auto_refresh = setInterval(function (){get_alerts()}, 20000);
-      get_alerts()
+      var auto_refresh = setInterval(function (){check_alerts()}, 20000);
+      check_alerts();
     </script>
 
     {%block header_scripts%}
