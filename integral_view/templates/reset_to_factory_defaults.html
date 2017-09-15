@@ -189,6 +189,12 @@
         <td> {{ form.reset_hostname }} </td>
         <td> {{ form.reset_hostname.errors }} </td>
       </tr>
+      <tr>
+        <th> Set default IP(172.16.16.16) for the first ethernet interface(on reboot)</th>
+        <td> {{ form.default_ip }} </td>
+        <td> {{ form.default_ip.errors }} </td>
+      </tr>
+
     </table>
   </div>
 
@@ -204,6 +210,14 @@ $("#select_settings").change(function() {
 });
 $("#select_data").change(function() {
   $(".data_class:checkbox").prop('checked', this.checked);
+});
+$("#id_default_ip").change(function() {
+  $("#id_delete_network_interface_settings").prop('checked', this.checked);
+  $("#id_delete_network_bonds").prop('checked', this.checked);
+  if ($("#id_default_ip").prop('checked') == true) {
+     $("#id_delete_network_interface_settings").prop('readonly', true);
+     $("#id_delete_network_bonds").prop('readonly', true);
+  } 
 });
 </script>
 {%endblock%}

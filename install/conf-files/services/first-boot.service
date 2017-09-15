@@ -1,0 +1,11 @@
+[Unit]
+Description=Actions to be performed during the first boot
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/integralstor/integralstor/scripts/shell/first_boot.sh
+RemainAfterExit=false
+
+[Install]
+WantedBy=multi-user.target

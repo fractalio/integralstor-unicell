@@ -60,6 +60,8 @@ class FactoryDefaultsForm(forms.Form):
         attrs={'class': 'settings_class networking_class'}), required=False)
     reset_hostname = forms.BooleanField(widget=forms.CheckboxInput(
         attrs={'class': 'settings_class networking_class'}), required=False)
+    default_ip = forms.BooleanField(widget=forms.CheckboxInput(
+        attrs={'class': 'settings_class networking_class'}), required=False)
 
     delete_ssl_certificates = forms.BooleanField(widget=forms.CheckboxInput(
         attrs={'class': 'settings_class ssl_ssh_class'}), required=False)
@@ -95,5 +97,17 @@ class FactoryDefaultsForm(forms.Form):
         widget=forms.CheckboxInput(attrs={'class': 'data_class zfs_class'}), required=False)
     delete_zfs_zvols_and_snapshots = forms.BooleanField(widget=forms.CheckboxInput(
         attrs={'class': 'data_class zfs_class'}), required=False)
+
+    def clean_default_ip(self):
+        is_default_ip = self.cleaned_data['default_ip']
+        is_delete_nic = self.cleaned_data['delete_network_interface_settings']
+        is_delete_bonds = self.cleaned_data['delete_network_bonds']
+        if is_default_ip is True:
+            if (is_delete_nic and is_delete_bonds) is not True:
+                self._errors['delete_network_interface_settings'] = self.error_class(
+                    ["This should be selected if default IP must be set on reboot"])
+                self._errors['delete_network_bonds'] = self.error_class(
+                    ["This should be selected if default IP must be set on reboot"])
+        return is_default_ip
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab

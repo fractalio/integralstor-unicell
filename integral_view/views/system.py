@@ -19,6 +19,7 @@ def reset_to_factory_defaults(request):
                                   'delete_network_bonds': 'network bonds',
                                   #'delete_network_vlans':'network VLANs',
                                   'reset_hostname': 'hostname and domain name',
+                                  'default_ip': 'set default IP',
                                   'delete_ssl_certificates': 'SSL certificates',
                                   'delete_ssh_authorized_keys': 'SSH authorized keys',
                                   'delete_ssh_fingerprints': 'SSH host fingerprints',
@@ -141,6 +142,8 @@ def reset_to_factory_defaults(request):
                             result, err = networking.delete_interfaces_connection()
                         elif key == 'delete_network_bonds':
                             result, err = networking.delete_all_bonds()
+                        elif key == 'default_ip':
+                            result, err = networking.default_ip_on_next_boot()
 
                         if result:
                             success_list.append(component_descriptions[key])

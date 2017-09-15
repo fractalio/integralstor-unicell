@@ -94,3 +94,9 @@ sqlite3 /opt/integralstor/integralstor/config/db/integralstor.db < /opt/integral
 
 # Link site-packages with python libraries dir
 ln -s /opt/integralstor/integralstor/site-packages/integralstor /usr/lib/python2.7/site-packages/integralstor
+
+# Disable printing kernel messages(dmesg) to console
+cat >> /etc/rc.d/rc.local << __eof__
+dmesg -n 1
+__eof__
+

@@ -12,59 +12,62 @@ others_dir="$conf_dir/others"           # /opt/integralstor/integralstor/install
 
 # shellinabox
 mv /etc/sysconfig/shellinaboxd /etc/sysconfig/BAK.shellinaboxd
-ln -s $services_dir/shellinaboxd /etc/sysconfig/shellinaboxd
+cp $services_dir/shellinaboxd /etc/sysconfig/shellinaboxd
 
 # nsswitch
 mv /etc/nsswitch.conf /etc/BAK.nsswitch.conf
-ln -s $services_dir/nsswitch.conf /etc/nsswitch.conf
+cp $services_dir/nsswitch.conf /etc/nsswitch.conf
 
 # nginx
 mkdir -p /etc/nginx/sites-enabled
 mv /etc/nginx/nginx.conf /etc/nginx/BAK.nginx.conf
-ln -s $services_dir/nginx.conf /etc/nginx/nginx.conf
-ln -s $services_dir/integral_view_nginx.conf /etc/nginx/sites-enabled/integral_view_nginx.conf
+cp $services_dir/nginx.conf /etc/nginx/nginx.conf
+cp $services_dir/integral_view_nginx.conf /etc/nginx/sites-enabled/integral_view_nginx.conf
 sed -i 's/conf.d/sites-enabled/g' /etc/nginx/nginx.conf
 
 # xinetd
 mv /etc/xinetd.d/rsync /etc/xinetd.d/BAK.rsync
-ln -s $services_dir/rsync /etc/xinetd.d/rsync
+cp $services_dir/rsync /etc/xinetd.d/rsync
 
 # uwsgi
 mkdir -p /etc/uwsgi/vassals
-ln -s $services_dir/integral_view_uwsgi.ini /etc/uwsgi/vassals/integral_view_uwsgi.ini
-ln -s $services_dir/uwsginew.service /usr/lib/systemd/system/uwsginew.service
-ln -s $services_dir/uwsginew.service /etc/systemd/system/multi-user.target.wants/uwsginew.service
+cp $services_dir/integral_view_uwsgi.ini /etc/uwsgi/vassals/
+cp $services_dir/uwsginew.service /usr/lib/systemd/system/
+cp $services_dir/uwsginew.service /etc/systemd/system/multi-user.target.wants/
 
 # ramdisk
 touch $services_dir/ramdisks.conf
-ln -s $others_dir/ramdisks /etc/rc.d/init.d/ramdisks
-ln -s $services_dir/ramdisk.service /etc/systemd/system/multi-user.target.wants/ramdisk/service
+cp $others_dir/ramdisks /etc/rc.d/init.d/ramdisks
+cp $services_dir/ramdisk.service /etc/systemd/system/multi-user.target.wants/
 
 # vsftpd
 mv /etc/vsftpd/vsftpd.conf /etc/vsftpd/BAK.vsftpd.conf
-ln -s $services_dir/vsftpd.conf /etc/vsftpd/vsftpd.conf
+cp $services_dir/vsftpd.conf /etc/vsftpd/
 
 # Log rotate Integralstor
-ln -s $services_dir/integralstor-log-rotate /etc/logrotate.d/integralstor-log-rotate
+cp $services_dir/integralstor-log-rotate /etc/logrotate.d/integralstor-log-rotate
 
 # ZFS & zed
-ln -s $services_dir/zed.rc /etc/zfs/zed.d/zed.rc
-ln -s $services_dir/zfs.modules /etc/sysconfig/modules/zfs.modules
+cp $services_dir/zed.rc /etc/zfs/zed.d/zed.rc
+cp $services_dir/zfs.modules /etc/sysconfig/modules/zfs.modules
 
 # plymouth theme
 # TODO:Required?
 mv /usr/share/plymouth/themes/text/text.plymouth /usr/share/plymouth/themes/text/BAK.text.plymouth
-ln -s $others_dir/text.plymouth /usr/share/plymouth/themes/text/text.plymouth
+cp $others_dir/text.plymouth /usr/share/plymouth/themes/text/text.plymouth
 
 # Display pre login message(header)
 mv /etc/issue /etc/BAK.issue
-ln -s $others_dir/issue /etc/issue
+cp $others_dir/issue /etc/issue
 
 # USB 
 # Systemd unit file for USB automount/unmount 
-ln -s $services_dir/usb-mount@.service /etc/systemd/system/usb-mount@.service
+cp $services_dir/usb-mount@.service /etc/systemd/system/usb-mount@.service
 # Create udev rule to start/stop usb-mount@.service on hotplug/unplug
 cat $services_dir/99-local.rules.usb-mount >> /etc/udev/rules.d/99-local.rules
+
+# first-boot systemd service file
+cp $services_dir/first-boot.service /etc/systemd/system/
 
 # Remove execute permissions from service files
 chmod -x /usr/lib/systemd/system/urbackup-server.service
@@ -91,6 +94,7 @@ systemctl start vsftpd &> /dev/null; systemctl enable vsftpd &> /dev/null
 systemctl start shellinaboxd &> /dev/null; systemctl enable shellinaboxd &> /dev/null
 systemctl start uwsginew &> /dev/null; systemctl enable uwsginew &> /dev/null
 systemctl start nginx &> /dev/null; systemctl enable nginx &> /dev/null
+systemctl stop first-boot &> /dev/null; systemctl disable first-boot &> /dev/null
 
 systemctl daemon-reload
 udevadm control --reload-rules
