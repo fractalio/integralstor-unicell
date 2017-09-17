@@ -2,7 +2,6 @@ import os
 import socket
 import re
 import sys
-import time
 from integralstor import networking, command, config
 
 
@@ -58,9 +57,9 @@ def configure_interface():
 
         old_boot_proto, err = networking.get_interface_bootproto(ifname)
         if err:
-            raise Exception(
-                'Error retrieving interface information : %s' % err)
-            time.sleep(5)
+            # raise Exception(
+                # 'Error retrieving interface information : %s' % err)
+            old_boot_proto = ''
 
         config_changed = False
 

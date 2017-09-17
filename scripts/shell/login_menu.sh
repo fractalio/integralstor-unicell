@@ -133,8 +133,8 @@ update_password() {
 }
 
 configure_network_interface(){
-  #echo "configure networking called"
   sudo python /opt/integralstor/integralstor/scripts/python/configure_networking.py interface
+  pause
 }
 
 create_nic_bond(){
