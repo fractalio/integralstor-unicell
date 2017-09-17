@@ -90,7 +90,9 @@ cp /opt/integralstor/integralstor/install/conf-files/db/*.db /opt/integralstor/i
 sqlite3 /opt/integralstor/integralstor/config/db/integralstor.db < /opt/integralstor/integralstor/install/conf-files/db/integralstor_db.schema
 
 # Populate cron entries
-(crontab -l 2> /dev/null; cat /opt/integralstor/integralstor/install/scripts/cron_entries.list) | crontab -
+# ALERT: clears existing entries
+crontab -r
+cat /opt/integralstor/integralstor/install/scripts/cron_entries.list | crontab -
 
 # Link site-packages with python libraries dir
 ln -s /opt/integralstor/integralstor/site-packages/integralstor /usr/lib/python2.7/site-packages/integralstor

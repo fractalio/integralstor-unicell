@@ -37,7 +37,7 @@ cp $services_dir/uwsginew.service /etc/systemd/system/multi-user.target.wants/
 
 # ramdisk
 touch $services_dir/ramdisks.conf
-cp $others_dir/ramdisks /etc/rc.d/init.d/ramdisks
+cp $others_dir/ramdisk /etc/rc.d/init.d/ramdisk
 cp $services_dir/ramdisk.service /etc/systemd/system/multi-user.target.wants/
 
 # vsftpd

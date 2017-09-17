@@ -4,7 +4,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/dell/srva
 
 */10 * * * * /usr/lib64/sa/sa1 1 1 -S DISK &> /tmp/out_status
 
-* * * * * /opt/integralstor/integralstor_utils/scripts/python/generate_status.py &> /tmp/out_status
+* * * * * /opt/integralstor/integralstor/scripts/python/generate_status.py &> /tmp/out_status
 
 * * * * * /usr/bin/python /opt/integralstor/integralstor/scripts/python/task_processor.py &> /tmp/out_task_processor
 
