@@ -1,4 +1,4 @@
-from integralstor import event_notifications, audit, mail, logger, db, config
+from integralstor import event_notifications, audit, mail, logger, db, config, datetime_utils
 
 import logging
 import sys
@@ -18,19 +18,22 @@ def main():
             raise Exception(err)
         lg, err = logger.get_script_logger(
             'Process report notifications', scripts_log, level=logging.DEBUG)
-        status_reports_dir, err = config.get_staus_reports_dir_path()
-        if err:
-            raise Exception(err)
         num_args = len(sys.argv)
         if num_args != 2:
             raise Exception('Usage : python process_report_notifications <event_notification_trigger_id>')
         else:
             ent_id = sys.argv[1]
-
         logger.log_or_print('Processing report notifications initiated.', lg, level='info')
 
+        status_reports_dir, err = config.get_staus_reports_dir_path()
+        if err:
+            raise Exception(err)
+        urb_reports_dir, err = config.get_urbackup_reports_dir_path()
+        if err:
+            raise Exception(err)
+
         ent, err = event_notifications.get_event_notification_trigger(ent_id)
-        #print ent, err
+        # print ent, err
         if err:
             raise Exception(err)
         if not ent:
@@ -53,10 +56,12 @@ def main():
 
                 elif ent['event_subtype_id'] == 2:
                     #urbackup report processing here
-                    #attachment_location = ''
-                    #email_header = 'IntegralSTOR backup status report'
-                    #email_body = 'Please find the latest IntegralSTOR backup status report'
-                    pass
+                    email_header = 'IntegralSTOR backup status report'
+                    email_body = 'Please find the latest IntegralSTOR backup status report'
+                    all_files = glob.glob('%s/*' % urb_reports_dir)
+                    latest_file = max(all_files, key=os.path.getctime)
+                    attachment_location = latest_file
+
                 processed_successfully, err = mail.enqueue(enc['recipient_list'], email_header, email_body, attachment_file_location = attachment_location, delete_attachment_file = False)
                 #print 'enqueue', processed_successfully, err
                 if err:
