@@ -19,11 +19,9 @@
     {%csrf_token%}
     <table  class="table" style="width:80%">
       <colgroup width="40%" />
-      <!--
       <col width="40%" />
       <col width="40%" />
-      <col width="10%" />
-      -->
+      <col width="12%" />
       <input type="hidden" name="initial_rsync_type" id="id_initial_rsync_type" value="{{initial.rsync_type}}" />
 
       <tr>
@@ -69,11 +67,7 @@
 	<th>Dataset on local host <sup class="required" /> </th>
         {% endif %}
 	<td>
-	 <!-- <select id="id_source_dataset" name="source_dataset" class="form-control" onchange="change_dataset(this)"> --> 
 	  <select id="id_source_dataset" name="source_dataset" class="form-control" {% if form.select_mode.value == "rsync" %} onchange="change_dataset(this)" {% endif %}> 
-	     <!-- {% if form.select_mode.value == "rsync" %}
-             <option id="id_dataset_none" value='None' >--Select--</option>
-             {% endif %} -->
 	    {% for dataset in form.source_dataset.field.choices %}
 	      {% if initial.source_dataset == dataset.0%}
 	      <option id="id_{{dataset}}" value={{dataset.0}} selected>{{dataset.1}}</option>
@@ -85,6 +79,7 @@
 	</td>
 	<td> {{ form.source_dataset.errors }} </td>
       </tr>
+      <input type="hidden" name="hold_sel_ds" id="id_hold_sel_ds" />
 
       {% if form.select_mode.value == "rsync" %}
       <tr>
@@ -94,12 +89,11 @@
         </td>
         <td> {{ form.local_path.errors }} </td>
 
-	<!--
         <td rowspan=4>
           <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse...</a>
-          <div id="pathdiv" style="min-height:200px;height:200px;min-width:200px;width:300px;overflow:auto;display:block;border:0px solid"> </div>
+          <div id="pathdiv" style="min-height:100px;height:200px;min-width:100px;width:100px;overflow:auto;display:block;border:0px solid"> </div>
         </td>
-	-->
+
       </tr>
 
       <tr>
@@ -256,8 +250,15 @@
         return false;
       });
 
+        document.getElementById('id_hold_sel_ds').value = $('#id_source_dataset').val();
+
       $('#id_source_dataset').on('change', function () {
         document.getElementById('id_local_path').value = '/' + $(this).val();
+        document.getElementById('id_hold_sel_ds').value = $(this).val();
+        $('#pathdiv').jstree("destroy");
+        displayTree();
+        //$('#pathdiv').jstree(true).refresh();
+        return false;
       });
 
 	if ($('#id_initial_rsync_type').val() == 'local') {
@@ -267,6 +268,11 @@
 	// Until -X and -A is figured out, disable selection.
 	$('#id_xattrs').prop("disabled",true);
 	$('#id_acls').prop("disabled",true);
+
+        // Select recommended options
+	$('#id_archive').prop("checked",true);
+	$('#id_compress').prop("checked",true);
+	$('#id_verbose').prop("checked",true);
     });
 
 
@@ -310,8 +316,7 @@
               '/view_dir_contents'; 
           },
           'data' : function (node) {
-            var e = document.getElementById("id_source_dataset");
-            var ds_name = e.options[e.selectedIndex].text;
+            var ds_name = document.getElementById("id_hold_sel_ds").value;
             if (node.data) {
               return {'dir' : node.data['dir'] , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
             }
@@ -323,6 +328,14 @@
           
         }
       });
+      $(function () {
+        $('#pathdiv').on('changed.jstree', function (e, data) {
+          rfp = data.instance.get_node(data.selected[0]).data["dir"];
+          document.getElementById('id_local_path').value = rfp;
+        })
+        .jstree();
+      });
+
    }
 
   </script>
