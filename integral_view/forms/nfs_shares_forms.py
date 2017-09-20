@@ -8,6 +8,7 @@ class ShareForm(forms.Form):
     readonly = forms.BooleanField(required=False)
     root_squash = forms.BooleanField(required=False)
     all_squash = forms.BooleanField(required=False)
+    force_map_anonid = forms.BooleanField(required=False)
 
     def clean(self):
         cd = super(ShareForm, self).clean()

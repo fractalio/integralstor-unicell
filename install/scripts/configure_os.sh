@@ -25,6 +25,14 @@ echo "console    ALL=(ALL)    NOPASSWD: ALL" >> /etc/sudoers
 sed -i "s/^UID_MIN.*/UID_MIN                  1500/g" /etc/login.defs
 sed -i "s/^GID_MIN.*/GID_MIN                  1500/g" /etc/login.defs
 
+# To force NFS users to come in as nfsuser, create nfsuser
+nfs_usr='nfs-local'
+nfs_grp='nfs-local'
+nfs_usr=`python -c "from integralstor import config; name, err = config.get_local_nfs_user_name(); print name;"`
+nfs_grp=`python -c "from integralstor import config; name, err = config.get_local_nfs_group_name(); print name;"`
+groupadd "$nfs_grp" -g 1500
+useradd "$nfs_usr" -g 1500 -u 1500
+echo "$nfs_usr""123" | passwd --stdin "$nfs_usr"
 
 # Allow Network Manager to control network interfaces
 sed -i 's/NM_CONTROLLED=no/NM_CONTROLLED=yes/' /etc/sysconfig/network-scripts/ifcfg-eno*

@@ -14,7 +14,14 @@ def view_local_users(request):
         user_list, err = local_users.get_local_users()
         if err:
             raise Exception(err)
+        nfs_user, err = config.get_local_nfs_user_name()
+        if err:
+            raise Exception()
 
+        # Do not display local NFS user
+        for idx, user in enumerate(user_list[:]):
+            if user['username'] == str(nfs_user):
+                user_list.pop(idx)
         return_dict["user_list"] = user_list
 
         if "ack" in request.GET:
@@ -48,6 +55,14 @@ def view_local_groups(request):
         group_list, err = local_users.get_local_groups()
         if err:
             raise Exception(err)
+        nfs_group, err = config.get_local_nfs_group_name()
+        if err:
+            raise Exception(err)
+
+        # Do not display local NFS group
+        for idx, group in enumerate(group_list[:]):
+            if group['grpname'] == str(nfs_group):
+                group_list.pop(idx)
         return_dict["group_list"] = group_list
 
         if "ack" in request.GET:

@@ -83,6 +83,12 @@
         <td> {{ form.all_squash.errors }} </td>
         <td> &nbsp;</td>
       </tr>
+      <tr>
+        <th> Map client user anonymously with local NFS user:</th>
+        <td> {{ form.force_map_anonid }} </td>
+        <td> {{ form.force_map_anonid.errors }} </td>
+        <td> &nbsp;</td>
+      </tr>
     </table>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
@@ -100,6 +106,9 @@
       document.forms["create_form"].elements["path"].value = e.options[e.selectedIndex].value;
       document.forms["create_form"].elements["final_path"].value = e.options[e.selectedIndex].value;
     }
+
+    // Check this field by default
+    $('#id_force_map_anonid').prop('checked',true);
 
     function change_dataset(sel){
       if (sel.value[0] != '/')

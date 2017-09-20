@@ -41,6 +41,7 @@
             {%elif o ==  'all_squash'%} All squash,
             {%elif o ==  'no_all_squash'%} No all squash,
             {%elif o ==  'insecure'%} Accept insecure ports,
+            {%elif 'anonuid' in o%} Map client anonymously with local NFS user,
             {%endif%}
           {%endfor%}
         </td>
@@ -70,6 +71,7 @@
                 {%elif o ==  'all_squash'%} All squash,
                 {%elif o ==  'no_all_squash'%} No all squash,
                 {%elif o ==  'insecure'%} Accept insecure ports,
+                {%elif 'anonuid' in o%} Map client anonymously with local NFS user,
                 {%endif%}
               {%endfor%}
             {%else%}
