@@ -58,17 +58,18 @@
                   <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for interface specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                   <ul class="dropdown-menu">
                     <li><a class="action-dropdown" href="/view_interface?name={{name}}"> <i class="fa fa-cog fa-fw"></i>&nbsp;View details and configure</a></li>
-                    {% if not d.slave_to %}
-                      <li><a class="action-dropdown" href="/update_interface_address?name={{name}}" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Edit interface address..</a></li>
-                    {%endif%}
                     {%if not d.vlan %}
-                      <!--
+                    {% if 'AF_INET' in d.addresses  or d.bootproto == 'dhcp' or d.addresses.is_sysd_ip4 == True%}
                       {%if d.up_status == 'up' %}
                         <li><a class="action-dropdown" href="/update_interface_state?name={{name}}&state=down" style="color:red"><i class="fa fa-stop-circle fa-fw"></i>&nbsp;Bring down this interface</a></li>
                       {%else %}
                         <li><a class="action-dropdown" href="/update_interface_state?name={{name}}&state=up"><i class="fa fa-play-circle fa-fw"></i>&nbsp;Bring up this interface</a></li>
                       {%endif%}
-                      -->
+                      <li><a class="action-dropdown" href="/delete_interface_connection?name={{name}}" style="color:red"><i class="fa fa-trash fa-fw"></i>&nbsp;Reset connection configuration..</a></li>
+                      {%endif%}
+                    {% if not d.slave_to %}
+                      <li><a class="action-dropdown" href="/update_interface_address?name={{name}}" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Edit interface address..</a></li>
+                    {%endif%}
                     {%endif%}
                   </ul>
                 </div>

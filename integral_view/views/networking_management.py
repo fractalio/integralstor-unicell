@@ -22,6 +22,8 @@ def view_interfaces(request):
             raise Exception(err)
 
         if "ack" in request.GET:
+            if request.GET["ack"] == "reset":
+                return_dict['ack_message'] = "Successfully reset the address configuration of the network interface"
             if request.GET["ack"] == "saved":
                 return_dict['ack_message'] = "Network interface information successfully updated"
             if request.GET["ack"] == "removed_bond":
@@ -92,6 +94,43 @@ def view_interface(request):
         return_dict["page_title"] = 'View network interface details'
         return_dict['tab'] = 'view_interfaces_tab'
         return_dict["error"] = 'Error loading interface details'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def delete_interface_connection(request):
+    return_dict = {}
+    try:
+        req_ret, err = django_utils.get_request_parameter_values(
+            request, ['name'])
+        if err:
+            raise Exception(err)
+        if 'name' not in req_ret:
+            raise Exception('Invalid request, please use the menus')
+
+        name = req_ret['name']
+        return_dict["name"] = name
+
+        if request.method == "GET":
+            # Return the conf page
+            return django.shortcuts.render_to_response("delete_interface_connection_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
+        else:
+            result, err = networking.delete_interfaces_connection(name)
+            if not result:
+                if err:
+                    raise Exception(err)
+                else:
+                    raise Exception("Error resetting address configuration")
+
+            audit_str = "Reset the address configuration of interface %s" % (
+                name)
+            audit.audit("delete_interfaces_connection", audit_str, request)
+            return django.http.HttpResponseRedirect('/view_interfaces?ack=reset')
+    except Exception, e:
+        return_dict['base_template'] = "networking_base.html"
+        return_dict["page_title"] = 'Reset address configuration'
+        return_dict['tab'] = 'view_interfaces_tab'
+        return_dict["error"] = 'Error resetting interface address configuration'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

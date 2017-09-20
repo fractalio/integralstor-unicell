@@ -16,13 +16,13 @@
           {%endif%}
           {% if not nic.slave_to %}
             <li><a class="action-dropdown" href="/update_interface_address?name={{name}}" ><i class="fa fa-cog fa-fw"></i>&nbsp;Modify interface address..</a></li>
-          {%endif%}
-          {%if not nic.vlan %}
+          {%if not nic.vlan  and 'AF_INET' in nic.addresses  or nic.bootproto == 'dhcp' or nic.addresses.is_sysd_ip4 == True %}
             {%if nic.up_status == 'up' %}
               <li><a class="action-dropdown" href="/update_interface_state?name={{name}}&state=down" class="color:red"><i class="fa fa-stop-circle-o fa-fw"></i>&nbsp;Bring down this interface</a></li>
             {%else %}
               <li><a class="action-dropdown" href="/update_interface_state?name={{name}}&state=up" ><i class="fa fa-play-circle-o fa-fw"></i>&nbsp;Bring up this interface</a></li>
             {%endif%}
+          {%endif%}
           {%endif%}
           <li><a class="action-dropdown" href="/create_vlan?nic={{name}}" role="button" ><i class="fa fa-plus fa-fw"></i>&nbsp;Create a VLAN</a></li>
         {%endif%}

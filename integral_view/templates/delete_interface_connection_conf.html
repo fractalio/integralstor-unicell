@@ -1,0 +1,35 @@
+{% extends 'networking_base.html' %}
+
+{%block tab_header %}
+  Reset connection configuration of '{{name}}' - confirmation
+{%endblock%}
+
+{%block inside_content%}
+
+  <p id="p-warning-text">Are you sure you want to reset the address configuration of network interface '{{name}}'?  This will potentially result in a disruption of usage of the system.</p>
+  <br>
+  <form action="/delete_interface_connection/" method="POST">
+    {%csrf_token%}
+    <input type=hidden name="name" value="{{name}}">
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_interface?name={{name}}'"> &nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary" onClick ="$('#processing').modal('show');">Confirm and continue </button>
+    </div>
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Reset NIC's address configuration
+{%endblock%}
+
+{%block help_body%}
+  <p>Confirming this operation will reset the address configuration of the specified interface in the system. Please ensure that this is actually intended before continuing.</p>
+{%endblock%}
+
+{% block tab_active%}
+  <script>
+    make_tab_active("view_interfaces_tab")
+  </script>
+{% endblock %}
+
