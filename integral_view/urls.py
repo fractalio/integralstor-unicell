@@ -14,9 +14,9 @@ from integral_view.views.admin_auth import login, logout, update_admin_password,
 
 from integral_view.views.pki_management import view_ssl_certificates, delete_ssl_certificate, create_self_signed_ssl_certificate, upload_ssl_certificate, view_known_hosts_ssh_keys, view_user_ssh_keys, upload_ssh_user_key, upload_ssh_host_key
 
-from integral_view.views.common import view_dashboard, access_shell, view_backup, update_manifest, flag_node, view_system_info
+from integral_view.views.common import view_dashboard, access_shell, view_backup, flag_node
 
-from integral_view.views.log_management import download_log, download_sys_info, upload_sys_info, refresh_alerts, view_alerts, view_audits, view_hardware_logs
+from integral_view.views.log_management import download_log, refresh_alerts, view_alerts, view_audits, view_hardware_logs
 
 from integral_view.views.cifs_share_management import view_cifs_shares, create_cifs_share, view_samba_server_settings, update_samba_server_settings, view_cifs_share, update_cifs_share, delete_cifs_share, update_auth_method
 
@@ -40,7 +40,7 @@ from integral_view.views.rsync_share_management import create_rsync_share, updat
 
 from django.contrib.auth.decorators import login_required
 
-from integral_view.views.system import update_system_date_time, reset_to_factory_defaults
+from integral_view.views.system import update_system_date_time, reset_to_factory_defaults, download_sys_info, upload_sys_info, view_system_info, update_manifest
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin

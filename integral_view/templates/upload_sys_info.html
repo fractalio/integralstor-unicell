@@ -32,11 +32,11 @@
       </div>
       <div class="modal-body">
         <p>This will reset your server to a different configuration. Are you sure you want to do this? </p>
-        <p> This will delete your share, configurations ip settings and revert back everything. </p>
+        <p> This will delete your existing configuration and overwrite it with the applied configuration. </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-        <button type="button" id="go-ahead" class="btn btn-danger">I understand the risks ! Do it.</button>
+        <button type="button" id="go-ahead" class="btn btn-danger">I understand the risks ! Proceed.</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -51,6 +51,6 @@
 
 {% block tab_active %}
 <script>
-   make_tab_active("node_info_tab")
+   make_tab_active("system_info_tab")
 </script>
 {% endblock%}

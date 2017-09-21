@@ -438,7 +438,8 @@ def create_zfs_pool(request):
                 exported_pools, err = zfs.get_exported_pool_names()
                 if err:
                     raise Exception(err)
-                destroyed_pools, err = zfs.get_exported_pool_names(get_destroyed=True)
+                destroyed_pools, err = zfs.get_exported_pool_names(
+                    get_destroyed=True)
                 if err:
                     raise Exception(err)
                 # Alert if exported/destroyed pools are present
