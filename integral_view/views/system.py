@@ -9,7 +9,7 @@ import json
 import shutil
 
 from integral_view.forms import common_forms, system_forms
-from integralstor import cifs, nfs, iscsi_stgt, local_users, audit, alerts, mail, datetime_utils, remote_replication, rsync, tasks_utils, django_utils, vsftp, ntp, pki, logs, logger, zfs, networking, config, system_info, manifest_status, services_management
+from integralstor import cifs, nfs, iscsi_stgt, local_users, audit, alerts, mail, datetime_utils, remote_replication, rsync, tasks_utils, django_utils, vsftp, ntp, pki, logs, logger, zfs, networking, config, system_info, manifest_status, services_management, command
 
 
 @login_required
