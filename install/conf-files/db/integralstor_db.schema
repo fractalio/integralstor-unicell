@@ -265,3 +265,18 @@ CREATE TABLE "pool_usage_stats" (
   "available_bytes" INTEGER NOT NULL,
   unique(pool_name, date)
 );
+
+
+CREATE TABLE "org_info" (
+  "org_name" VARCHAR(100) NOT NULL DEFAULT "N.A",
+  "unit_name" VARCHAR(100) NOT NULL DEFAULT "N.A",
+  "unit_id" VARCHAR(100) NOT NULL DEFAULT "N.A",
+  "subunit_name" VARCHAR(100) NOT NULL DEFAULT "N.A",
+  "subunit_id" VARCHAR(100) NOT NULL DEFAULT "N.A"
+);
+
+
+CREATE TABLE "integralstor_info" (
+  "uuid_hex" VARCHAR(32) NOT NULL PRIMARY KEY,
+  "uuid_str" VARCHAR(36) NOT NULL
+);

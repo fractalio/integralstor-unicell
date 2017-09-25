@@ -59,6 +59,41 @@ def update_manifest(request):
 
 
 @login_required
+def update_org_info(request):
+    return_dict = {}
+    try:
+        if request.method == "GET":
+            org_info, err = system_info.get_org_info()
+            if err:
+                raise Exception(err)
+            form = system_forms.OrgInfoForm(initial=org_info)
+            return_dict["form"] = form
+            return django.shortcuts.render_to_response("update_org_info.html", return_dict, context_instance=django.template.context.RequestContext(request))
+        elif request.method == "POST":
+            form = system_forms.OrgInfoForm(request.POST)
+            return_dict["form"] = form
+            if not form.is_valid():
+                return django.shortcuts.render_to_response("update_org_info.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+            cd = form.cleaned_data
+            ret, err = system_info.update_org_info(cd)
+            if err:
+                raise Exception(err)
+
+            audit_str = 'Updated organization information: %s' % str(cd)
+            audit.audit('update_org_info',
+                        audit_str, request)
+            return django.http.HttpResponseRedirect("/view_system_info?ack=update_org_info_ok")
+    except Exception, e:
+        return_dict['base_template'] = "system_base.html"
+        return_dict["page_title"] = "Update organization's information"
+        return_dict['tab'] = 'system_info_tab'
+        return_dict["error"] = 'Error updating organization information'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+@login_required
 def view_system_info(request):
     return_dict = {}
     try:
@@ -79,10 +114,17 @@ def view_system_info(request):
                 return_dict['ack_message'] = 'Date, time and timezone successfully updated'
             elif request.GET['ack'] == 'config_uploaded':
                 return_dict['ack_message'] = 'Configuration information successfully uploaded'
+            elif request.GET['ack'] == 'update_org_info_ok':
+                return_dict['ack_message'] = 'Updated orgnazation information successfully'
 
         si, err = system_info.load_system_config()
         if err:
             raise Exception(err)
+        org_info, err = system_info.get_org_info()
+        if err:
+            raise Exception(err)
+        return_dict['org_info'] = org_info
+
         now_epoch, err = datetime_utils.get_epoch(
             when='now', num_previous_days=0)
         if err:
@@ -117,6 +159,7 @@ def view_system_info(request):
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
 
 
+@login_required
 def reset_to_factory_defaults(request):
     return_dict = {}
     try:

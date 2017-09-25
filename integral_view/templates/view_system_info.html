@@ -11,9 +11,9 @@
       <li><a class="action-dropdown" href="/update_manifest" role="button" class="cover-page"><i class="fa fa-refresh fa-fw"></i>&nbsp;Scan for hardware changes</a></li>
       <li><a class="action-dropdown" href="/download_sys_info/" id="download_sys_info" class="cover-page" ><i class="fa fa-download fa-fw"></i>&nbsp;Download system configuration</a></li>
       <li><a class="action-dropdown" href="/upload_sys_info/" id="upload_sys_info" class="cover-page" ><i class="fa fa-upload fa-fw"></i>&nbsp;Upload system configuration</a></li>
-    <li><a class="action-dropdown" href="/update_system_date_time/" class="cover-page" ><i class="fa fa-clock-o fa-fw"></i>&nbsp;Update date and time</a></li>
-    <li><a class="action-dropdown" href="/reset_to_factory_defaults/" class="cover-page" ><i class="fa fa-clock-o fa-fw"></i>&nbsp;Reset system to factory defaults</a></li>
-
+      <li><a class="action-dropdown" href="/update_system_date_time/" class="cover-page" ><i class="fa fa-clock-o fa-fw"></i>&nbsp;Update date and time</a></li>
+      <li><a class="action-dropdown" href="/update_org_info" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Update organization info</a></li>
+      <li><a class="action-dropdown" href="/reset_to_factory_defaults/" class="cover-page" ><i class="fa fa-clock-o fa-fw"></i>&nbsp;Reset system to factory defaults</a></li>
     </ul>
   </div>
 {%endblock%}
@@ -40,6 +40,12 @@
     return i;
   }
 </script>
+
+  <style>
+  th{
+    width: 40%;
+  }
+  </style>
 
   <table class="table table-bordered table-striped table-hover" style="width:60%">
     {%if node.hardware_specific_info %}
@@ -101,6 +107,12 @@
       </td>
     </tr>
     <tr>
+      <th> IntegralSTOR UUID</th>
+      <td>
+        {{ node.integralstor_uuid.uuid_str}} 
+      </td>
+    </tr>
+    <tr>
       <th> System date and time </th>
       <td>
         {{ date_str}} <span id="time"></span><script> startTime({{milliseconds}}, {{time.hour}}, {{time.minute}},{{time.second}});</script>
@@ -112,7 +124,48 @@
             {{ system_timezone }}
         </td>
     </tr>
+    </table>
+
+  <br />
+
+  {% if org_info %}
+  <table class="table table-bordered table-striped table-hover" style="width:60%">
+    <tr>
+        <th> Organization's name </th>
+        <td>
+            {{ org_info.org_name }}
+        </td>
+    </tr>
+    <tr>
+        <th> Unit's name </th>
+        <td>
+            {{ org_info.unit_name }}
+        </td>
+    </tr>
+    <tr>
+        <th> Unit's ID </th>
+        <td>
+            {{ org_info.unit_id }}
+        </td>
+    </tr>
+    <tr>
+        <th> Subunit's name </th>
+        <td>
+            {{ org_info.subunit_name }}
+        </td>
+    </tr>
+    <tr>
+        <th> Subunit's ID </th>
+        <td>
+            {{ org_info.subunit_id }}
+        </td>
+    </tr>
   </table>
+  {% else %}
+    <br />
+    <a href="/update_org_info"><p id="p-warning-text"> Organization information has not been set, click here to update. </p></a>
+  {% endif %}
+
 
   <!-- This info is in other tabs anyway so hiding it for now.. 
   <table class="table table-bordered table-striped table-hover" style="width:60%">

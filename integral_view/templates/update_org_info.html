@@ -1,0 +1,74 @@
+{% extends 'system_base.html' %}
+
+{%block tab_header %}
+  Organization information
+{%endblock%}
+
+{% block inside_content %}
+
+<form id="update_org_info_form" name="update_org_info" action="" method="post">
+{%csrf_token%}
+    <table class="table" style="width:60%">
+    {% if form.non_field_errors %}
+    <p id="p-warning-text"> {{ form.non_field_errors.as_text}} </p>
+    {% endif %}
+        <tr>
+            <th> Orgnaization name: </th>
+            <td>
+            <input type="text"  name="org_name" class="form-control optional" id="id_org_name" {% if form.org_name.value %}value="{{form.org_name.value}}"{% endif %} />
+            </td>
+            <td> {{ form.org_name.errors }} </td>
+        </tr>
+        <tr>
+            <th> Unit name: </th>
+            <td>
+            <input type="text"  name="unit_name" class="form-control optional" id="id_unit_name" {% if form.unit_name.value %}value="{{form.unit_name.value}}"{% endif %}/>
+            </td>
+            <td> {{ form.unit_name.errors }} </td>
+        </tr>
+        <tr>
+            <th> Unit ID: </th>
+            <td>
+            <input type="text"  name="unit_id" class="form-control optional" id="id_unit_id" {% if form.unit_id.value %} value="{{form.unit_id.value}}" {% endif %}/>
+            </td>
+            <td> {{ form.unit_id.errors }} </td>
+        </tr>
+        <tr>
+            <th> Subunit name: </th>
+            <td>
+            <input type="text"  name="subunit_name" class="form-control optional" id="id_subunit_name" {% if form.subunit_name.value %}value="{{form.subunit_name.value}}" {% endif %}/>
+            </td>
+            <td> {{ form.subunit_name.errors }} </td>
+        </tr>
+        <tr>
+            <th> Subunit ID: </th>
+            <td>
+            <input type="text"  name="subunit_id" class="form-control optional" id="id_subunit_id" {% if form.subunit_id.value %}value="{{form.subunit_id.value}}" {% endif %}/>
+            </td>
+            <td> {{ form.subunit_id.errors }} </td>
+        </tr>
+
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        <a href="/view_system_info" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+        <button type="submit" class="btn btn-primary cover-page"> Save </button>
+    </div>
+</form>
+
+{%endblock%}
+
+{%block help_header%}
+  Organization information
+{%endblock%}
+
+{%block help_body%}
+  <p>This page updates organization's information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("system_info_tab")
+  </script>
+{% endblock %}
+

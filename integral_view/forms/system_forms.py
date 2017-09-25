@@ -35,6 +35,51 @@ class RemoteMonitoringServerForm(forms.Form):
     name = forms.CharField()
 
 
+class OrgInfoForm(forms.Form):
+    org_name = forms.CharField(required=False)
+    unit_name = forms.CharField(required=False)
+    unit_id = forms.CharField(required=False)
+    subunit_name = forms.CharField(required=False)
+    subunit_id = forms.CharField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        initial = None
+        if kwargs:
+            if 'initial' in kwargs:
+                initial = kwargs.pop('initial')
+        super(OrgInfoForm, self).__init__(*args, **kwargs)
+        if initial:
+            if initial['org_name']:
+                self.fields['org_name'] = forms.CharField(
+                    required=False, initial=str(initial['org_name']))
+            if initial['unit_name']:
+                self.fields['unit_name'] = forms.CharField(
+                    required=False, initial=str(initial['unit_name']))
+            if initial['unit_id']:
+                self.fields['unit_id'] = forms.CharField(
+                    required=False, initial=str(initial['unit_id']))
+            if initial['subunit_name']:
+                self.fields['subunit_name'] = forms.CharField(
+                    required=False, initial=str(initial['subunit_name']))
+            if initial['subunit_id']:
+                self.fields['subunit_id'] = forms.CharField(
+                    required=False, initial=str(initial['subunit_id']))
+
+    def clean(self):
+        cd = super(OrgInfoForm, self).clean()
+        org_name = str(cd.get('org_name')).strip()
+        unit_name = str(cd.get('unit_name')).strip()
+        unit_id = str(cd.get('unit_id')).strip()
+        subunit_name = str(cd.get('subunit_name')).strip()
+        subunit_id = str(cd.get('subunit_id')).strip()
+        # Though the fields are not mandatory, accept only if atleast one field
+        # has a character value
+        if (org_name == '') and (unit_name == '') and (unit_id == '') and (subunit_name == '') and (subunit_id == ''):
+            raise forms.ValidationError(
+                'Please provide a value for atleast one of the fields')
+        return self.cleaned_data
+
+
 class FactoryDefaultsForm(forms.Form):
     delete_cifs_shares = forms.BooleanField(widget=forms.CheckboxInput(
         attrs={'class': 'settings_class shares_class'}), required=False)
