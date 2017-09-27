@@ -13,7 +13,7 @@
       <tr>
         <td> 
           <b>Reset all settings to factory defaults</b><br/>
-          <em>(Includes Windows and rsync shares, NFS exports, ISCSI LUNs and users, local users and groups, all network settings, SSL and SSH certificates, keys and fingerprints, logs, remote replication schedules, background tasks, Windows access settings, NTP settings, FTP and email alert settings. This does <b>NOT</b> includes ZFS pools, datasets, volumes and user data!)</em>
+          <em>(Includes Windows and rsync shares, NFS exports, ISCSI LUNs and users, local users and groups, all network settings, SSL and SSH certificates, keys and fingerprints, logs, remote replication schedules, background tasks, Windows access settings, NTP settings, FTP and email alert settings and miscellaneous settings. This does <b>NOT</b> includes ZFS pools, datasets, volumes and user data!)</em>
         </td>
         <td><input type=checkbox id="select_settings"/></td>
       </tr>
@@ -147,24 +147,6 @@
         <td> {{ form.delete_email_settings.errors }} </td>
       </tr>
       <tr>
-        <th colspan=3> <h4>ZFS configuration and data</h4></th>
-      </tr>
-      <tr>
-        <th> Remove all ZFS pools</th>
-        <td> {{ form.delete_zfs_pools }} </td>
-        <td> {{ form.delete_zfs_pools.errors }} </td>
-      </tr>
-      <tr>
-        <th> Remove all ZFS datasets and associated snapshots</th>
-        <td> {{ form.delete_zfs_datasets_and_snapshots }} </td>
-        <td> {{ form.delete_zfs_datasets.errors }} </td>
-      </tr>
-      <tr>
-        <th> Remove all ZFS block device volumes and associated snapshots</th>
-        <td> {{ form.delete_zfs_zvols_and_snapshots }} </td>
-        <td> {{ form.delete_zfs_zvols.errors }} </td>
-      </tr>
-      <tr>
         <th colspan=3> <h4>Network settings</h4></th>
       </tr>
       <tr>
@@ -198,6 +180,32 @@
         <th> Set default IP(172.16.16.16) for the first ethernet interface(on reboot)</th>
         <td> {{ form.default_ip }} </td>
         <td> {{ form.default_ip.errors }} </td>
+      </tr>
+      <tr>
+        <th colspan=3> <h4>Others</h4></th>
+      </tr>
+      <tr>
+        <th> Clear organization information</th>
+        <td> {{ form.delete_org_info }} </td>
+        <td> {{ form.delete_org_info.errors }} </td>
+      </tr>
+      <tr>
+        <th colspan=3> <h4>ZFS configuration and data</h4></th>
+      </tr>
+      <tr>
+        <th> Remove all ZFS pools</th>
+        <td> {{ form.delete_zfs_pools }} </td>
+        <td> {{ form.delete_zfs_pools.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all ZFS datasets and associated snapshots</th>
+        <td> {{ form.delete_zfs_datasets_and_snapshots }} </td>
+        <td> {{ form.delete_zfs_datasets.errors }} </td>
+      </tr>
+      <tr>
+        <th> Remove all ZFS block device volumes and associated snapshots</th>
+        <td> {{ form.delete_zfs_zvols_and_snapshots }} </td>
+        <td> {{ form.delete_zfs_zvols.errors }} </td>
       </tr>
 
     </table>

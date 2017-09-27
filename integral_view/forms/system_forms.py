@@ -90,6 +90,9 @@ class FactoryDefaultsForm(forms.Form):
     delete_iscsi_targets = forms.BooleanField(widget=forms.CheckboxInput(
         attrs={'class': 'settings_class shares_class'}), required=False)
 
+    delete_org_info = forms.BooleanField(widget=forms.CheckboxInput(
+        attrs={'class': 'settings_class others'}), required=False)
+
     delete_local_users = forms.BooleanField(widget=forms.CheckboxInput(
         attrs={'class': 'settings_class users_groups_class'}), required=False)
     delete_local_groups = forms.BooleanField(widget=forms.CheckboxInput(

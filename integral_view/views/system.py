@@ -189,7 +189,8 @@ def reset_to_factory_defaults(request):
                                   'delete_email_settings': 'email server settings',
                                   'delete_zfs_pools': 'ZFS pools (user data)',
                                   'delete_zfs_datasets_and_snapshots': 'ZFS datasets and snapshots (user data)',
-                                  'delete_zfs_zvols_and_snapshots': 'ZFS block device volumes and snapshots (user data)'}
+                                  'delete_zfs_zvols_and_snapshots': 'ZFS block device volumes and snapshots (user data)',
+                                  'delete_org_info': 'Delete organization information'}
         if request.method == 'GET':
             form = system_forms.FactoryDefaultsForm()
             return_dict['form'] = form
@@ -299,6 +300,8 @@ def reset_to_factory_defaults(request):
                             result, err = networking.delete_all_bonds()
                         elif key == 'default_ip':
                             result, err = networking.default_ip_on_next_boot()
+                        elif key == 'delete_org_info':
+                            result, err = system_info.delete_org_info()
 
                         if result:
                             success_list.append(component_descriptions[key])
