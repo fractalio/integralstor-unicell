@@ -18,6 +18,11 @@
   <form name="schedule_replication" id="id_schedule_replication" class="form-horizontal" role="form" method="post">
     {%csrf_token%}
     <table  class="table" style="width:80%">
+      <style>
+        th {
+            width:35%;
+        }
+      </style>
       <colgroup width="40%" />
       <col width="40%" />
       <col width="40%" />
@@ -143,7 +148,7 @@
 
     {% if form.select_mode.value == "rsync" %}
     <table  class="table">
-    <colgroup width="30%" />
+    <colgroup width="32%" />
       <tr>
         <td />
         <td>
@@ -173,12 +178,11 @@
     {% endif %}
 
 
-    <table  class="table">
-    <colgroup width="32%" />
+    <table  class="table" style="width=80%">
       <tr>
         <th> Replication schedule</th>
         <td>
-          <div id="scheduler" class="form-control" style="border:0px ">
+          <div id="scheduler" class="form-control" style="border:0px">
           </div>
           <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="hidden" required readonly>
         </td>

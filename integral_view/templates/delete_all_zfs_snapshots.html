@@ -1,4 +1,4 @@
-{% extends 'storage_base.html' %}
+{% extends 'snapshot_replication_base.html' %}
 
 {%block tab_header %}
   Delete ZFS snapshots 
@@ -54,6 +54,7 @@
 
 {% block tab_active %}
   <script>
-    make_tab_active("view_zfs_snapshots_tab")
+      make_tab_active("view_zfs_snapshots_tab")
   </script>
 {% endblock %}
+
