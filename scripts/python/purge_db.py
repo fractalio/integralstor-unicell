@@ -11,6 +11,7 @@ atexit.register(lock.release_lock, 'purge_db')
 Purge the DB of all old unwanted entries based on certain criteria
 '''
 
+
 def main():
     lg = None
     try:
@@ -22,7 +23,8 @@ def main():
 
         logger.log_or_print('Database purge initiated.', lg, level='info')
         if len(sys.argv) != 4:
-            raise Exception('Usage : python purge_db.py <alerts_older_than_x_days> <min_audits_to_export> <audit_export_count')
+            raise Exception(
+                'Usage : python purge_db.py <alerts_older_than_x_days> <min_audits_to_export> <audit_export_count')
         lck, err = lock.get_lock('purge_db')
         if err:
             raise Exception(err)
@@ -36,7 +38,8 @@ def main():
         if err:
             raise Exception(err)
 
-        ret, err = audit.export_old_audits(audit_min_to_export, audit_export_count)
+        ret, err = audit.export_old_audits(
+            audit_min_to_export, audit_export_count)
         if err:
             raise Exception(err)
 
@@ -45,7 +48,7 @@ def main():
             raise Exception(err)
 
     except Exception, e:
-        #print str(e)
+        # print str(e)
         logger.log_or_print('Error purging database: %s' %
                             e, lg, level='critical')
         lock.release_lock('purge_db')
@@ -63,4 +66,3 @@ if __name__ == "__main__":
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
-

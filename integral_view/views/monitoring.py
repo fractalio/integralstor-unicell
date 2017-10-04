@@ -26,7 +26,7 @@ def view_remote_monitoring_servers(request):
         return_dict["page_title"] = 'Remote server monitoring'
         return_dict['tab'] = 'remote_monitoring_tab'
         return_dict["error"] = 'Error loading remote monitoring server list'
-        return_dict['base_template'] = "dashboard_base.html"
+        return_dict['base_template'] = "logging_base.html"
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
@@ -79,7 +79,7 @@ def update_remote_monitoring_server(request):
         return_dict["page_title"] = 'Update remote server monitoring server'
         return_dict['tab'] = 'remote_monitoring_tab'
         return_dict["error"] = 'Error updating remote monitoring server'
-        return_dict['base_template'] = "dashboard_base.html"
+        return_dict['base_template'] = "logging_base.html"
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
@@ -113,7 +113,7 @@ def delete_remote_monitoring_server(request):
         return_dict["page_title"] = 'Remove remote server monitoring server'
         return_dict['tab'] = 'remote_monitoring_tab'
         return_dict["error"] = 'Error removing remote monitoring server'
-        return_dict['base_template'] = "dashboard_base.html"
+        return_dict['base_template'] = "logging_base.html"
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
@@ -138,7 +138,7 @@ def view_remote_monitoring_server_status(request):
         return_dict["page_title"] = 'View remote server monitoring server status'
         return_dict['tab'] = 'remote_monitoring_tab'
         return_dict["error"] = 'Error viewing remote monitoring server status'
-        return_dict['base_template'] = "dashboard_base.html"
+        return_dict['base_template'] = "logging_base.html"
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

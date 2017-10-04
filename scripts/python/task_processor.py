@@ -5,6 +5,7 @@ import atexit
 
 atexit.register(lock.release_lock, 'task_processor')
 
+
 def main():
 
     lg = None

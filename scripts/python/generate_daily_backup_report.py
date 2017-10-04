@@ -10,6 +10,7 @@ atexit.register(lock.release_lock, 'generate_backup_report')
 Generate a PDF report of UrBackup backups of IntegralSTOR system.
 '''
 
+
 def main():
     lg = None
     try:
@@ -28,13 +29,14 @@ def main():
         if not lck:
             raise Exception('Could not acquire lock.')
 
-        logger.log_or_print('IntegralSTOR backup report generation initiated.', lg, level='info')
+        logger.log_or_print(
+            'IntegralSTOR backup report generation initiated.', lg, level='info')
         ret, err = urbackup.generate_todays_pdf_report()
         if err:
             raise Exception(err)
 
     except Exception, e:
-        #print str(e)
+        # print str(e)
         lock.release_lock('generate_backup_report')
         logger.log_or_print('Error generating IntegralSTOR backup report: %s' %
                             e, lg, level='critical')
@@ -52,4 +54,3 @@ if __name__ == "__main__":
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
-

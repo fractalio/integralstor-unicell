@@ -16,7 +16,8 @@ def gen_manifest(path):
             raise Exception(err)
         if not lck:
             raise Exception('Could not acquire lock.')
-        ret, err = manifest_status.generate_manifest_info(rescan_for_disks = True)
+        ret, err = manifest_status.generate_manifest_info(
+            rescan_for_disks=True)
         if not ret:
             if err:
                 raise Exception(err)

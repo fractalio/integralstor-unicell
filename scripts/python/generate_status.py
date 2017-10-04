@@ -27,7 +27,7 @@ def gen_status(path, lg=None):
                 raise Exception('No status info obtained')
         if ret and ('errors' in ret) and ret['errors']:
             retval, err = alerts.record_alerts(ret['errors'])
-            #print retval, err
+            # print retval, err
         fullpath = os.path.normpath("%s/master.status" % path)
         fulltmppath = "/tmp/master.status.tmp"
         # Generate into a tmp file

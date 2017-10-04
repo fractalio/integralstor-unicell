@@ -9,6 +9,7 @@ atexit.register(lock.release_lock, 'process_email_queue')
 Process and send all queued emails
 '''
 
+
 def main():
     lg = None
     try:
@@ -18,7 +19,8 @@ def main():
         lg, err = logger.get_script_logger(
             'Process email queue', scripts_log, level=logging.DEBUG)
 
-        logger.log_or_print('Processing email queue initiated.', lg, level='info')
+        logger.log_or_print(
+            'Processing email queue initiated.', lg, level='info')
         lck, err = lock.get_lock('process_email_queue')
         if err:
             raise Exception(err)
@@ -29,7 +31,7 @@ def main():
         if err:
             raise Exception(err)
     except Exception, e:
-        #print str(e)
+        # print str(e)
         logger.log_or_print('Error processing email queue: %s' %
                             e, lg, level='critical')
         lock.release_lock('process_email_queue')

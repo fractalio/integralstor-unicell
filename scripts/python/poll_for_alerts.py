@@ -46,9 +46,11 @@ def main():
         if rows:
             for row in rows:
                 if row['status'] == 'error-retrying':
-                    alert_list.append({ 'subsystem_type_id': 7, 'severity_type_id': 2, 'component' : row['description'], 'alert_str' : "Task: %s failed but will be retried." % row['description']})
+                    alert_list.append({'subsystem_type_id': 7, 'severity_type_id': 2,
+                                       'component': row['description'], 'alert_str': "Task: %s failed but will be retried." % row['description']})
                 elif row['status'] == 'failed':
-                    alert_list.append({ 'subsystem_type_id': 7, 'severity_type_id': 3, 'component' : row['description'], 'alert_str' : "Task: %s failed." % row['description']})
+                    alert_list.append({'subsystem_type_id': 7, 'severity_type_id': 3,
+                                       'component': row['description'], 'alert_str': "Task: %s failed." % row['description']})
 
         # print "\nalert_list: ", alert_list
 
@@ -63,7 +65,8 @@ def main():
                         for alert_dict in alerts_list:
                             if alert_dict['Severity'] == 'Critical':
                                 if (current_time - time_stamp) < (60 * 60):
-                                    alert_list.append({ 'subsystem_type_id': 5, 'severity_type_id': 3, 'component' : 'Dell Hardware component', 'alert_str' : alert_dict['description']})
+                                    alert_list.append({'subsystem_type_id': 5, 'severity_type_id': 3,
+                                                       'component': 'Dell Hardware component', 'alert_str': alert_dict['description']})
                                     # print time_stamp, alert_dict
         if alert_list:
             alerts.record_alerts(alert_list)

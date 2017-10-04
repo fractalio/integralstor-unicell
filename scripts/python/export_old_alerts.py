@@ -4,6 +4,7 @@ import logging
 import sys
 import datetime
 
+
 def main():
     lg = None
     try:
@@ -13,9 +14,11 @@ def main():
         lg, err = logger.get_script_logger(
             'Export old alert', scripts_log, level=logging.DEBUG)
 
-        logger.log_or_print('Processing export of old alerts initiated.', lg, level='info')
+        logger.log_or_print(
+            'Processing export of old alerts initiated.', lg, level='info')
         if len(sys.argv) != 2:
-            raise Exception('Usage : python export_old_alerts.py <older_than_x_days>')
+            raise Exception(
+                'Usage : python export_old_alerts.py <older_than_x_days>')
         else:
             days = sys.argv[1]
 
@@ -24,7 +27,7 @@ def main():
             raise Exception(err)
 
     except Exception, e:
-        #print str(e)
+        # print str(e)
         logger.log_or_print('Error exporting old alerts: %s' %
                             e, lg, level='critical')
         return -1,  'Error exporting old alerts : %s' % e
@@ -40,4 +43,3 @@ if __name__ == "__main__":
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
-

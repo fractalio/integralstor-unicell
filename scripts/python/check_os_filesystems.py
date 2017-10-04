@@ -10,6 +10,7 @@ atexit.register(lock.release_lock, 'check_os_filesystems')
 Checks the OS filesystems usage and raises apropriate warnings.If it reaches the critical level then user data services are stopped.
 '''
 
+
 def main():
     lg = None
     try:
@@ -29,7 +30,8 @@ def main():
         logger.log_or_print('OS filesystem check initiated.', lg, level='info')
 
         if len(sys.argv) != 3:
-            raise Exception('Usage : python check_os_filesystems.py <warning_percentage> <critical_percentage>')
+            raise Exception(
+                'Usage : python check_os_filesystems.py <warning_percentage> <critical_percentage>')
 
         warning_percentage = int(sys.argv[1])
         critical_percentage = int(sys.argv[2])
@@ -41,27 +43,30 @@ def main():
         alerts_list = []
         for partition in os_disk_stats:
             fs_name = partition['fs_name']
-            percentage_used = 100-partition['percentage_free']
+            percentage_used = 100 - partition['percentage_free']
             alert = False
             if percentage_used > critical_percentage:
                 severity_str = 'CRITICAL'
                 severity_type = 3
                 alert = True
                 print_percentage = critical_percentage
-                if '/var' in fs_name: 
-                    #print 'stopping services'
+                if '/var' in fs_name:
+                    # print 'stopping services'
                     stop_services = True
-                logger.log_or_print('OS filesystem %s full. Stopping all data services.' %fs_name, lg, level='critical')
+                logger.log_or_print(
+                    'OS filesystem %s full. Stopping all data services.' % fs_name, lg, level='critical')
             elif percentage_used > warning_percentage:
                 severity_type = 2
                 severity_str = 'warning'
                 print_percentage = warning_percentage
                 alert = True
             if alert:
-                alert_str = 'Partition %s has exceeded the %s threshold capacity of %d%% and is now %d%% full.'%(fs_name, severity_str, print_percentage, percentage_used)
+                alert_str = 'Partition %s has exceeded the %s threshold capacity of %d%% and is now %d%% full.' % (
+                    fs_name, severity_str, print_percentage, percentage_used)
                 if severity_type == 3:
                     alert_str += ' Stopping all data services now. Please clear up space before resuming these services.'
-                alerts_list.append({'subsystem_type_id': 8, 'severity_type_id': severity_type, 'component' : fs_name, 'alert_str' : alert_str})
+                alerts_list.append({'subsystem_type_id': 8, 'severity_type_id': severity_type,
+                                    'component': fs_name, 'alert_str': alert_str})
         if alerts_list:
             retval, err = alerts.record_alerts(alerts_list)
             if err:
@@ -72,7 +77,7 @@ def main():
                 services_management.update_service_status(service_name, 'stop')
 
     except Exception, e:
-        #print str(e)
+        # print str(e)
         lock.release_lock('check_os_filesystems')
         logger.log_or_print('Error checking OS filesystems : %s' %
                             e, lg, level='critical')
@@ -90,4 +95,3 @@ if __name__ == "__main__":
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
-

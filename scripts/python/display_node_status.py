@@ -5,7 +5,6 @@ import socket
 import sys
 
 
-
 def display_status():
 
     try:

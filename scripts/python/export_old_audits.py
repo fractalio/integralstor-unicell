@@ -4,6 +4,7 @@ import logging
 import sys
 import datetime
 
+
 def main():
     lg = None
     try:
@@ -12,10 +13,12 @@ def main():
             raise Exception(err)
         lg, err = logger.get_script_logger(
             'Export old audit messages', scripts_log, level=logging.DEBUG)
-        logger.log_or_print('Processing export of old audits initiated.', lg, level='info')
+        logger.log_or_print(
+            'Processing export of old audits initiated.', lg, level='info')
 
         if len(sys.argv) != 3:
-            raise Exception('Usage : python export_old_audits.py <min_to_export(default 1000)> <export_count(default 500)>')
+            raise Exception(
+                'Usage : python export_old_audits.py <min_to_export(default 1000)> <export_count(default 500)>')
         min_to_export = int(sys.argv[1])
         export_count = int(sys.argv[2])
         ret, err = audit.export_old_audits(min_to_export, export_count)
@@ -23,7 +26,7 @@ def main():
             raise Exception(err)
 
     except Exception, e:
-        #print str(e)
+        # print str(e)
         logger.log_or_print('Error exporting old audits: %s' %
                             e, lg, level='critical')
         return -1,  'Error exporting old audits : %s' % e
@@ -39,4 +42,3 @@ if __name__ == "__main__":
 
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
-

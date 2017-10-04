@@ -19,6 +19,7 @@ def _header():
     else:
         return True, None
 
+
 def mount_list():
     try:
         ret, err = _header()
@@ -45,6 +46,7 @@ def mount_list():
         raw_input('\nPress any key to continue')
     else:
         raw_input('\nPress any key to continue')
+
 
 def unmount():
     try:

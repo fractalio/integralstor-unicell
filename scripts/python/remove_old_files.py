@@ -13,6 +13,7 @@ atexit.register(lock.release_lock, 'remove_old_files')
 Remove all files that are older than the specified number of days that match the glob patterns given below.
 '''
 
+
 def remove_old_files(lg=None, older_than_days=7):
     try:
         lck, err = lock.get_lock('remove_old_files')
@@ -28,18 +29,18 @@ def remove_old_files(lg=None, older_than_days=7):
             raise Exception(err)
         patterns = [exported_logs_dir + '/alerts_*', status_report_dir + '/*']
         now, err = datetime_utils.get_epoch()
-        #print now
+        # print now
         for pattern in patterns:
             list = glob.glob(pattern)
             for f in list:
-                #print f
+                # print f
                 ctime = os.path.getctime(f)
-                #print os.path.getctime(f)
-                if (now - ctime) > (60*60*24*older_than_days):
-                    #print 'removing %s'%f
+                # print os.path.getctime(f)
+                if (now - ctime) > (60 * 60 * 24 * older_than_days):
+                    # print 'removing %s'%f
                     os.remove(f)
                 else:
-                    #print 'not removing %s'%f
+                    # print 'not removing %s'%f
                     pass
     except Exception, e:
         logger.log_or_print('Error removing old files: %s' %
@@ -49,6 +50,7 @@ def remove_old_files(lg=None, older_than_days=7):
     else:
         lock.release_lock('remove_old_files')
         return 0, None
+
 
 def main():
     lg = None
@@ -61,7 +63,8 @@ def main():
 
         logger.log_or_print('Old file removal initiated.', lg, level='info')
         if len(sys.argv) != 2:
-            raise Exception('Usage : python remove_old_files.py <older_than_days>')
+            raise Exception(
+                'Usage : python remove_old_files.py <older_than_days>')
         older_than_days = int(sys.argv[1])
         ret, err = remove_old_files(lg, older_than_days)
         if err:
