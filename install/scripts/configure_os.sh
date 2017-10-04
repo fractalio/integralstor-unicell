@@ -72,11 +72,12 @@ touch /var/log/integralstor/logs/scripts/integral_view.log
 touch /var/log/integralstor/logs/scripts/ramdisks
 
 
-# Set platform and hardware vendor
+# Set hardware vendor
 if [ -z "$hardware_vendor" ]; then
-  printf '{"platform": "integralstor"}\n' > /opt/integralstor/integralstor/platform
+  echo
 else
-  printf '{"platform": "integralstor",\n "hardware_vendor": "%s"}\n' "$hardware_vendor" > /opt/integralstor/integralstor/platform
+  sed -i /hardware_vendor/d /opt/integralstor/integralstor/platform
+  printf ' "hardware_vendor":"%s"}\n' "$hardware_vendor" >> /opt/integralstor/integralstor/platform
 fi
 
 ln -s /opt/integralstor/integralstor/platform /opt/integralstor

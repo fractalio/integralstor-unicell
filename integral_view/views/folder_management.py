@@ -894,7 +894,7 @@ def update_dir_owner(request):
                 group_name = grp.getgrgid(int(cd['gid']))[0]
                 audit_str = "Set owner user to %s and owner group to %s for directory %s" % (
                     user_name, group_name, cd["path"])
-                audit.audit("modify_dir_owner", audit_str, request)
+                audit.audit("modify_dir_owner_permissions", audit_str, request)
                 return django.http.HttpResponseRedirect('/view_dir_ownership_permissions?path=%s&ack=modified_ownership' % cd['path'])
             else:
                 return django.shortcuts.render_to_response('update_dir_ownership.html', return_dict, context_instance=django.template.context.RequestContext(request))
