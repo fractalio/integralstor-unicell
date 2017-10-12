@@ -1,3 +1,4 @@
+#!/bin/bash
 # set -o xtrace
 rsync_cmd=$1
 rename_snap=$2
