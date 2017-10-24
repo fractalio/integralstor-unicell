@@ -1,10 +1,18 @@
 #!/bin/bash
 # set -o xtrace
+
 rsync_cmd=$1
 rename_snap=$2
 create_snap=$3
-# echo $rsync_cmd
+rr_id=$4
 exit_code=""
+# echo $rsync_cmd
+
+# get the process group id of this process
+pgid=$(ps -o pgid= $$ | grep -o [0-9]*)
+
+# store the process group id
+printf '%s' "$pgid" > /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pgid
 
 echo "$rsync_cmd" | /bin/bash
 rsync_rc=$?
@@ -33,6 +41,9 @@ if (( "$exit_code"=="0" )); then
     echo "Could not sync snapshots"
   fi
 fi
+
+# remove the process group id file
+rm -f /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pgid
 
 exit $exit_code
 

@@ -62,10 +62,13 @@ mkdir -p /opt/integralstor/integralstor/config/db
 mkdir -p /opt/integralstor/integralstor/config/status
 mkdir -p /opt/integralstor/integralstor/config/pki
 mkdir -p /opt/integralstor/integralstor/config/conf_files
+mkdir -p /opt/integralstor/integralstor/config/run
+mkdir -p /opt/integralstor/integralstor/config/run/tasks
 
 chmod -R 777 /var/log/integralstor
 chmod -R 755 /opt/integralstor/integralstor/scripts/python/*
 chmod -R 755 /opt/integralstor/integralstor/scripts/shell/*
+chmod -R 775 /opt/integralstor/integralstor/config/run
 
 touch /var/log/integralstor/logs/scripts/scripts.log
 touch /var/log/integralstor/logs/scripts/integral_view.log

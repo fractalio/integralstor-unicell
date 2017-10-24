@@ -9,6 +9,10 @@
       <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
       <ul class="dropdown-menu">
         <li><a class="action-dropdown" href="/view_background_tasks/" ><i class="fa fa-list fa-fw"></i>&nbsp;Back to tasks list</a></li>
+        {% if task.status == "running" %}
+        <li class="divider"></li>
+        <li><a class="action-dropdown" href="/stop_background_task?task_id={{task.task_id}}" style="color:red"> <i class="fa fa-cog fa-fw"></i>&nbsp;Stop this task </a></li>
+        {% endif %}
         <li class="divider"></li>
         <li><a class="action-dropdown" href="/delete_background_task?task_id={{task.task_id}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Remove this task </a></li>
       </ul>
