@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from integral_view.views.monitoring import view_read_write_stats, api_get_status, view_remote_monitoring_servers, update_remote_monitoring_server, delete_remote_monitoring_server, view_remote_monitoring_server_status, view_scheduled_notifications, create_scheduled_notification, delete_scheduled_notification
 
-from integral_view.views.scheduler_cron_management import view_background_tasks, view_task_details, delete_background_task
+from integral_view.views.task_management import view_background_tasks, view_task_details, delete_background_task, stop_background_task
 
 from integral_view.views.disk_management import view_disks, identify_disk, replace_disk
 
@@ -255,11 +255,13 @@ urlpatterns = patterns('',
                        url(r'^delete_rsync_share',
                            login_required(delete_rsync_share)),
 
-                       # From views/scheduler_cron_management.py
+                       # From views/task_management.py
                        url(r'^view_background_tasks/',
                            login_required(view_background_tasks)),
                        url(r'^delete_background_task/',
                            login_required(delete_background_task)),
+                       url(r'^stop_background_task/',
+                           login_required(stop_background_task)),
                        url(r'^view_task_details/([0-9]*)',
                            login_required(view_task_details)),
 

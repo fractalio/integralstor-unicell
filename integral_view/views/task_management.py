@@ -15,6 +15,8 @@ def view_background_tasks(request):
         if "ack" in request.GET:
             if request.GET["ack"] == "deleted":
                 return_dict['ack_message'] = "Background task successfully removed"
+            if request.GET["ack"] == "stopped":
+                return_dict['ack_message'] = "Background task successfully stopped"
         tasks, err = tasks_utils.get_tasks()
         if err:
             raise Exception(err)
@@ -55,6 +57,36 @@ def delete_background_task(request):
         return_dict["page_title"] = 'Background tasks'
         return_dict['tab'] = 'view_background_tasks_tab'
         return_dict["error"] = 'Error removing background task'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def stop_background_task(request):
+    return_dict = {}
+    try:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'task_id'])
+        if err:
+            raise Exception(err)
+        if 'task_id' not in req_ret:
+            raise Exception('Invalid request. Please use the menus.')
+
+        task, err = tasks_utils.get_task(req_ret['task_id'])
+        if err:
+            raise Exception(err)
+
+        ret, err = tasks_utils.stop_task(req_ret['task_id'])
+        if err:
+            raise Exception(err)
+
+        audit.audit("stop_background_task",
+                    task['description'], request)
+        return django.http.HttpResponseRedirect('/view_background_tasks?ack=stopped')
+    except Exception, e:
+        return_dict['base_template'] = "scheduler_base.html"
+        return_dict["page_title"] = 'Background tasks'
+        return_dict['tab'] = 'view_background_tasks_tab'
+        return_dict["error"] = 'Error stopping background task'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
