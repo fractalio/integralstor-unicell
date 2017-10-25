@@ -42,6 +42,7 @@ def view_disks(request):
         return_dict['node'] = si
         return_dict['system_info'] = si
         return_dict["disk_status"] = si['disks']
+        # print si['disks']
         return_dict['node_name'] = si['fqdn']
         if type == 'os':
             return django.shortcuts.render_to_response('view_os_disks.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -164,7 +165,7 @@ def replace_disk(request):
                                     'Incomplete request. Please try again')
                             new_serial_number = request.POST['new_serial_number']
                             all_disks, err = disks.get_disk_info_status_all(
-                                rescan=True)
+                                rescan=False)
                             if new_serial_number not in all_disks:
                                 raise Exception('Invalid disk selection')
                             # print new_serial_number
@@ -232,6 +233,11 @@ def replace_disk(request):
                         return_dict["old_id"] = old_id
                         old_disks = si["disks"].keys()
                         result = False
+                        new_disks, err = disks.get_disk_info_status_all(
+                            rescan=True)
+                        if err:
+                            raise Exception(err)
+                        '''
                         rc, err = manifest_status.get_disk_info_and_status()
                         if err:
                             raise Exception(err)
@@ -239,22 +245,24 @@ def replace_disk(request):
                             result = True
                             new_disks = rc
                         if result:
-                            # print '1'
-                            if new_disks:
-                                # print new_disks.keys()
-                                # print old_disks
-                                for disk in new_disks.keys():
-                                    # print disk
-                                    if disk not in old_disks:
-                                        # print 'new disk : ', disk
-                                        return_dict["inserted_disk_serial_number"] = disk
-                                        return_dict["new_id"] = new_disks[disk]["id"]
-                                        break
-                                if "inserted_disk_serial_number" not in return_dict:
-                                    raise Exception(
-                                        "Could not detect any new disk. Please check the new disk is inserted and give the system a few seconds to detect the drive and refresh the page to try again.")
-                                else:
-                                    template = "replace_disk_confirm_new_disk.html"
+                        '''
+                        if new_disks:
+                            # print new_disks.keys()
+                            # print old_disks
+                            for disk in new_disks.keys():
+                                # print disk
+                                if disk not in old_disks:
+                                    # print 'new disk : ', disk
+                                    return_dict["inserted_disk_serial_number"] = disk
+                                    return_dict["new_id"] = new_disks[disk]["id"]
+                                    break
+                            if "inserted_disk_serial_number" not in return_dict:
+                                raise Exception(
+                                    "Could not detect any new disk. Please check the new disk is inserted and give the system a few seconds to detect the drive and refresh the page to try again.")
+                            else:
+                                template = "replace_disk_confirm_new_disk.html"
+                        else:
+                            raise Exception('No disks were found!')
                     elif step == "online_new_disk":
 
                         pool = request.POST["pool"]
@@ -303,7 +311,7 @@ def replace_disk(request):
     except Exception, e:
         return_dict['base_template'] = "storage_base.html"
         return_dict["page_title"] = 'Replace a disk in a ZFS pool'
-        return_dict['tab'] = 'view_zfs_pools_tab'
+        return_dict['tab'] = 'view_data_disks_tab'
         return_dict["error"] = 'Error replacing a disk in a ZFS pool'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
