@@ -19,6 +19,12 @@
     {%csrf_token%}
     {% if replication %} 
     <table  class="table " style="width:800px">
+        <style>
+          th {
+              width:35%;
+          }
+        </style>
+
         <input type="hidden" name="remote_replication_id" value="{{replication.remote_replication_id}}">
         <input type="hidden" name="cron_task_id" value="{{replication.cron_task_id}}">
 
