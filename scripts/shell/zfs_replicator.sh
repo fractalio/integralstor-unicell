@@ -1,9 +1,19 @@
-#set -o xtrace
+#!/bin/bash
+# set -o xtrace
+
 source_pool=$1
 source_dataset=$2
 destination=$3
 user=$4
 ip=$5
+rr_id=$6
+
+# get the process group id of this process
+pgid=$(ps -o pgid= $$ | grep -o [0-9]*)
+
+# store the process group id
+printf '%s' "$pgid" > /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pgid
+
 source=$source_pool/$source_dataset
 #echo $source $destination
 
