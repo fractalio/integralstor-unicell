@@ -25,15 +25,6 @@ echo "console    ALL=(ALL)    NOPASSWD: ALL" >> /etc/sudoers
 sed -i "s/^UID_MIN.*/UID_MIN                  1500/g" /etc/login.defs
 sed -i "s/^GID_MIN.*/GID_MIN                  1500/g" /etc/login.defs
 
-# To force NFS users to come in as nfsuser, create nfsuser
-nfs_usr='nfs-local'
-nfs_grp='nfs-local'
-nfs_usr=`python -c "from integralstor import config; name, err = config.get_local_nfs_user_name(); print name;"`
-nfs_grp=`python -c "from integralstor import config; name, err = config.get_local_nfs_group_name(); print name;"`
-groupadd "$nfs_grp" -g 1500
-useradd "$nfs_usr" -g 1500 -u 1500
-echo "$nfs_usr""123" | passwd --stdin "$nfs_usr"
-
 # Allow Network Manager to control network interfaces
 sed -i 's/NM_CONTROLLED=no/NM_CONTROLLED=yes/' /etc/sysconfig/network-scripts/ifcfg-eno*
 sed -i 's/NM_CONTROLLED=no/NM_CONTROLLED=yes/' /etc/sysconfig/network-scripts/ifcfg-enp*
@@ -42,6 +33,20 @@ sed -i 's/NM_CONTROLLED=no/NM_CONTROLLED=yes/' /etc/sysconfig/network-scripts/if
 
 # Avoid tty for clean ZFS remote replication process
 sed -e '/requiretty/s/^/#/g' -i /etc/sudoers
+
+
+# Link site-packages with python libraries dir
+ln -s /opt/integralstor/integralstor/site-packages/integralstor /usr/lib/python2.7/site-packages/integralstor
+
+
+# To force NFS users to come in as nfsuser, create nfsuser
+nfs_usr='nfs-local'
+nfs_grp='nfs-local'
+nfs_usr=`python -c "from integralstor import config; name, err = config.get_local_nfs_user_name(); print name;"`
+nfs_grp=`python -c "from integralstor import config; name, err = config.get_local_nfs_group_name(); print name;"`
+groupadd "$nfs_grp" -g 1500
+useradd "$nfs_usr" -g 1500 -u 1500
+echo "$nfs_usr""123" | passwd --stdin "$nfs_usr"
 
 
 # Create required Integralstor specific directories
@@ -101,13 +106,12 @@ rm -rf /opt/integralstor/integralstor/config/db/*
 cp /opt/integralstor/integralstor/install/conf-files/db/*.db /opt/integralstor/integralstor/config/db/
 sqlite3 /opt/integralstor/integralstor/config/db/integralstor.db < /opt/integralstor/integralstor/install/conf-files/db/integralstor_db.schema
 
+
 # Populate cron entries
 # ALERT: clears existing entries
 crontab -r
 cat /opt/integralstor/integralstor/install/scripts/cron_entries.list | crontab -
 
-# Link site-packages with python libraries dir
-ln -s /opt/integralstor/integralstor/site-packages/integralstor /usr/lib/python2.7/site-packages/integralstor
 
 # Disable printing kernel messages(dmesg) to console
 cat >> /etc/rc.d/rc.local << __eof__
