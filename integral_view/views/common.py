@@ -96,12 +96,20 @@ def view_dashboard(request, page):
 
         # Chart specific declarations
         # will return 02, instead of 2.
+        end_epoch, err = datetime_utils.get_epoch(when='now')
+        if err:
+            raise Exception(err)
+        start_epoch = end_epoch - 3 * 60 * 60
+        start, err = datetime_utils.convert_from_epoch(
+            start_epoch, return_format='str', str_format='%H:%M:%S', to='local')
+        if err:
+            raise Exception(err)
+        end, err = datetime_utils.convert_from_epoch(
+            end_epoch, return_format='str', str_format='%H:%M:%S', to='local')
+        if err:
+            raise Exception(err)
+
         todays_date = (datetime.date.today()).strftime('%02d')
-        start_hour = '%02d' % (datetime.datetime.today().hour - 3)
-        end_hour = '%02d' % (datetime.datetime.today().hour)
-        minute = '%02d' % (datetime.datetime.today().minute)
-        start = str(start_hour) + ":" + str(minute) + str(":10")
-        end = str(end_hour) + ":" + str(minute) + str(":40")
 
         value_list = []
         time_list = []
