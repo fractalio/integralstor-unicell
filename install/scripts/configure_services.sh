@@ -95,6 +95,7 @@ systemctl start shellinaboxd &> /dev/null; systemctl enable shellinaboxd &> /dev
 systemctl start uwsginew &> /dev/null; systemctl enable uwsginew &> /dev/null
 systemctl start nginx &> /dev/null; systemctl enable nginx &> /dev/null
 systemctl stop first-boot &> /dev/null; systemctl disable first-boot &> /dev/null
+systemctl preset zfs.target zfs-import-cache zfs-import-scan zfs-mount zfs-share zfs-zed
 
 systemctl daemon-reload
 udevadm control --reload-rules
