@@ -6,7 +6,7 @@ import django.http
 import os
 import os.path
 
-from integralstor import tasks_utils, django_utils, audit, config, command
+from integralstor import tasks_utils, django_utils, audit, config, command, datetime_utils
 
 
 def view_background_tasks(request):
@@ -20,6 +20,18 @@ def view_background_tasks(request):
         tasks, err = tasks_utils.get_tasks()
         if err:
             raise Exception(err)
+        for task in tasks:
+            initiate_time_str, err = datetime_utils.convert_from_epoch(
+                task['initiate_time'], return_format='str', str_format='%c', to='local')
+            if err:
+                raise Exception(err)
+            create_time_str, err = datetime_utils.convert_from_epoch(
+                task['create_time'], return_format='str', str_format='%c', to='local')
+            if err:
+                raise Exception(err)
+            task['initiate_time'] = initiate_time_str
+            task['create_time'] = create_time_str
+
         return_dict["tasks"] = tasks
         return django.shortcuts.render_to_response("view_background_tasks.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:

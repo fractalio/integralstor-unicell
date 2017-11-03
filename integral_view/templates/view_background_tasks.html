@@ -23,8 +23,8 @@
             <tr>
               <td><a href="/view_task_details/{{task.task_id}}"> {{task.description}}</a> </td>
               <td> {{task.status}} </td>
-              <td> {{task.create_time|print_timestamp}} </td>
-              <td> {{task.initiate_time|print_timestamp}} </td>
+              <td> {{task.create_time}} </td>
+              <td> {{task.initiate_time}} </td>
             </tr>
           {% endfor %}
         </tbody> 
