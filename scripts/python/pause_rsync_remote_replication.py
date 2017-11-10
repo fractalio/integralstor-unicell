@@ -16,15 +16,17 @@ def pause_rsync_remote_replication(remote_replication_id):
         if mode != 'rsync':
             raise Exception('Invalid replication mode')
 
-        running_tasks, err = tasks_utils.get_tasks_by_cron_task_id(replication['cron_task_id'], get_last_by=False, status='running')
+        # since the intention is to prevent any further retries as well, check
+        # for 'error-retrying' status also.
+        running_tasks, err = tasks_utils.get_tasks_by_cron_task_id(replication['cron_task_id'], get_last_by=False, status_list=['running', 'error-retrying'])
         if err:
             raise Exception
         if running_tasks:
-            # stop only if task is currently running
-            ret, err = tasks_utils.stop_task(running_tasks[0]['task_id'])
+            # To prevent re-attempts, mark it 'failed'
+            ret, err = tasks_utils.stop_task(running_tasks[0]['task_id'], mark_failed=True)
             if err:
                 raise Exception
-            audit_str = "%s has been paused" % running_tasks[0]['description']
+            audit_str = "%s has been paused, it will resume at the next run schedule" % running_tasks[0]['description']
 
             audit.audit("stop_background_task",
                         audit_str, None, system_initiated=True )
