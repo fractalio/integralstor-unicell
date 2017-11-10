@@ -30,6 +30,8 @@ def view_remote_replications(request):
                 return_dict['ack_message'] = 'Replication successfully scheduled.'
             elif request.GET["ack"] == "updated":
                 return_dict['ack_message'] = 'Selected replication parameters successfully updated.'
+            elif request.GET["ack"] == "pause_schedule_updated":
+                return_dict['ack_message'] = 'Replication pause schedule successfully updated.'
 
         replications, err = remote_replication.get_remote_replications()
         if err:
@@ -403,6 +405,78 @@ def update_remote_replication(request):
         return_dict["page_title"] = 'Configure remote replication'
         return_dict['tab'] = 'view_remote_replications_tab'
         return_dict["error"] = 'Error configuring replication'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
+def update_rsync_remote_replication_pause_schedule(request):
+    """Modifies only the pause schedule, not any other field
+
+    TODO: shorten this ridiculously large name when cleaning up
+    """
+    return_dict = {}
+    try:
+
+        ret, err = django_utils.get_request_parameter_values(
+            request, ['remote_replication_id'])
+        if err:
+            raise Exception(err)
+        if 'remote_replication_id' not in ret:
+            raise Exception(
+                "Requested remote replication not found, please use the menus.")
+        remote_replication_id = ret['remote_replication_id']
+        replications, err = remote_replication.get_remote_replications(
+            remote_replication_id)
+        if err:
+            raise Exception(err)
+        if not replications:
+            raise Exception('Specified replication definition not found')
+        if replications[0]['mode'] != 'rsync':
+            raise Exception('Unsupported replication mode')
+
+        if request.method == "GET":
+            return_dict['replication'] = replications[0]
+            return django.shortcuts.render_to_response('update_remote_replication_pause_schedule.html', return_dict, context_instance=django.template.context.RequestContext(request))
+        elif request.method == "POST":
+            scheduler = None
+            schedule = None
+            is_disabled = True
+            if ('pause_cron_task_id' and 'is_disabled') not in request.POST:
+                raise Exception("Incomplete request.")
+            is_disabled = request.POST.get('is_disabled')
+            if str(is_disabled) == 'False':
+                if ('scheduler') not in request.POST:
+                    raise Exception("Incomplete request.")
+                scheduler = request.POST.get('scheduler')
+                schedule = scheduler.split()
+            pause_cron_task_id = request.POST.get('pause_cron_task_id')
+            description = ''
+            description += replications[0]['description']
+
+            # update the schedule of the cron entry in-place
+            pause_cron_task_id, err = remote_replication.update_rsync_remote_replication_pause_schedule(
+                remote_replication_id, schedule)
+            if err:
+                raise Exception(err)
+
+            audit_tag = ''
+            if schedule:
+                crons, err = scheduler_utils.get_cron_tasks(pause_cron_task_id)
+                if err:
+                    raise Exception(err)
+                if 'schedule_description' in crons[0] and crons[0]['schedule_description']:
+                    description += '\nSchedule: %s' % crons[0]['schedule_description']
+                audit_tag = 'update_rsync_remote_replication_pause_schedule'
+            else:
+                audit_tag = 'remove_rsync_remote_replication_pause_schedule'
+
+            audit.audit(audit_tag, description, request)
+            return django.http.HttpResponseRedirect('/view_remote_replications?ack=pause_schedule_updated')
+    except Exception as e:
+        return_dict['base_template'] = "snapshot_replication_base.html"
+        return_dict["page_title"] = 'Update rsync remote replication pause schedule'
+        return_dict['tab'] = 'view_remote_replications_tab'
+        return_dict["error"] = 'Error updating rsync remote replication pause schedule'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 

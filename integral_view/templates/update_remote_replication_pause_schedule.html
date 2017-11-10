@@ -1,0 +1,217 @@
+{% extends 'snapshot_replication_base.html' %}
+
+{%block tab_header %}
+  Remote replication
+{%endblock%}
+
+{%block global_actions %}
+    <div class="btn-group btn-group-sm pull-right"  >
+      <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw"></i>&nbsp;Actions &nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+      <ul class="dropdown-menu">
+        <li><a class="action-dropdown" href="/view_remote_replications/" ><i class="fa fa-list fa-fw"></i>&nbsp;Back to replications list</a></li>
+      </ul>
+    </div>
+{%endblock%}
+
+{% block inside_content %}
+
+  <form class="form-horizontal" role="form" name="pause_replication_schedule"  method="post">
+    {%csrf_token%}
+    {% if replication %} 
+    <table  class="table " style="width:800px">
+        <style>
+          th {
+              width:35%;
+          }
+        </style>
+
+        <input type="hidden" name="remote_replication_id" value="{{replication.remote_replication_id}}">
+        <input type="hidden" name="pause_cron_task_id" value="{{replication.pause_cron_task_id}}">
+        <input type="hidden" id="id_is_disabled" name="is_disabled" value=''/>
+
+        {% if replication.mode == 'zfs' %}
+
+		<tr>
+		  <th> Replicated dataset</th>
+		  <td> 
+		    {{replication.zfs.0.source_dataset}}
+		  </td>
+		</tr>
+		<tr>
+		  <th> Target IntegralSTOR IP</th>
+		  <td> 
+		    {{replication.zfs.0.target_ip}}
+		  </td>
+		</tr>
+		<tr>
+		  <th> Target IntegralSTOR pool name</th>
+		  <td> 
+		    {{replication.zfs.0.target_pool}}
+		  </td>
+		</tr>
+
+        {% elif replication.mode == 'rsync' %}
+		<tr>
+		  <th> Source path</th>
+		  <td> 
+		    {{replication.rsync.0.source_path}}
+		  </td>
+		</tr>
+		{% if replication.rsync.0.rsync_type != 'local' %}
+		  {% if replication.rsync.0.rsync_type == 'push' %}
+		    <tr>
+		      <th> Source machine</th>
+		      <td> 
+		      Local host(this machine)
+		      </td>
+		    </tr>
+		  {% elif replication.rsync.0.rsync_type == 'pull' %}
+		    <tr>
+		      <th> Source machine</th>
+		      <td> 
+		      {{replication.rsync.0.target_ip}}
+		      </td>
+		    </tr>
+		  {% endif %}
+		{% endif %}
+		<tr>
+		  <th> Target path</th>
+		  <td> 
+		    {{replication.rsync.0.target_path}}
+		  </td>
+		</tr>
+		{% if replication.rsync.0.rsync_type != 'local' %}
+
+		  {% if replication.rsync.0.rsync_type == 'pull' %}
+		    <tr>
+		      <th> Target machine</th>
+		      <td> 
+		      Local host(this machine)
+		      </td>
+		    </tr>
+		  {% elif replication.rsync.0.rsync_type == 'push' %}
+		    <tr>
+		      <th> Target machine</th>
+		      <td> 
+		      {{replication.rsync.0.target_ip}}
+		      </td>
+		    </tr>
+		  {% endif %}
+
+		{% endif %}
+
+		{% if replication.rsync.0.rsync_type == 'local' %}
+		<tr>
+		  <th> Source and target path are on local host(this machine)</th>
+		  <td> 
+		  </td>
+		</tr>
+		{% endif %}
+
+		<tr>
+                  <th> Between IntegralSTOR units? </th>
+                  <td>
+                    {% if replication.rsync.0.is_between_integralstor == 'True' %}
+                    Yes
+                    {% else %}
+                    No
+                    {% endif %}
+                  </td>
+		</tr>
+        {%endif%}
+
+        <tr>
+          <th> Replication scheduled to run at</th>
+          <td> {{replication.schedule_description}} </td>
+        </tr>
+        <tr>
+          <th> Replication scheduled to pause at</th>
+          {% if replication.pause_cron_task_id != -1 %}
+            <td> {{replication.pause_schedule_description}} </td>
+          {% else %}
+            <td> not scheduled yet! </td>
+          {% endif %}
+        </tr>
+
+        <tr>
+          <th> Run replication uninterrupted?</th>
+          <td>
+             <input id="id_is_disabled_dummy" name="is_disabled_dummy" type="checkbox" />
+          </td>
+        </tr>
+
+        <tr>
+        <th> Select a new schedule to pause replication </th>
+        <td>
+          <div id="scheduler" class="form-control" style="border:0px ">
+          </div>
+          <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="hidden" readonly>
+        </td>
+        </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
+      <button type="submit" class="btn btn-primary" id="start">Update schedule</button>
+    </div>
+
+    {% else %}
+      Could not find what you are looking for!
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
+    </div>
+
+    {%endif%}
+
+  </form>
+
+{%endblock%}
+
+{%block help_header%}
+  Modify remote replication's pause schedule. When replication process reaches the set pause schedule, it will pause the current attempt and continue on the next schedule.
+{%endblock%}
+
+{%block help_body%}
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_remote_replications_tab")
+  </script>
+{% endblock %}
+
+{% block js %}
+
+  <script type="text/javascript" src="/static/js/jquery-cron-min.js"></script>
+  <link type="text/css" href="/static/css/jquery-cron.css" rel="stylesheet" />
+  <script>
+    $('#scheduler').cron({
+      onChange: function() {
+        $('#id_scheduler').val($(this).cron("value"));
+      },
+      customValues: {
+        "20 Minutes" : "*/20 * * * *",
+        "30 Minutes" : "*/30 * * * *",
+    }
+     });
+
+   // If checkbox is not checked on submit, POST will not contain that
+   // checkbox field, but we need it, so send a hidden input
+   $('#id_is_disabled_dummy').prop("checked", true)
+   $('#id_is_disabled').val('True')
+   $('#scheduler').hide()
+
+   $('#id_is_disabled_dummy').on('change', function() {
+            if($('#id_is_disabled_dummy').prop("checked")) {
+                $('#id_is_disabled').val("True")
+   		$('#scheduler').hide()
+            } else {
+                $('#id_is_disabled').val("False")
+   		$('#scheduler').show()
+            }
+	
+	
+   });
+
+  </script>
+{% endblock %}

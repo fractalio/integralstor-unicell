@@ -46,8 +46,9 @@
           <th> Source machine </th>
           <th> Target path </th>
           <th> Target machine </th>
+          <th> Pause schedule</th>
           {% endif %}
-          <th> Schedule</th>
+          <th> Run schedule</th>
           <th> Actions</th>
         </tr>
       </thead>
@@ -84,12 +85,15 @@
               <td> {{replication.rsync.0.target_path}} </td>
               <td> Local host </td>
               {% endif %}
+            <td> {{replication.pause_schedule_description}} </td>
             <td> {{replication.schedule_description}} </td>
             <td> 
               <div class="btn-group btn-group-xs pull-right" >
                 <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
                 <ul class="dropdown-menu">
-                  <li> <a class="action-dropdown" href="/update_remote_replication/?remote_replication_id={{replication.remote_replication_id}}" title="Modify the parameters for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify replication settings </a></li>
+                  <li> <a class="action-dropdown" href="/update_remote_replication/?remote_replication_id={{replication.remote_replication_id}}" title="Modify the parameters for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify run schedule </a></li>
+                  <li class="divider"></li>
+                  <li> <a class="action-dropdown" href="/update_rsync_remote_replication_pause_schedule/?remote_replication_id={{replication.remote_replication_id}}" title="Modify the pause schedule for this replication"><i class="fa fa-cog fa-fw"></i>&nbsp;Modify pause schedule </a></li>
                   <li class="divider"></li>
                   <li><a class="action-dropdown" href="/delete_remote_replication?remote_replication_id={{replication.remote_replication_id}}" style="color:red"> <i class="fa fa-trash fa-fw"></i>&nbsp;Cancel this replication </a></li>
                 </ul>

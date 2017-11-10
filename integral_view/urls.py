@@ -6,7 +6,7 @@ from integral_view.views.task_management import view_background_tasks, view_task
 
 from integral_view.views.disk_management import view_disks, identify_disk, replace_disk
 
-from integral_view.views.remote_replication_management import create_remote_replication, view_remote_replications, delete_remote_replication, update_remote_replication
+from integral_view.views.remote_replication_management import create_remote_replication, view_remote_replications, delete_remote_replication, update_remote_replication, update_rsync_remote_replication_pause_schedule
 
 from integral_view.views.ntp_management import update_ntp_settings, view_ntp_settings, sync_ntp
 
@@ -303,6 +303,8 @@ urlpatterns = patterns('',
                            login_required(create_remote_replication)),
                        url(r'^update_remote_replication/',
                            login_required(update_remote_replication)),
+                       url(r'^update_rsync_remote_replication_pause_schedule/',
+                           login_required(update_rsync_remote_replication_pause_schedule)),
                        url(r'^delete_remote_replication/',
                            login_required(delete_remote_replication)),
 
