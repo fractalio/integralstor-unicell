@@ -63,7 +63,7 @@ def view_hardware_logs(request):
         hw_platform, err = config.get_hardware_platform()
         if err:
             raise Exception(err)
-        if hw_platform or hw_platform != 'dell':
+        if hw_platform and hw_platform != 'dell':
             raise Exception('Unknown hardware platform')
         return_dict['hw_platform'] = hw_platform
         if hw_platform == 'dell':

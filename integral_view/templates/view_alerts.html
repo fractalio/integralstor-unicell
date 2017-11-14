@@ -5,34 +5,35 @@
 {%endblock%}
 
 {% block inside_content %}
+  <p> *Repeat count is within 15 minutes of first report time </p>
 
   <table class="table table-bordered table-hover">
     <thead>
       <tr>
-        <th> First reported time </th>
-        <td> <b>Repeat count </b><br/>(within 15 minutes of first report time)</td>
-        <th> Subsystem </th>
-        <th> Component </th>
-        <th> Severity </th>
-        <th> Details </th>
+        <th style="width:15%;text-align:center"> First reported time </th>
+        <th style="width:5%;text-align:center"> Repeat count* </th>
+        <th style="width:5%;text-align:center" > Subsystem </th>
+        <th style="width:5%;text-align:center"> Component </th>
+        <th style="width:5%;text-align:center"> Severity </th>
+        <th style="width:65%;text-align:center"> Details </th>
       </tr>
     </thead>
     {% if alerts_list %}
       {% for a in alerts_list %}
         <tr {%if a.severity_id == 3%} style="background-color:red" {%elif a.severity_id == 2%} style="background-color:orange"{%endif%}>
-          <td style="width:200px">
+          <td style="text-align:center">
             {{a.first_alert_time}}
           </td>
-          <td>
+          <td style="text-align:center">
             {{a.repeat_count}}
           </td>
-          <td>
+          <td style="text-align:center">
             {{a.subsystem|safe}}
           </td>
-          <td>
+          <td style="text-align:center">
             {{a.component|safe}}
           </td>
-          <td>
+          <td style="text-align:center">
             {{a.severity|safe}}
           </td>
           <td>
