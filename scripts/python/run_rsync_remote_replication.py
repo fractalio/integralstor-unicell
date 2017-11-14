@@ -1,9 +1,10 @@
 #!/usr/bin/python
 import sys
-from integralstor import remote_replication
+from integralstor import remote_replication, audit
 
 
 def run_rsync_remote_replication(remote_replication_id):
+    fail_audit_str = ''
     try:
         rr, err = remote_replication.get_remote_replications(
             remote_replication_id)
@@ -12,6 +13,8 @@ def run_rsync_remote_replication(remote_replication_id):
 
         replication = rr[0]
         mode = replication['mode']
+	fail_audit_str = 'Replication description: %s\n' % replication['description']
+	fail_audit_str += 'Schedule description: %s\n' % replication['schedule_description']
         if mode != 'rsync':
             raise Exception('Invalid replication mode')
 
@@ -20,7 +23,10 @@ def run_rsync_remote_replication(remote_replication_id):
         if err:
             raise Exception(err)
 
+
     except Exception, e:
+        audit.audit("task_fail", "Did not initiate replication:\n%s - %s" % (fail_audit_str, e),
+                    None, system_initiated=True)
         return False, 'Error adding rsync remote replication task: %s' % e
     else:
         return True, None
