@@ -31,8 +31,8 @@ def main():
         if not lck:
             raise Exception('Could not acquire lock. Exiting.')
         alerts_days = sys.argv[1]
-        audit_min_to_export = int(sys.argv[1])
-        audit_export_count = int(sys.argv[2])
+        audit_min_to_export = int(sys.argv[2])
+        audit_export_count = int(sys.argv[3])
 
         ret, err = alerts.export_old_alerts(int(alerts_days))
         if err:
