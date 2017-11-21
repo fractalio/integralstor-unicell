@@ -263,7 +263,7 @@ def create_scheduled_notification(request):
             elif event_type_id == 2:
                 audit.audit("create_audit_notification", audit_str, request)
             elif event_type_id == 3:
-                audit.audit("create_audit_notification", audit_str, request)
+                audit.audit("create_report_notification", audit_str, request)
 
             return django.http.HttpResponseRedirect('/view_scheduled_notifications?ack=created')
     except Exception, e:
@@ -298,6 +298,8 @@ def delete_scheduled_notification(request):
             audit.audit("delete_alert_notification", audit_str, request)
         elif ent['event_type_id'] == 2:
             audit.audit("delete_audit_notification", audit_str, request)
+        elif ent['event_type_id'] == 3:
+            audit.audit("delete_report_notification", audit_str, request)
         return django.http.HttpResponseRedirect('/view_scheduled_notifications?ack=deleted')
     except Exception, e:
         return_dict["page_title"] = 'Remove scheduled notification'

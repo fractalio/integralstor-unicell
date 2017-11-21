@@ -1,4 +1,4 @@
-from integralstor import event_notifications, audit, mail, logger, db, config, datetime_utils
+from integralstor import event_notifications, audit, mail, logger, db, config, datetime_utils, remote_replication
 
 import logging
 import sys
@@ -34,6 +34,10 @@ def main():
         urb_reports_dir, err = config.get_urbackup_reports_dir_path()
         if err:
             raise Exception(err)
+        rr_reports_dir, err = config.get_remote_replication_reports_dir_path()
+        if err:
+            raise Exception(err)
+
 
         ent, err = event_notifications.get_event_notification_trigger(ent_id)
         # print ent, err
@@ -63,6 +67,17 @@ def main():
                     email_header = 'IntegralSTOR backup status report'
                     email_body = 'Please find the latest IntegralSTOR backup status report'
                     all_files = glob.glob('%s/*' % urb_reports_dir)
+                    latest_file = max(all_files, key=os.path.getctime)
+                    attachment_location = latest_file
+
+                elif ent['event_subtype_id'] == 3:
+                    # remote replication report processing here
+                    ret, err = remote_replication.generate_pdf_report()
+                    if err:
+                        raise exception(err)
+                    email_header = 'IntegralSTOR remote replication status report'
+                    email_body = 'Please find the latest IntegralSTOR remote replication status report'
+                    all_files = glob.glob('%s/*' % rr_reports_dir)
                     latest_file = max(all_files, key=os.path.getctime)
                     attachment_location = latest_file
 

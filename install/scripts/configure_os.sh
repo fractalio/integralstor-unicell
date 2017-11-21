@@ -61,6 +61,7 @@ mkdir -p /var/log/integralstor/archives/logs/
 mkdir -p /var/log/integralstor/reports/
 mkdir -p /var/log/integralstor/reports/urbackup/
 mkdir -p /var/log/integralstor/reports/integralstor_status/
+mkdir -p /var/log/integralstor/reports/remote-replication/
 
 mkdir -p /opt/integralstor/integralstor/config
 mkdir -p /opt/integralstor/integralstor/config/db

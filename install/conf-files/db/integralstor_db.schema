@@ -164,6 +164,7 @@ INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, descripti
 INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (2, -1, 'Audits');
 INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (3, 1, 'System status report');
 INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (3, 2, 'URbackup report');
+INSERT INTO reference_event_subtypes (event_type_id, event_subtype_id, description) values (3, 3, 'Remote replication report');
 
 CREATE TABLE "reference_notification_types" (
   "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
