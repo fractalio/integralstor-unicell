@@ -4,12 +4,12 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/dell/srva
 
 */10 * * * * /usr/lib64/sa/sa1 1 1 -S DISK &> /tmp/out_status
 
-* * * * * python /opt/integralstor/integralstor/scripts/python/generate_status.py &> /tmp/out_status
+*/5 * * * * python /opt/integralstor/integralstor/scripts/python/generate_status.py &> /tmp/out_status
 
 * * * * * python /opt/integralstor/integralstor/scripts/python/task_processor.py &> /tmp/out_task_processor
 
 # Generate alerts for background tasks failures and dell hardware alerts
-* * * * * python /opt/integralstor/integralstor/scripts/python/poll_for_alerts.py &> /tmp/out_integralstor_alerts
+*/2 * * * * python /opt/integralstor/integralstor/scripts/python/poll_for_alerts.py &> /tmp/out_integralstor_alerts
 
 # OS filesystem space check 
 # python check_os_filesystems.py <warning_percentage> <critical_percentage>
@@ -44,7 +44,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/dell/srva
 # Purge db of all old entries and possible export them to files
 # (currently does it for alerts and audits)
 # python purge_db.py <alerts_older_than_x_days> <min_audits_to_export> <audit_export_count>
-@daily python /opt/integralstor/integralstor/scripts/python/purge_db.py 30 500 250 &> /tmp/out_purge_db
+@daily python /opt/integralstor/integralstor/scripts/python/purge_db.py 15 500 250 &> /tmp/out_purge_db
 
 # Record pool usage info for that day into the db
 # python record_pool_usage_stats.py
