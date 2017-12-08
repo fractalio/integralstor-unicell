@@ -52,6 +52,7 @@ class RsyncMode(forms.Form):
 
 class CreateRemoteReplication(ZFSMode, RsyncMode):
     target_ip = forms.GenericIPAddressField(protocol='IPv4')
+    is_one_shot = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         modes = []

@@ -11,8 +11,14 @@ exit_code=""
 # get the process group id of this process
 pgid=$(ps -o pgid= $$ | grep -o [0-9]*)
 
+# get the process id
+pid=$(ps -o pid= $$ | grep -o [0-9]*)
+
 # store the process group id
 printf '%s' "$pgid" > /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pgid
+
+# store the process id
+printf '%s' "$pid" > /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pid
 
 echo "$rsync_cmd" | /bin/bash
 rsync_rc=$?
@@ -42,8 +48,9 @@ if (( "$exit_code"=="0" )); then
   fi
 fi
 
-# remove the process group id file
+# remove the process group id and pid files
 rm -f /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pgid
+rm -f /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pid
 
 exit $exit_code
 
