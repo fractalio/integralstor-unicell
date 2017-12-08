@@ -132,6 +132,16 @@
             <td> not scheduled yet! </td>
           {% endif %}
         </tr>
+        <tr>
+          <th> One shot replication? </th>
+          <td>
+            {% if replication.is_one_shot == 'True' %}
+            Yes
+            {% else %}
+            No
+            {% endif %}
+          </td>
+        </tr>
 
         <tr>
           <th> Run replication uninterrupted?</th>

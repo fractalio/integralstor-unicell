@@ -7,12 +7,19 @@ destination=$3
 user=$4
 ip=$5
 rr_id=$6
+exit_code=-1
 
 # get the process group id of this process
 pgid=$(ps -o pgid= $$ | grep -o [0-9]*)
 
+# get the process id
+pid=$(ps -o pid= $$ | grep -o [0-9]*)
+
 # store the process group id
 printf '%s' "$pgid" > /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pgid
+
+# store the process id
+printf '%s' "$pid" > /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pid
 
 source=$source_pool/$source_dataset
 #echo $source $destination
@@ -59,7 +66,7 @@ if [[ -z "${secondary_last_snapshot[1]}" ]]; then
   #sudo zfs send -v $source@${primary_initial_snapshot[1]} | mbuffer -s 128k -m 1G 2>/dev/null | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "mbuffer -s 128k -m 1G | sudo zfs receive -Fdv $destination"
   rc=$?
   echo "Return code from the initial send command : $rc"
-  exit $rc
+  exit_code=$rc
 else
   #Secondary snapshot is not none
   if [ "${secondary_last_snapshot[1]}" != "${primary_last_snapshot[1]}" ]; then
@@ -71,9 +78,15 @@ else
     #sudo zfs send -vI $source@${secondary_last_snapshot[1]} $source@${primary_last_snapshot[1]} | mbuffer -s 128k -m 1G 2>/dev/null | ssh -o ServerAliveInterval=300 -o ServerAliveCountMax=3 $user@$ip "mbuffer -s 128k -m 1G | sudo zfs receive -Fdv $destination"
     rc=$?
     echo "Return code from the differential send command : $rc"
-    exit $rc
+    exit_code=$rc
   else
     echo "The source and destination snapshots are in sync. No replication required"
-    exit 0
+    exit_code=0
   fi
 fi
+
+# remove the process group id and pid files
+rm -f /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pgid
+rm -f /opt/integralstor/integralstor/config/run/tasks/rr."$rr_id".pid
+
+exit $exit_code

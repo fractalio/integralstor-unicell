@@ -131,6 +131,19 @@
           <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="hidden" required readonly>
         </td>
         </tr>
+        <tr>
+        <td />
+        </tr>
+        <tr>
+          <th> One shot replication? </th>
+          <td>
+            {% if replication.is_one_shot == 'True' %}
+            Yes
+            {% else %}
+            No
+            {% endif %}
+          </td>
+        </tr>
     </table>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">

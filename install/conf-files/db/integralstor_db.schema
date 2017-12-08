@@ -107,7 +107,8 @@ CREATE TABLE "remote_replications" (
   "remote_replication_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   "mode" varchar(20) NOT NULL,
   "cron_task_id" integer NOT NULL REFERENCES cron_tasks(cron_task_id) ON DELETE CASCADE,
-  "pause_cron_task_id" integer NOT NULL DEFAULT -1 REFERENCES cron_tasks(cron_task_id)
+  "pause_cron_task_id" integer NOT NULL DEFAULT -1 REFERENCES cron_tasks(cron_task_id),
+  "is_one_shot" boolean DEFAULT 'False'
 );
 
 

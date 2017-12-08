@@ -204,9 +204,14 @@ def _create_zfs_remote_replication(request, cleaned_data):
         target_ip = cd['target_ip']
         target_pool = cd['target_pool']
         target_user_name = "replicator"
+        is_one_shot = False
+        description = ''
 
         if (not target_ip) or (not target_pool) or (not source_dataset):
             raise Exception("Incomplete request.")
+        if 'is_one_shot' in cd and cd['is_one_shot'] == True:
+            is_one_shot = True
+            description = '[One shot]'
 
         existing_repl, err = remote_replication.get_remote_replications_with(
             'zfs', {'source_dataset': source_dataset, 'target_ip': target_ip, 'target_pool': target_pool})
@@ -216,15 +221,15 @@ def _create_zfs_remote_replication(request, cleaned_data):
             raise Exception(
                 "A replication schedule already exists with matching entries/options.")
 
-        description = 'ZFS replication of %s to pool %s on machine %s' % (
-            source_dataset, target_pool, target_ip)
+        description = '%s ZFS replication of %s to pool %s on machine %s' % (
+            description, source_dataset, target_pool, target_ip)
 
         # add_remote_replication() will add the remote replication
         # entry to the remote_replications table, the appropriate ZFS
         # mode specific replication table:zfs_replications and add the
         # python script as a crontab entry that runs ZFS replication.
         ids, err = remote_replication.add_remote_replication(
-            'zfs', {'source_dataset': source_dataset, 'target_ip': target_ip, 'target_user_name': target_user_name, 'target_pool': target_pool, 'schedule': schedule, 'description': description})
+            'zfs', {'source_dataset': source_dataset, 'target_ip': target_ip, 'target_user_name': target_user_name, 'target_pool': target_pool, 'schedule': schedule, 'description': description, 'is_one_shot':is_one_shot})
         if err:
             raise Exception(err)
 
@@ -266,9 +271,14 @@ def _create_rsync_remote_replication(request, cleaned_data):
         switches = {}
         description = ''
         is_between_integralstor = False
+        is_one_shot = False
 
         if 'is_between_integralstor' in cd and cd['is_between_integralstor'] == True:
             is_between_integralstor = True
+        if 'is_one_shot' in cd and cd['is_one_shot'] == True:
+            is_one_shot = True
+            description = '[One shot]'
+
 
         rsync_type = cd['rsync_type']
         if rsync_type == 'push':
@@ -319,14 +329,14 @@ def _create_rsync_remote_replication(request, cleaned_data):
                 "A replication schedule already exists with matching entries/options.")
 
         if rsync_type == 'pull':
-            description = 'rsync replication of %s from %s to %s on local host' % (
-                source_path, target_ip, target_path)
+            description = '%s rsync replication of %s from %s to %s on local host' % (
+                description, source_path, target_ip, target_path)
         elif rsync_type == 'push':
-            description = 'rsync replication of %s from local host to %s on %s' % (
-                source_path, target_path, target_ip)
+            description = '%s rsync replication of %s from local host to %s on %s' % (
+                description, source_path, target_path, target_ip)
         elif rsync_type == 'local':
-            description = 'rsync replication of %s from local host to %s on local host' % (
-                source_path, target_path)
+            description = '%s rsync replication of %s from local host to %s on local host' % (
+                description, source_path, target_path)
 
         # add_remote_replication() will add the remote replication
         # entry to the remote_replications table, the appropriate rsync
@@ -334,7 +344,7 @@ def _create_rsync_remote_replication(request, cleaned_data):
         # python script as a crontab entry that runs rsync replication.
 
         ids, err = remote_replication.add_remote_replication('rsync', {'rsync_type': rsync_type, 'short_switches': switches_formed['short'], 'long_switches': switches_formed[
-                                                             'long'], 'source_path': source_path, 'target_path': target_path, 'target_ip': target_ip, 'is_between_integralstor': is_between_integralstor, 'target_user_name': target_user_name, 'description': description, 'schedule': schedule})
+                                                             'long'], 'source_path': source_path, 'target_path': target_path, 'target_ip': target_ip, 'is_one_shot': is_one_shot, 'is_between_integralstor': is_between_integralstor, 'target_user_name': target_user_name, 'description': description, 'schedule': schedule})
         if err:
             raise Exception(err)
 

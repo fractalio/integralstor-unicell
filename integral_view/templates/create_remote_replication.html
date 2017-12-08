@@ -187,6 +187,11 @@
           <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select time from time selector" type="hidden" required readonly>
         </td>
       </tr>
+      <tr>
+       <th> One shot replication: run only once at this schedule? </th>
+        <td> {{ form.is_one_shot }} </td>
+        <td> {{ form.is_one_shot.errors }} </td>
+      </tr>
     </table>
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <a href="/view_remote_replications" role="button" class="btn btn-default"> Cancel</a>
