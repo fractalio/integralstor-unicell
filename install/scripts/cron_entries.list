@@ -54,9 +54,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/dell/srva
 # python remove_old_files.py <older_than_days>
 @daily python /opt/integralstor/integralstor/scripts/python/remove_old_files.py 15 &> /tmp/out_old_files
 
-# Generate daily backup report that updates every 15 mins
+# Generate daily backup report that updates hourly
 # python generate_daily_backup_report.py
-*/15 * * * * python /opt/integralstor/integralstor/scripts/python/generate_daily_backup_report.py &> /tmp/out_backup_report
+@hourly python /opt/integralstor/integralstor/scripts/python/generate_daily_backup_report.py &> /tmp/out_backup_report
 
 @reboot /usr/sbin/modprobe ipmi_devintf &> /tmp/logs-ipmi_devinfo_modprobe
 @reboot /usr/sbin/modprobe zfs &> /tmp/logs-zfs_modprobe
