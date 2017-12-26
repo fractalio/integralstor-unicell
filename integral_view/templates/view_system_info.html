@@ -13,7 +13,11 @@
       <li><a class="action-dropdown" href="/upload_sys_info/" id="upload_sys_info" class="cover-page" ><i class="fa fa-upload fa-fw"></i>&nbsp;Upload system configuration</a></li>
       <li><a class="action-dropdown" href="/update_system_date_time/" class="cover-page" ><i class="fa fa-clock-o fa-fw"></i>&nbsp;Update date and time</a></li>
       <li><a class="action-dropdown" href="/update_org_info" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Update organization info</a></li>
+      <li class="divider"></li>
+      <li><a class="action-dropdown" href="/update_admin_password" ><i class="fa fa-exchange fa-fw"></i>&nbsp;Change IntegralView password</a></li>
+      <li><a class="action-dropdown" href="/view_https_mode/" ><i class="fa fa-exchange fa-fw"></i>&nbsp;View & modify IntegralView access mode</a></li>
       {%if request.user.username == 'superadmin'%}
+        <li class="divider"></li>
         <li><a class="action-dropdown" href="/reset_to_factory_defaults/" class="cover-page" ><i class="fa fa-clock-o fa-fw"></i>&nbsp;Reset system to factory defaults</a></li>
       {%endif%}
     </ul>

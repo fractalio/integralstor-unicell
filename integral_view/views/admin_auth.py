@@ -140,9 +140,9 @@ def update_admin_password(request):
             # User not authenticated so return a login screen
             return django.http.HttpResponseRedirect('/login/')
     except Exception, e:
-        return_dict['base_template'] = "admin_base.html"
+        return_dict['base_template'] = "system_base.html"
         return_dict["page_title"] = 'Change admininistrator password'
-        return_dict['tab'] = 'change_admin_pswd_tab'
+        return_dict['tab'] = 'system_info_tab'
         return_dict["error"] = 'Error changing administrator password'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response('logged_in_error.html', return_dict, context_instance=django.template.context.RequestContext(request))
@@ -245,9 +245,9 @@ def view_https_mode(request):
         return_dict['port'] = mode['port']
         return django.shortcuts.render_to_response('view_https_mode.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
-        return_dict['base_template'] = "admin_base.html"
+        return_dict['base_template'] = "system_base.html"
         return_dict["page_title"] = 'Integralview access mode'
-        return_dict['tab'] = 'https_tab'
+        return_dict['tab'] = 'system_info_tab'
         return_dict["error"] = 'Error loading IntegralView access mode'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -317,10 +317,10 @@ def update_https_mode(request):
         return django.http.HttpResponseRedirect(redirect_url)
 
     except Exception, e:
-        return_dict['base_template'] = "admin_base.html"
-        return_dict["page_title"] = 'Set Integralview access mode'
-        return_dict['tab'] = 'https_tab'
-        return_dict["error"] = 'Error setting IntegralView access mode'
+        return_dict['base_template'] = "system_base.html"
+        return_dict["page_title"] = 'Modify Integralview access mode'
+        return_dict['tab'] = 'system_info_tab'
+        return_dict["error"] = 'Error modifying IntegralView access mode'
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
