@@ -6,19 +6,29 @@
 
 {% block inside_content %}
 
-  <iframe width="100%" frameBorder="0" height="800px" src="http://{{url}}"></iframe>
-  Open in a new tab/window : <a href="http://{{url}}" target=_new">http://{{url}}</a>
+  {%if url_access_error%}
+    <p>The backup service could not be reached (Error message "{{url_access_error}}"). </p>
+    <p>Please ensure that the service is started and functioning correctly before accessing this page.</p>
+  {%else%}
+    <iframe width="100%" frameBorder="0" height="800px" src="http://{{url}}"></iframe>
+    Open in a new tab/window : <a href="http://{{url}}" target=_new">http://{{url}}</a>
+  {%endif%}
 
 {% endblock %}
 
 {%block help_header%}
-View disk status
+Data backup
 {%endblock%}
 
 {%block help_body%}
-  <p> 
-  This screen displays the status of all the disks in the system. The information includes the S.M.A.R.T information and the disk position in the chassis. If there is an issue with a disk, then a button next to the disk will give you the option of replacing the disk. Clicking on this button will take you through a wizard for the disk replacement process.
-  </p>
+  <p> This set of screens is provided by <a href="https://urbackup.org" target=_new>UrBackup (https://urbackup.org)</a>.  </p>
+  <p> UrBackup is an easy to setup Open Source client/server backup system, that through a combination of image and file backups accomplishes both data safety and a fast restoration time.</p>
+
+  <p>File and image backups are made while the system is running without interrupting current processes.</p>
+
+  <p>UrBackup also continuously watches folders you want backed up in order to quickly find differences to previous backups. Because of that, incremental file backups are really fast.</p>
+
+  <p>Your files can be restored through the web interface, via the client or the Windows Explorer while the backups of drive volumes can be restored with a bootable CD or USB-Stick (bare metal restore)</p>
 {%endblock%}
 
 {% block tab_active %}

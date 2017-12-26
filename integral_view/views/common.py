@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 import django.http
 
 
-from integralstor import system_info, iscsi_stgt, nfs, audit, datetime_utils, cifs, django_utils, stats, services_management, zfs, command, config
+from integralstor import system_info, iscsi_stgt, nfs, audit, datetime_utils, cifs, django_utils, stats, services_management, zfs, command, config, networking
 
 
 @login_required
@@ -57,6 +57,9 @@ def view_backup(request):
             if col_pos:
                 host = host[:col_pos]
         url = '%s:55414' % host
+        ret, err =  networking.check_url('http://%s'%url)
+        if not ret:
+            return_dict['url_access_error'] = err
         return_dict['url'] = url
         return django.shortcuts.render_to_response("view_backup.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
