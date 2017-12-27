@@ -12,6 +12,14 @@ def view_zfs_historical_usage(request):
         pools, err = zfs.get_pools()
         if err:
             raise Exception(err)
+        ret_dict, err = zfs.get_historical_pool_usage_stats()
+        if err:
+            raise Exception(err)
+        if not ret_dict or 'pool_names' not in ret_dict or 'usage' not in ret_dict:
+            raise Exception('Error retrieving historical pool usage')
+        if (not ret_dict['pool_names']) and (not ret_dict['usage']):
+            return_dict['no_usage_stats'] = True
+
         return_dict['pools'] = pools
         return django.shortcuts.render_to_response('view_historical_zfs_space_util.html', return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:

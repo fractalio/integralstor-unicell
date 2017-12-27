@@ -8,7 +8,10 @@
 
     {% if not pools %}
       No active pools present.
-    {%endif%}
+    {%elif no_usage_stats %}
+        <p>No historical availability statistics have been collected yet for the ZFS pools.</p> 
+        <p>Please try again after a day by ensuring that the system is powered on all the time.</p>
+    {%else%}
 
         <div id="chartdiv" style="width: 85%; height: 400px;display: inline-block;"></div>
         <script type="text/javascript" src="/static/jqplot/jquery.jqplot.js"></script>
@@ -81,6 +84,7 @@
             })
 
         </script>
+    {%endif%}
 {% endblock %}
 
 {%block help_header%}
