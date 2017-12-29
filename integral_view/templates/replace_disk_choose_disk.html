@@ -35,7 +35,7 @@
     <br/>
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <input type="button" class="btn btn-default" value="Cancel" onClick="window.location='/view_disks'"> &nbsp;&nbsp; 
-      <button type="button" class="btn btn-primary " onClick="chked = radio_checked(); alert($('input[type=radio]:checked').val());if (!chked) { alert('Please choose a replacement disk');} else {document.getElementById('form_id').submit();}">Confirm and proceed >></button>
+      <button type="button" class="btn btn-primary " onClick="chked = radio_checked(); if (!chked) { alert('Please choose a replacement disk');} else {document.getElementById('form_id').submit();}">Confirm and proceed >></button>
     </div>
 </form>
 
