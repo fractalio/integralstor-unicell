@@ -208,6 +208,43 @@ def view_zfs_pool(request):
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
+def view_zfs_pool_history_events(request):
+    return_dict = {}
+    action = None
+    try:
+        template = 'logged_in_error.html'
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool', 'action'])
+        if err:
+            raise Exception(err)
+        if 'pool' not in req_ret or 'action' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        action = req_ret['action']
+        if action not in ['events', 'history']:
+            raise Exception('Invalid action specified')
+        pool_name = req_ret['pool']
+        return_dict['action'] = action
+        return_dict['pool'] = pool_name
+        lines, err = zfs.get_pool_events_history(pool_name, action)
+        if err:
+            raise Exception(err)
+        return_dict['lines'] = lines[::-1]
+        return django.shortcuts.render_to_response('view_zfs_pool_events_history.html', return_dict, context_instance=django.template.context.RequestContext(request))
+    except Exception, e:
+        return_dict['base_template'] = "storage_base.html"
+        if action:
+            return_dict["page_title"] = 'ZFS pool %s' % action
+        else:
+            return_dict["page_title"] = 'ZFS pool history/events'
+        return_dict['tab'] = 'view_zfs_pools_tab'
+        if action:
+            return_dict["error"] = 'Error loading ZFS pool %s' % action
+        else:
+            return_dict["error"] = 'Error loading ZFS pool history/events'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+
 def update_zfs_quota(request):
     return_dict = {}
     try:
@@ -394,11 +431,13 @@ def import_zfs_pool(request):
             raise Exception(err)
 
         if request.method == 'GET':
-            form = zfs_forms.ImportPoolForm(exported_pools=exported_pools, destroyed_pools=destroyed_pools)
+            form = zfs_forms.ImportPoolForm(
+                exported_pools=exported_pools, destroyed_pools=destroyed_pools)
             return_dict['form'] = form
             return django.shortcuts.render_to_response("import_zfs_pool.html", return_dict, context_instance=django.template.context.RequestContext(request))
         else:
-            form = zfs_forms.ImportPoolForm(request.POST, exported_pools=exported_pools, destroyed_pools=destroyed_pools)
+            form = zfs_forms.ImportPoolForm(
+                request.POST, exported_pools=exported_pools, destroyed_pools=destroyed_pools)
             return_dict['form'] = form
             if not form.is_valid():
                 return django.shortcuts.render_to_response("import_zfs_pool.html", return_dict, context_instance=django.template.context.RequestContext(request))

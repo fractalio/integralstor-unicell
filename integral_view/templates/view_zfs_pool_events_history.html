@@ -1,0 +1,55 @@
+{% extends 'storage_base.html' %}
+
+{%block tab_header %}
+    {% if action%}
+        ZFS pool {{action}}
+    {%else%}
+        ZFS pool events/history
+    {%endif%}
+{%endblock%}
+
+{%block global_actions %}
+    {%if pool%}
+    <div class="btn-group btn-group-sm pull-right">
+        <a class="btn btn-default dropdown-toggle " data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw" ></i> &nbsp;Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+        <ul class="dropdown-menu">
+            <li><a class="action-dropdown" href="/view_zfs_pool/?name={{pool}}&view=basic" title="Back to basic pool information page" style="color:#000"> <i class="fa fa-info-circle fa-fw "></i>&nbsp;Back to pool information</a></li>
+        </ul>
+    </div>
+    {%endif%}
+{%endblock%}
+
+{%block inside_content %}
+
+    {%if lines %}
+        {%for line in lines %}
+            {{line}}<br/>
+        {%endfor%}
+    {%else%}
+        {% if action%}
+            No {{action}} was available.
+            ZFS pool {{action}}
+        {%else%}
+            No events/history was available.
+        {%endif%}
+        
+    {%endif%}
+      
+
+{%endblock%}
+
+{%block help_header%}
+  View basic ZFS pool information
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen displays the basic pool information and its usage properties.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_zfs_pools_tab")
+  </script>
+{% endblock %}
+
+

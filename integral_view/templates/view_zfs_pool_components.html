@@ -44,6 +44,9 @@
           <li class="divider"></li>
           <li> <a class="action-dropdown" role="button" onclick="document.clear_pool_form.submit()"><i class="fa fa-lemon-o fa-fw"></i>Clear pool errors</a>
           <li class="divider"></li>
+          <li><a class="action-dropdown" href="/view_zfs_pool_history_events?pool={{pool.pool_name}}&action=history"  title="View ZFS pool history" > <i class="fa fa-list fa-fw"></i>View pool history</a> 
+          <li><a class="action-dropdown" href="/view_zfs_pool_history_events?pool={{pool.pool_name}}&action=events"  title="View ZFS pool events" > <i class="fa fa-list fa-fw"></i>View pool events</a> 
+          <li class="divider"></li>
           <li><a class="action-dropdown" href="/export_zfs_pool?pool_name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-cloud-download fa-fw" ></i>Export this pool</a>
           <li><a class="action-dropdown" href="/delete_zfs_pool?name={{pool.pool_name}}" style="color:red" title=""> <i class="fa fa-trash-o fa-fw" ></i>Delete this pool</a>
           <li class="divider"></li>
