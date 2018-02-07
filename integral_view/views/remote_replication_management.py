@@ -211,7 +211,7 @@ def _create_zfs_remote_replication(request, cleaned_data):
             raise Exception("Incomplete request.")
         if 'is_one_shot' in cd and cd['is_one_shot'] == True:
             is_one_shot = True
-            description = '[One time]'
+            description = 'one time '
 
         existing_repl, err = remote_replication.get_remote_replications_with(
             'zfs', {'source_dataset': source_dataset, 'target_ip': target_ip, 'target_pool': target_pool})
@@ -221,7 +221,7 @@ def _create_zfs_remote_replication(request, cleaned_data):
             raise Exception(
                 "A replication schedule already exists with matching entries/options.")
 
-        description = '%s ZFS replication of %s to pool %s on machine %s' % (
+        description = '%sZFS replication of %s to pool %s on machine %s' % (
             description, source_dataset, target_pool, target_ip)
 
         # add_remote_replication() will add the remote replication
@@ -277,7 +277,7 @@ def _create_rsync_remote_replication(request, cleaned_data):
             is_between_integralstor = True
         if 'is_one_shot' in cd and cd['is_one_shot'] == True:
             is_one_shot = True
-            description = '[One time]'
+            description = 'one time '
 
 
         rsync_type = cd['rsync_type']
@@ -329,13 +329,13 @@ def _create_rsync_remote_replication(request, cleaned_data):
                 "A replication schedule already exists with matching entries/options.")
 
         if rsync_type == 'pull':
-            description = '%s rsync replication of %s from %s to %s on local host' % (
+            description = '%srsync replication of %s from %s to %s on local host' % (
                 description, source_path, target_ip, target_path)
         elif rsync_type == 'push':
-            description = '%s rsync replication of %s from local host to %s on %s' % (
+            description = '%srsync replication of %s from local host to %s on %s' % (
                 description, source_path, target_path, target_ip)
         elif rsync_type == 'local':
-            description = '%s rsync replication of %s from local host to %s on local host' % (
+            description = '%srsync replication of %s from local host to %s on local host' % (
                 description, source_path, target_path)
 
         # add_remote_replication() will add the remote replication
