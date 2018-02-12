@@ -17,6 +17,11 @@ def view_background_tasks(request):
                 return_dict['ack_message'] = "Background task successfully removed"
             if request.GET["ack"] == "stopped":
                 return_dict['ack_message'] = "Background task successfully stopped"
+
+        initiate_time_str = ""
+        create_time_str = ""
+        end_time_str = ""
+
         tasks, err = tasks_utils.get_tasks()
         if err:
             raise Exception(err)
@@ -29,8 +34,16 @@ def view_background_tasks(request):
                 task['create_time'], return_format='str', str_format='%c', to='local')
             if err:
                 raise Exception(err)
+
+            if task['end_time']:
+                end_time_str, err = datetime_utils.convert_from_epoch(
+                    task['end_time'], return_format='str', str_format='%c', to='local')
+                if err:
+                    raise Exception(err)
+
             task['initiate_time'] = initiate_time_str
             task['create_time'] = create_time_str
+            task['end_time'] = end_time_str
 
         return_dict["tasks"] = tasks
         return django.shortcuts.render_to_response("view_background_tasks.html", return_dict, context_instance=django.template.context.RequestContext(request))

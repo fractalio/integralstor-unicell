@@ -71,6 +71,7 @@ CREATE TABLE "tasks" (
   "create_time" datetime NOT NULL,
   "initiate_time" datetime NOT NULL,
   "last_run_time" datetime,
+  "end_time" datetime,
   "status" varchar(50) NOT NULL DEFAULT 'queued',
   FOREIGN KEY(task_type_id) REFERENCES reference_task_types(id)
 );
