@@ -35,6 +35,7 @@
           <li><a class="action-dropdown" href="/create_zfs_zvol?pool={{pool.pool_name}}"  title="Create a new block device volume" > <i class="fa fa-plus fa-fw"></i>Create a new block device volume</a> 
           <li class="divider"></li>
           <li> <a class="action-dropdown" href="/scrub_zfs_pool?name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Initiate a scrub</a>
+          <li> <a class="action-dropdown" href="/create_zfs_pool_scrub_schedule?pool_name={{pool.pool_name}}"><i class="fa fa-lemon-o fa-fw" ></i>Schedule a pool scrub</a>
           <li class="divider"></li>
           <li> <a class="action-dropdown" role="button" onclick="document.clear_pool_form.submit()"><i class="fa fa-lemon-o fa-fw"></i>Clear pool errors</a>
           <li class="divider"></li>
@@ -110,6 +111,43 @@
                   <tr><td>* This is the storage space after reserving the designated space for optimal system operation.</td></tr>
                 {%endif%}
               </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingThree">
+          <h5 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+              Scheduled pool scrubs<span class="caret"></span>
+            </a>
+          </h5>
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            {%if scrub_cron_tasks %}
+              <table class="table table-bordered table-hover table-responsive" style="width:800px">
+                <tr>
+                    <th> Schedule </th> 
+                    <th style="text-align:right">Actions</th>
+                </tr>
+                {%for scrub_cron_task in scrub_cron_tasks%}
+                    <tr>
+                        <td> {{scrub_cron_task.schedule_description}}</td> 
+                        <td>
+                            <div class="btn-group btn-group-xs pull-right" >
+                                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                                <ul class="dropdown-menu">
+                                  <li><a  class="action-dropdown" href="/delete_zfs_pool_scrub_schedule?pool_name={{pool.pool_name}}&cron_task_id={{scrub_cron_task.cron_task_id}}"  style="color:red" title="Remove this scheduled scrub" > <i class="fa fa-trash fa-fw"></i>Remove this schedule</a> 
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                {%endfor%}
+              </table>
+            {%else%}
+                No scrub tasks scheduled for this pool.
+            {%endif%}
           </div>
         </div>
       </div>

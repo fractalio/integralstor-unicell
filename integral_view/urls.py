@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from integral_view.views.monitoring import view_read_write_stats, api_get_status, view_remote_monitoring_servers, update_remote_monitoring_server, delete_remote_monitoring_server, view_remote_monitoring_server_status, view_scheduled_notifications, create_scheduled_notification, delete_scheduled_notification
 
-from integral_view.views.task_management import view_background_tasks, view_task_details, delete_background_task, stop_background_task
+from integral_view.views.task_management import view_background_tasks, view_task_details, delete_background_task, stop_background_task, view_scheduled_tasks, update_scheduled_task_schedule
 
 from integral_view.views.disk_management import view_disks, identify_disk, replace_disk
 
@@ -26,7 +26,7 @@ from integral_view.views.local_user_management import view_local_users, create_l
 
 from integral_view.views.nfs_share_management import view_nfs_shares, view_nfs_share, delete_nfs_share, create_nfs_share, update_nfs_share
 
-from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, update_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, delete_all_zfs_snapshots, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, update_zfs_slog, delete_zfs_slog, scrub_zfs_pool, clear_zfs_pool, create_zfs_zvol, view_zfs_zvol, import_all_zfs_pools, create_zfs_spares, delete_zfs_spare, expand_zfs_pool, delete_zfs_quota, update_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, update_zfs_l2arc, delete_zfs_l2arc, view_zfs_snapshot_schedules, update_zfs_dataset_advanced_properties, api_get_pool_usage_stats, view_zfs_historical_usage, view_zfs_pool_history_events
+from integral_view.views.zfs_management import view_zfs_pools, view_zfs_pool, view_zfs_dataset, update_zfs_dataset, delete_zfs_dataset, create_zfs_dataset, view_zfs_snapshots, create_zfs_snapshot, delete_zfs_snapshot, delete_all_zfs_snapshots, rename_zfs_snapshot, rollback_zfs_snapshot, create_zfs_pool, delete_zfs_pool, update_zfs_slog, delete_zfs_slog, scrub_zfs_pool, clear_zfs_pool, create_zfs_zvol, view_zfs_zvol, import_all_zfs_pools, create_zfs_spares, delete_zfs_spare, expand_zfs_pool, delete_zfs_quota, update_zfs_quota, export_zfs_pool, import_zfs_pool, schedule_zfs_snapshot, update_zfs_l2arc, delete_zfs_l2arc, view_zfs_snapshot_schedules, update_zfs_dataset_advanced_properties, api_get_pool_usage_stats, view_zfs_historical_usage, view_zfs_pool_history_events, create_zfs_pool_scrub_schedule, delete_zfs_pool_scrub_schedule
 
 from integral_view.views.networking_management import view_interfaces, view_interface, view_bond, update_interface_state, update_interface_address, delete_interface_connection, create_bond, delete_bond, view_hostname, update_hostname, view_dns_nameservers, update_dns_nameservers, delete_vlan, create_vlan
 
@@ -264,6 +264,10 @@ urlpatterns = patterns('',
                            login_required(stop_background_task)),
                        url(r'^view_task_details/([0-9]*)',
                            login_required(view_task_details)),
+                       url(r'^view_scheduled_tasks/',
+                           login_required(view_scheduled_tasks)),
+                       url(r'^update_scheduled_task_schedule/',
+                           login_required(update_scheduled_task_schedule)),
 
                        # From views/services_management.py
                        url(r'^view_services/', login_required(view_services)),
@@ -329,6 +333,8 @@ urlpatterns = patterns('',
                        url(r'^create_zfs_pool/', login_required(create_zfs_pool)),
                        url(r'^expand_zfs_pool/', login_required(expand_zfs_pool)),
                        url(r'^scrub_zfs_pool/', login_required(scrub_zfs_pool)),
+                       url(r'^create_zfs_pool_scrub_schedule/', login_required(create_zfs_pool_scrub_schedule)),
+                       url(r'^delete_zfs_pool_scrub_schedule/', login_required(delete_zfs_pool_scrub_schedule)),
                        url(r'^clear_zfs_pool/', login_required(clear_zfs_pool)),
                        url(r'^delete_zfs_pool/', login_required(delete_zfs_pool)),
                        url(r'^update_zfs_slog/', login_required(update_zfs_slog)),

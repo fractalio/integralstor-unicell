@@ -1,0 +1,82 @@
+{% extends 'tasks_base.html' %}
+
+{% block tab_header %}
+  Scheduled tasks
+{% endblock %}
+
+{% block inside_content %}
+
+  {% if tasks or snapshot_schedules%}
+    {% load utilities %}
+    <div class="">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th > Task type </th>
+            <th > Description </th>
+            <th > Schedule</th>
+            <th > &nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+            {%if task.cron_task_id != -1 %}
+            <tr>
+              <td>{{task.task_type_description}} </td>
+              <td> {{task.description}} </td>
+              <td> {{task.schedule_description}} </td>
+              <td>
+                  <div class="btn-group btn-group-xs pull-right" >
+                    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                    <ul class="dropdown-menu">
+                      <li><a  class="action-dropdown" href="/update_scheduled_task_schedule?cron_task_id={{task.cron_task_id}}"  title="Modify the schedule for this task" > <i class="fa fa-cog fa-fw"></i>Modify schedule</a> 
+                    </ul>
+                  </div>
+                </td>
+            </tr>
+            {% endif %}
+          {% endfor %}
+          {% if snapshot_schedules %}
+            {%for name, ss in snapshot_schedules.items %}
+              <tr>            
+                <td> Scheduled snapshots </td>
+                <td> Snapshots for {{name}} </td>
+                <td>
+                  {% if ss.frequent %} Every 15 minutes,  {%endif%}
+                  {% if ss.hourly %} Hourly,  {%endif%}
+                  {% if ss.daily %} Daily,  {%endif%}
+                  {% if ss.weekly %} Weekly,  {%endif%}
+                  {% if ss.monthly %} Monthly {%endif%}
+                </td>
+                <td>
+                  <div class="btn-group btn-group-xs pull-right" >
+                    <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#" title="Click for pool specific actions"> <i class="fa fa-cog fa-fw"></i>Actions&nbsp;<span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                    <ul class="dropdown-menu">
+                      <li><a class="action-dropdown" href="/schedule_zfs_snapshot?target={{name}}"  title="Modify/Cancel schedule" > <i class="fa fa-cog fa-fw"></i>Modify/cancel</a> 
+                    </ul>
+                    </div>
+                  </td>
+              </tr>            
+            {%endfor%}
+          {%endif%}
+        </tbody> 
+      </table>
+    </div>
+  {% else %}
+      No tasks appear to have be scheduled.
+  {% endif %}
+{% endblock %}
+
+{%block help_header%}
+  View all scheduled tasks 
+{%endblock%}
+
+{%block help_body%}
+    This screen provides a list of all tasks that have been scheduled to run at periodic intervals.
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_scheduled_tasks_tab")
+  </script>
+{% endblock %}

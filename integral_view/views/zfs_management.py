@@ -1,7 +1,7 @@
 import django
 import django.template
 
-from integralstor import nfs, local_users, iscsi_stgt, system_info, audit, cifs, django_utils, ramdisk, zfs, config, command, db
+from integralstor import nfs, local_users, iscsi_stgt, system_info, audit, cifs, django_utils, ramdisk, zfs, config, command, db, scheduler_utils
 
 from integral_view.forms import zfs_forms
 
@@ -77,6 +77,10 @@ def view_zfs_pools(request):
                 return_dict['ack_message'] = "ZFS pool successfully destroyed"
             elif request.GET["ack"] == "pool_scrub_initiated":
                 return_dict['ack_message'] = "ZFS pool scrub successfully initiated"
+            elif request.GET["ack"] == "created_pool_scrub_schedule":
+                return_dict['ack_message'] = "ZFS pool scrub successfully scheduled"
+            elif request.GET["ack"] == "deleted_pool_scrub_schedule":
+                return_dict['ack_message'] = "ZFS pool scrub schedule successfully removed"
             elif request.GET["ack"] == "dataset_deleted":
                 return_dict['ack_message'] = "ZFS dataset successfully destroyed"
             elif request.GET["ack"] == "zvol_deleted":
@@ -132,6 +136,10 @@ def view_zfs_pool(request):
                 return_dict['ack_message'] = "ZFS block device volume successfully created"
             elif request.GET["ack"] == "pool_scrub_initiated":
                 return_dict['ack_message'] = "ZFS pool scrub successfully initiated"
+            elif request.GET["ack"] == "created_pool_scrub_schedule":
+                return_dict['ack_message'] = "ZFS pool scrub successfully scheduled"
+            elif request.GET["ack"] == "deleted_pool_scrub_schedule":
+                return_dict['ack_message'] = "ZFS pool scrub schedule successfully removed"
             elif request.GET["ack"] == "dataset_deleted":
                 return_dict['ack_message'] = "ZFS dataset successfully destroyed"
             elif request.GET["ack"] == "zvol_deleted":
@@ -163,7 +171,19 @@ def view_zfs_pool(request):
         elif not pool:
             raise Exception("Specified pool not found")
 
-        if view == 'components':
+        if view == 'basic':
+            zfs_cron_tasks, err = zfs.get_zfs_cron_tasks(pool_name)
+            if err:
+                raise Exception(err)
+            scrub_cron_tasks = []
+            for zfs_cron_task in zfs_cron_tasks:
+                cron_task_list, err = scheduler_utils.get_cron_tasks(zfs_cron_task['cron_task_id'], task_type_id=3) 
+                if err:
+                    raise Exception(err)
+                if cron_task_list:
+                    scrub_cron_tasks.append(cron_task_list[0])
+            return_dict['scrub_cron_tasks'] = scrub_cron_tasks
+        elif view == 'components':
             num_free_disks_for_spares, err = zfs.get_free_disks_for_spares(
                 pool_name)
             if err:
@@ -627,6 +647,101 @@ def scrub_zfs_pool(request):
         return_dict["error_details"] = str(e)
         return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
+def create_zfs_pool_scrub_schedule(request):
+
+    return_dict = {}
+    try:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'pool_name', 'scheduler'])
+        if err:
+            raise Exception(err)
+        if 'pool_name' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+        pool_name = req_ret['pool_name']
+        return_dict["pool_name"] = pool_name
+        if request.method == "GET":
+            # Return the conf page
+            return django.shortcuts.render_to_response("schedule_scrub.html", return_dict, context_instance=django.template.context.RequestContext(request))
+        else:
+            if 'scheduler' not in req_ret:
+                raise Exception("Invalid request, please use the menus.")
+            scheduler = req_ret['scheduler']
+            schedule = scheduler.split()
+            python_scripts_path, err = config.get_python_scripts_path()
+            if err:
+                raise Exception(err)
+
+            cmd = '%s/run_zpool_scrub.py %s' % (
+                        python_scripts_path, pool_name)
+            cron_description = 'ZFS pool scrub for pool %s'%pool_name
+    
+            cron_task_id, err = scheduler_utils.create_cron_task(
+                cmd, cron_description, schedule[0], schedule[1], schedule[2], schedule[3], schedule[4], task_type_id=3)
+            if err:
+                raise Exception(err)
+
+            zfs_cron_task_id, err = zfs.create_zfs_cron_task(cron_task_id, pool_name)
+            if err:
+                raise Exception(err)
+
+            cron_task_list, err = scheduler_utils.get_cron_tasks(cron_task_id, task_type_id=3)
+            if err:
+                raise Exception(err)
+
+            audit_str = "ZFS pool scrub scheduled on pool %s for %s" % (pool_name, cron_task_list[0]['schedule_description'].lower())
+            audit.audit("create_zfs_pool_scrub_schedule", audit_str, request)
+            return django.http.HttpResponseRedirect('/view_zfs_pool?ack=created_pool_scrub_schedule&name=%s' % pool_name)
+    except Exception, e:
+        return_dict['base_template'] = "storage_base.html"
+        return_dict["page_title"] = 'ZFS pool scrub'
+        return_dict['tab'] = 'view_zfs_pools_tab'
+        return_dict["error"] = 'Error scheduling ZFS pool scrub'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def delete_zfs_pool_scrub_schedule(request):
+
+    return_dict = {}
+    try:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'cron_task_id', 'pool_name'])
+        if err:
+            raise Exception(err)
+        if 'cron_task_id' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+
+        cron_task_id = req_ret['cron_task_id']
+        pool_name = req_ret['pool_name']
+        cron_task_list, err = scheduler_utils.get_cron_tasks(cron_task_id, task_type_id=3)
+        if err:
+            raise Exception(err)
+        return_dict["cron_task"] = cron_task_list[0]
+        return_dict["pool_name"] = pool_name
+
+        if request.method == "GET":
+            # Return the conf page
+            return django.shortcuts.render_to_response("delete_scrub_schedule_conf.html", return_dict, context_instance=django.template.context.RequestContext(request))
+        else:
+            cron_task_list, err = scheduler_utils.get_cron_tasks(cron_task_id, task_type_id=3)
+            if err:
+                raise Exception(err)
+
+            cron_description = cron_task_list[0]['description'].lower()
+
+            ret, err = scheduler_utils.delete_cron(cron_task_id)
+            if err:
+                raise Exception(err)
+
+            audit_str = "Removed ZFS pool scrub scheduled on pool %s for %s" % (pool_name, cron_task_list[0]['schedule_description'].lower())
+            audit.audit("delete_zfs_pool_scrub_schedule", audit_str, request)
+            return django.http.HttpResponseRedirect('/view_zfs_pool?ack=deleted_pool_scrub_schedule&name=%s' % pool_name)
+    except Exception, e:
+        return_dict['base_template'] = "storage_base.html"
+        return_dict["page_title"] = 'ZFS pool scrub'
+        return_dict['tab'] = 'view_zfs_pools_tab'
+        return_dict["error"] = 'Error removing scheduled ZFS pool scrub'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 def clear_zfs_pool(request):
 

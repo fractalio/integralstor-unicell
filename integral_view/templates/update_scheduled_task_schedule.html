@@ -1,0 +1,76 @@
+{% extends 'tasks_base.html' %}
+
+{%block tab_header %}
+  Update scheduled task schedule
+{%endblock%}
+
+
+{% block inside_content %}
+  <form class="form-horizontal" role="form" name=""  method="post">
+    <input type="hidden" name="cron_task_id" value="{{cron_task_id}}">
+    {%csrf_token%}
+    <table  class="table " style="width:800px">
+      <style>
+        th {
+            width:35%;
+        }
+      </style>
+
+      <tr>
+        <th>Existing schedule</th>
+        <td> {{schedule_description}} </td>
+        <td> &nbsp; </td>
+      </tr>
+      <tr>
+        <th> Select a new schedule</th>
+        <td>
+          <div id="scheduler" class="form-control" style="border:0px ">
+          </div>
+          <input name="scheduler" class="form-control" id="id_scheduler" placeholder="Select schedule using time selector" type="hidden" required readonly>
+        </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/view_scheduled_tasks/" role="button" class="btn btn-default"> Cancel</a>
+      <button type="submit" class="btn btn-primary" id="start">Modify schedule</button>
+    </div>
+  </form>
+{% endblock %}
+
+{%block help_header%}
+  Modify scheduled task schedule
+{%endblock%}
+
+{%block help_body%}
+  <p> 
+    Use this screen to modify the schedule of an already scheduled task.
+  </p>
+{%endblock%}
+
+
+{% block tab_active %}
+  <script>
+   make_tab_active("view_scheduled_tasks_tab")
+  </script>
+{% endblock%}
+
+
+{% block js %}
+
+  <script type="text/javascript" src="/static/js/jquery-cron-min.js"></script>
+  <link type="text/css" href="/static/css/jquery-cron.css" rel="stylesheet" />
+  <script>
+    $('#scheduler').cron({
+      onChange: function() {
+        $('#id_scheduler').val($(this).cron("value"));
+      },
+      customValues: {
+        "1 Minute" : "*/1 * * * *",
+        "5 Minutes" : "*/5 * * * *",
+        "10 Minutes" : "*/10 * * * *",
+        "15 Minutes" : "*/15 * * * *",
+        "30 Minutes" : "*/30 * * * *",
+    }
+     });
+  </script>
+{% endblock %}

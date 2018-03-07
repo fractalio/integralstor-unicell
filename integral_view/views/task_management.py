@@ -6,7 +6,76 @@ import django.http
 import os
 import os.path
 
-from integralstor import tasks_utils, django_utils, audit, config, command, datetime_utils
+from integralstor import tasks_utils, django_utils, audit, config, command, datetime_utils, scheduler_utils, remote_replication, event_notifications, zfs
+
+def view_scheduled_tasks(request):
+    return_dict = {}
+    try:
+        if "ack" in request.GET:
+            if request.GET["ack"] == "deleted":
+                return_dict['ack_message'] = "Scheduled task successfully removed"
+            if request.GET["ack"] == "modified":
+                return_dict['ack_message'] = "Scheduled task successfully modified"
+        tasks, err = scheduler_utils.get_cron_tasks()
+        if err:
+            raise Exception(err)
+        snapshot_schedules, err = zfs.get_all_snapshot_schedules()
+        if err:
+            raise Exception(err)
+        return_dict["snapshot_schedules"] = snapshot_schedules
+
+        return_dict["tasks"] = tasks
+        return django.shortcuts.render_to_response("view_scheduled_tasks.html", return_dict, context_instance=django.template.context.RequestContext(request))
+    except Exception, e:
+        return_dict['base_template'] = "tasks_base.html"
+        return_dict["page_title"] = 'Scheduled tasks'
+        return_dict['tab'] = 'view_scheduled_tasks_tab'
+        return_dict["error"] = 'Error retriving scheduled tasks'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
+
+def update_scheduled_task_schedule(request):
+    return_dict = {}
+    try:
+        req_ret, err = django_utils.get_request_parameter_values(request, [
+                                                                 'cron_task_id'])
+        if err:
+            raise Exception(err)
+
+        if 'cron_task_id' not in req_ret:
+            raise Exception("Invalid request, please use the menus.")
+
+        cron_task_id = req_ret['cron_task_id']
+        return_dict['cron_task_id'] = cron_task_id
+
+        cron_task_list, err = scheduler_utils.get_cron_tasks(cron_task_id=cron_task_id)
+        if err:
+            raise Exception(err)
+        if request.method == "GET":
+            # Return the conf page
+            return_dict['schedule_description'] = cron_task_list[0]['schedule_description'].lower()
+            return django.shortcuts.render_to_response("update_scheduled_task_schedule.html", return_dict, context_instance=django.template.context.RequestContext(request))
+        else:
+            scheduler = request.POST.get('scheduler')
+            schedule = scheduler.split()
+            ret, err = scheduler_utils.update_cron_schedule(
+                        cron_task_id, 'root', schedule[0], schedule[1], schedule[2], schedule[3], schedule[4])
+            if err:
+                raise Exception(err)
+            #Get the new entry now..
+            cron_task_list, err = scheduler_utils.get_cron_tasks(cron_task_id=cron_task_id)
+            if err:
+                raise Exception(err)
+            audit_str = 'Modified the schedule for "%s" to "%s"' % (cron_task_list[0]['description'].lower(), cron_task_list[0]['schedule_description'].lower())
+            audit.audit("update_schedule_task_schedule", audit_str, request)
+            return django.http.HttpResponseRedirect('/view_scheduled_tasks?ack=modified')
+    except Exception, e:
+        return_dict['base_template'] = "tasks_base.html"
+        return_dict["page_title"] = 'Scheduled tasks'
+        return_dict['tab'] = 'view_scheduled_tasks_tab'
+        return_dict["error"] = 'Error modifying task schedule'
+        return_dict["error_details"] = str(e)
+        return django.shortcuts.render_to_response("logged_in_error.html", return_dict, context_instance=django.template.context.RequestContext(request))
 
 
 def view_background_tasks(request):
@@ -48,7 +117,7 @@ def view_background_tasks(request):
         return_dict["tasks"] = tasks
         return django.shortcuts.render_to_response("view_background_tasks.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
-        return_dict['base_template'] = "scheduler_base.html"
+        return_dict['base_template'] = "tasks_base.html"
         return_dict["page_title"] = 'Background tasks'
         return_dict['tab'] = 'view_background_tasks_tab'
         return_dict["error"] = 'Error retriving background tasks'
@@ -78,7 +147,7 @@ def delete_background_task(request):
                     task['description'], request)
         return django.http.HttpResponseRedirect('/view_background_tasks?ack=deleted')
     except Exception, e:
-        return_dict['base_template'] = "scheduler_base.html"
+        return_dict['base_template'] = "tasks_base.html"
         return_dict["page_title"] = 'Background tasks'
         return_dict['tab'] = 'view_background_tasks_tab'
         return_dict["error"] = 'Error removing background task'
@@ -108,7 +177,7 @@ def stop_background_task(request):
                     task['description'], request)
         return django.http.HttpResponseRedirect('/view_background_tasks?ack=stopped')
     except Exception, e:
-        return_dict['base_template'] = "scheduler_base.html"
+        return_dict['base_template'] = "tasks_base.html"
         return_dict["page_title"] = 'Background tasks'
         return_dict['tab'] = 'view_background_tasks_tab'
         return_dict["error"] = 'Error stopping background task'
@@ -160,7 +229,7 @@ def view_task_details(request, task_id):
 
         return django.shortcuts.render_to_response("view_task_details.html", return_dict, context_instance=django.template.context.RequestContext(request))
     except Exception, e:
-        return_dict['base_template'] = "scheduler_base.html"
+        return_dict['base_template'] = "tasks_base.html"
         return_dict["page_title"] = 'Background jobs'
         return_dict['tab'] = 'view_background_tasks_tab'
         return_dict["error"] = 'Error retriving background task details'

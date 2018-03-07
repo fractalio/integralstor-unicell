@@ -96,13 +96,22 @@ insert into reference_task_types (id, description) values (1, 'Disk replacement'
 insert into reference_task_types (id, description) values (2, 'Service restart');
 insert into reference_task_types (id, description) values (3, 'ZFS scrub');
 insert into reference_task_types (id, description) values (4, 'Remote replication');
+insert into reference_task_types (id, description) values (5, 'Event notification');
 
 CREATE TABLE "cron_tasks" (
   "cron_task_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "task_type_id" integer NOT NULL DEFAULT 0,
   "description" varchar(200) NOT NULL,
   "command" varchar(200) NOT NULL
 );
 INSERT INTO cron_tasks (cron_task_id, description, command) values (-1, 'Dummy entry for temporary reference', 'echo');
+
+CREATE TABLE "zfs_cron_tasks" (
+  "zfs_cron_task_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "cron_task_id" integer NOT NULL REFERENCES cron_tasks(cron_task_id) ON DELETE CASCADE,
+  "pool_name" varchar(100) NOT NULL,
+  "ds_zvol_name" varchar(100)
+);
 
 CREATE TABLE "remote_replications" (
   "remote_replication_id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
