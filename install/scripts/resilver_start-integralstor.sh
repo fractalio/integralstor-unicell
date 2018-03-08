@@ -19,14 +19,14 @@
 [ -n "${ZEVENT_POOL}" ] || exit 9
 [ -n "${ZEVENT_SUBCLASS}" ] || exit 9
 
-if   [ "${ZEVENT_SUBCLASS}" = "scrub_finish" ]; then
-    action="data scrub"
-    audit_code="scrub_zfs_pool_completed"
+if   [ "${ZEVENT_SUBCLASS}" = "resilver_start" ]; then
+    action="data rebuild"
+    audit_code="resilver_zfs_pool_started"
 else
     zed_log_err "unsupported event class \"${ZEVENT_SUBCLASS}\""
     exit 9
 fi
 
-audit_str="ZFS has completed a ${action} on pool ${ZEVENT_POOL} at ${ZEVENT_TIME_STRING}."
+audit_str="ZFS has initiated a ${action} on pool ${ZEVENT_POOL} at ${ZEVENT_TIME_STRING}."
 
 python /opt/integralstor/integralstor/scripts/python/record_audit.py ${audit_code} "${audit_str}"

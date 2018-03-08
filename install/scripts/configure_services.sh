@@ -11,11 +11,17 @@ others_dir="$conf_dir/others"           # /opt/integralstor/integralstor/install
 
 #zed
 cp $install_dir/scripts/scrub_finish-integralstor.sh /usr/libexec/zfs/zed.d
+cp $install_dir/scripts/scrub_start-integralstor.sh /usr/libexec/zfs/zed.d
 cp $install_dir/scripts/resilver_finish-integralstor.sh /usr/libexec/zfs/zed.d
+cp $install_dir/scripts/resilver_start-integralstor.sh /usr/libexec/zfs/zed.d
 chmod 755 /usr/libexec/zfs/zed.d/scrub_finish-integralstor.sh
+chmod 755 /usr/libexec/zfs/zed.d/scrub_start-integralstor.sh
 chmod 755 /usr/libexec/zfs/zed.d/resilver_finish-integralstor.sh
+chmod 755 /usr/libexec/zfs/zed.d/resilver_start-integralstor.sh
 ln -s /usr/libexec/zfs/zed.d/scrub_finish-integralstor.sh /etc/zfs/zed.d/scrub_finish-integralstor.sh
+ln -s /usr/libexec/zfs/zed.d/scrub_start-integralstor.sh /etc/zfs/zed.d/scrub_start-integralstor.sh
 ln -s /usr/libexec/zfs/zed.d/resilver_finish-integralstor.sh /etc/zfs/zed.d/resilver_finish-integralstor.sh
+ln -s /usr/libexec/zfs/zed.d/resilver_start-integralstor.sh /etc/zfs/zed.d/resilver_start-integralstor.sh
 
 # shellinabox
 mv /etc/sysconfig/shellinaboxd /etc/sysconfig/BAK.shellinaboxd

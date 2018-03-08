@@ -636,7 +636,7 @@ def scrub_zfs_pool(request):
                 else:
                     raise Exception(err)
 
-            audit_str = "ZFS pool scrub initiated on pool %s" % name
+            audit_str = "ZFS pool scrub initiated from IntegralView on pool %s" % name
             audit.audit("scrub_zfs_pool", audit_str, request)
             return django.http.HttpResponseRedirect('/view_zfs_pool?ack=pool_scrub_initiated&name=%s' % name)
     except Exception, e:
@@ -671,8 +671,7 @@ def create_zfs_pool_scrub_schedule(request):
             if err:
                 raise Exception(err)
 
-            cmd = '%s/run_zpool_scrub.py %s' % (
-                        python_scripts_path, pool_name)
+            cmd = '/sbin/zpool scrub  %s' % (pool_name)
             cron_description = 'ZFS pool scrub for pool %s'%pool_name
     
             cron_task_id, err = scheduler_utils.create_cron_task(

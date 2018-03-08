@@ -13,8 +13,6 @@
 #   3: notification suppressed
 #   9: internal error
 
-echo "aaa" > /tmp/scr
-
 [ -f "${ZED_ZEDLET_DIR}/zed.rc" ] && . "${ZED_ZEDLET_DIR}/zed.rc"
 . "${ZED_ZEDLET_DIR}/zed-functions.sh"
 
@@ -24,15 +22,11 @@ echo "aaa" > /tmp/scr
 if   [ "${ZEVENT_SUBCLASS}" = "resilver_finish" ]; then
     action="data rebuild"
     audit_code="resilver_zfs_pool_completed"
-elif [ "${ZEVENT_SUBCLASS}" = "scrub_finish" ]; then
-    action="data scrub"
-    audit_code="scrub_zfs_pool_completed"
 else
     zed_log_err "unsupported event class \"${ZEVENT_SUBCLASS}\""
     exit 9
 fi
 
-audit_str="ZFS has finished a ${action} on pool ${ZEVENT_POOL} at ${ZEVENT_TIME_STRING}."
-echo "python /opt/integralstor/integralstor/scripts/python/record_audit.py ${audit_code} ${audit_str}" >> /tmp/scr
+audit_str="ZFS has completed a ${action} on pool ${ZEVENT_POOL} at ${ZEVENT_TIME_STRING}."
 
 python /opt/integralstor/integralstor/scripts/python/record_audit.py ${audit_code} "${audit_str}"
