@@ -81,4 +81,7 @@ def main():
 if __name__ == "__main__":
     ret = main()
     print ret
-    sys.exit()
+    if ret is not None:
+        sys.exit(1)
+    else:
+        sys.exit(0)
