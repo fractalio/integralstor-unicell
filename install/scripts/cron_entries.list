@@ -41,6 +41,10 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/dell/srva
 # will attempt to send out emails in the email_queue db table
 */2 * * * * python /opt/integralstor/integralstor/scripts/python/process_email_queue.py &> /tmp/out_email_queue
 
+# JBOD PSU check
+# Raise alert if a PSU goes down on JBOD enclosure
+*/3 * * * * python /opt/integralstor/integralstor/scripts/python/check_jbod_psu_status.py &> /tmp/out_jbod_psu_status
+
 # Purge db of all old entries and possible export them to files
 # (currently does it for alerts and audits)
 # python purge_db.py <alerts_older_than_x_days> <min_audits_to_export> <audit_export_count>
