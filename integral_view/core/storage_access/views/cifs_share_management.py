@@ -514,13 +514,23 @@ def update_samba_server_settings(request):
                     raise Exception(err)
                 if cd["security"] == "ads":
                     rc, err = cifs.kinit(
-                        "administrator", cd["password"], cd["realm"])
+                        cd["username"], cd["password"], cd["realm"])
                     if err:
-                        raise Exception(err)
+                        if "Password incorrect" in err:
+                            raise Exception("Invalid Credentials, Please try again")
+                        elif "not found" in err:
+                            raise Exception("Could not find an Active Directory user with the username: '%s'! " % cd["username"])
+                        elif cd["password"] in err:
+                            raise Exception(err.split('echo')[0])
+                        else:
+                            raise Exception(err)
                     rc, err = cifs.net_ads_join(
-                        "administrator", cd["password"], cd["password_server"])
+                       cd["username"], cd["password"], cd["password_server"])
                     if err:
-                        raise Exception(err)
+                        if cd["password"] in err:
+                            raise Exception(err.split('net')[0])
+                        else:
+                            raise Exception(err)
                 ret, err = cifs.reload_configuration()
                 if err:
                     raise Exception(err)

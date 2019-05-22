@@ -11,6 +11,7 @@ class AuthADSettingsForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput())
     realm = forms.CharField()
     workgroup = forms.CharField()
+    username = forms.CharField()
     password_server = forms.CharField()
     password_server_ip = forms.CharField()
     netbios_name = forms.CharField()
