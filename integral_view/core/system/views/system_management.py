@@ -493,7 +493,7 @@ def reset_to_factory_defaults(request):
                         if key == 'delete_cifs_shares' and cd[key]:
                             result, err = cifs.delete_all_shares()
                             if result:
-                                cifs.reload_configuration()
+                                cifs.reload_configuration(action='restart')
                         elif key == 'delete_nfs_exports':
                             result, err = nfs.delete_all_exports()
                         elif key == 'delete_rsync_shares':
@@ -535,7 +535,7 @@ def reset_to_factory_defaults(request):
                         elif key == 'reset_cifs_settings':
                             result, err = cifs.delete_auth_settings()
                             if not err:
-                                cifs.reload_configuration()
+                                cifs.reload_configuration(action='restart')
                         elif key == 'reset_ntp_settings':
                             result, err = ntp.update_integralstor_ntp_servers(
                                 ['0.centos.pool.ntp.org', '1.centos.pool.ntp.org', '2.centos.pool.ntp.org', '3.centos.pool.ntp.org'])

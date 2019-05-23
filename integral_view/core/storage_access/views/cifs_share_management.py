@@ -521,7 +521,7 @@ def update_samba_server_settings(request):
                         "administrator", cd["password"], cd["password_server"])
                     if err:
                         raise Exception(err)
-                ret, err = cifs.reload_configuration()
+                ret, err = cifs.reload_configuration(action='restart')
                 if err:
                     raise Exception(err)
             else:
