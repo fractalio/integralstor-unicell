@@ -5,3 +5,4 @@ hardware_vendor=""
 
 echo "/opt/integralstor/integralstor/install/scripts/configure_os.sh $hardware_vendor" | /bin/bash
 echo "/opt/integralstor/integralstor/install/scripts/configure_services.sh" | /bin/bash
+echo "/opt/integralstor/integralstor/install/scripts/configure_applications.sh" | /bin/bash
