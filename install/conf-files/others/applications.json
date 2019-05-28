@@ -14,12 +14,5 @@
                         "provider_url": "https://my-netdata.io/", 
                         "use_launch_url_prefix": "True", 
                         "launch_url_port": "19999", 
-                        "launch_url_path": "" },
-        "storage_insights": 
-                {
-                        "name": "Storage Insights",
-                        "use_launch_url_prefix": false,
-                        "use_default_launch_url_path": true,
-                        "provider_url": "https://fractalio.com",
-                        "provider_name": "Fractalio Data" }
+                        "launch_url_path": "" }
 }
