@@ -35,14 +35,14 @@
           <td> {{ form.realm.errors }} </td>
         </tr>
         <tr>
-          <th> AD Server Username: </th>
+          <th> AD Administrator's Username: </th>
           <td>
-            <input type="text"  name="username" class="form-control" id="user_name" placeholder="AD Server Username" value="{{form.username.value|default_if_none:''}}">
+            <input type="text"  name="username" class="form-control" id="id_username" placeholder="Enter AD Admnistrator's username" value="{{form.username.value|default_if_none:''}}">
           </td>
           <td>{{ form.username.errors }}</td>
         </tr>
         <tr>
-          <td> <b>AD User password </b><br> (Never stored. Used only to initially join AD realm) </td>
+          <td> <b>AD Administrator's Password </b><br> (Never stored. Used only to initially join AD realm) </td>
           <td>
             <input type="password"  name="password" class="form-control" id="id_password" placeholder="AD User password"> 
           </td>
