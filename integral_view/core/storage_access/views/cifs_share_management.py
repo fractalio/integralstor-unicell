@@ -527,11 +527,12 @@ def update_samba_server_settings(request):
                     rc, err = cifs.net_ads_join(
                        cd["username"], cd["password"], cd["password_server"])
                     if err:
+
                         if cd["password"] in err:
                             raise Exception(err.split('net')[0])
                         else:
                             raise Exception(err)
-                ret, err = cifs.reload_configuration()
+                ret, err = cifs.reload_configuration(action='restart')
                 if err:
                     raise Exception(err)
             else:
