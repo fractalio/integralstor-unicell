@@ -14,6 +14,22 @@ class IscsiAuthenticationForm(forms.Form):
 class IscsiTargetForm(forms.Form):
 
     name = forms.CharField()
+    def clean(self):
+        cd = super(IscsiTargetForm, self).clean()
+        if 'name' in cd:
+            err = False
+            err_str = ''
+            if '&' in cd['name']:
+                err = True
+                err_str += 'Target names cannot have an & symbol. '
+            if not cd['name'].islower():
+                err = True
+                err_str += 'Target names cannot have an upper case character as it causes problems with Windows Initiators. '
+            if err:
+                del cd['name']
+                self._errors['name'] = self.error_class(
+                    [err_str])
+        return cd
 
 
 class IscsiLunForm(forms.Form):
