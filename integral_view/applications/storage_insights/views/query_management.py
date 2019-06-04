@@ -7,7 +7,7 @@ import django.template
 from integral_view.applications.storage_insights.forms import storage_insights_forms
 
 from integralstor.applications.storage_insights import scan_utils, query_utils
-from integralstor import django_utils
+from integralstor import django_utils, datetime_utils
 
 query_types = [('extension_counts', 'View file count by extension', 'view_general_query_results?query_type=extension_counts'), ('files_by_extension', 'View files by extension', 'view_files_by_extension'), ('duplicates', 'View duplicate files', 'view_general_query_results?query_type=duplicate_sets'), ('newest_files', 'View most recently modified files', 'view_general_query_results?query_type=newest_files'), ('oldest_files','View files with oldest modify times', 'view_general_query_results?query_type=oldest_files'), ('largest_files', 'View largest files', 'view_general_query_results?query_type=largest_files'), ('find_files', 'Find files', 'find_files')]
 
