@@ -4,8 +4,12 @@ from integralstor import config
 
 def configure_storage_insights(recreate_db=False):
     try:
-        istor_root = "/opt/integralstor/integralstor"
-        app_dir = "%s/integral_view/applications" % istor_root
+        istor_root, err = config.get_platform_root()
+        if err:
+            raise Exception(err)
+        app_dir, err = config.get_application_root()
+        if err:
+            raise Exception(err)
         site_dir = "%s/site-packages/integralstor/applications" % istor_root
         db_dir = "%s/storage_insights/db" % app_dir
         storage_insights_dict = { "name": "Storage Insights",
@@ -46,6 +50,6 @@ def configure_storage_insights(recreate_db=False):
         return True
 
 if __name__ == '__main__':
-    print configure_storage_insights(recreate_db=True)
+    print configure_storage_insights(recreate_db=False)
 
 # vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
