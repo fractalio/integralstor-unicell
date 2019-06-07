@@ -1,4 +1,4 @@
-from integralstor import event_notifications, audit, mail, logger, db, config
+from integralstor import event_notifications, audit, mail, logger, db, config, system_info
 
 import logging
 import sys
@@ -61,8 +61,27 @@ def main():
                     # print enc, err
                     if err:
                         raise Exception(err)
+                    org_info, err = system_info.get_org_info()
+                    if err:
+                        raise Exception(err)
+                    org_str = ''
+                    if org_info:
+                        if org_info['org_name']:
+                            org_str = '%s' % org_info['org_name']
+                        if org_info['unit_name']:
+                            org_str = '%s Unit: %s' % (org_str, org_info['unit_name'])
+                        if org_info['unit_id']:
+                            org_str = '%s Unit ID: %s' % (org_str, org_info['unit_id'])
+                        if org_info['subunit_name']:
+                            org_str = '%s Subunit name: %s' % (org_str, org_info['subunit_name'])
+                        if org_info['subunit_id']:
+                            org_str = '%s Subunit ID: %s' % (org_str, org_info['subunit_id'])
+                    if org_str:
+                        audit_subject = "Audit message from IntegralSTOR storage system from %s" % org_str
+                    else:
+                        audit_subject = "Audit message from IntegralSTOR storage system"
                     processed_successfully, err = mail.enqueue(
-                        enc['recipient_list'], "Audit message from IntegralSTOR storage system", final_msg)
+                        enc['recipient_list'], audit_subject, final_msg)
                     # print 'enqueue', processed_successfully, err
                     if err:
                         raise Exception(err)

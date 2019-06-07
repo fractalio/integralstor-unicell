@@ -1,4 +1,4 @@
-from integralstor import event_notifications, audit, mail, logger, db, config, datetime_utils, remote_replication
+from integralstor import event_notifications, audit, mail, logger, db, config, datetime_utils, remote_replication, system_info
 
 import logging
 import sys
@@ -51,20 +51,42 @@ def main():
             # print enc, err
             if err:
                 raise Exception(err)
+            org_info, err = system_info.get_org_info()
+            if err:
+                raise Exception(err)
+            org_str = ''
+            if org_info:
+                if org_info['org_name']:
+                    org_str = '%s' % org_info['org_name']
+                if org_info['unit_name']:
+                    org_str = '%s Unit: %s' % (org_str, org_info['unit_name'])
+                if org_info['unit_id']:
+                    org_str = '%s Unit ID: %s' % (org_str, org_info['unit_id'])
+                if org_info['subunit_name']:
+                    org_str = '%s Subunit name: %s' % (org_str, org_info['subunit_name'])
+                if org_info['subunit_id']:
+                    org_str = '%s Subunit ID: %s' % (org_str, org_info['subunit_id'])
+
             if ent['event_type_id'] == 3:
                 attachment_location = None
                 if ent['event_subtype_id'] == 1:
-                    # System status repor
+                    # System status report
                     # Find the latest system status report and mail it out
                     all_files = glob.glob('%s/*' % status_reports_dir)
                     latest_file = max(all_files, key=os.path.getctime)
                     attachment_location = latest_file
-                    email_header = 'IntegralSTOR system status report'
+                    if org_str:
+                        email_header = 'IntegralSTOR system status report from %s' % org_str
+                    else:
+                        email_header = 'IntegralSTOR system status report'
                     email_body = 'Please find the latest IntegralSTOR system status report'
 
                 elif ent['event_subtype_id'] == 2:
                     # urbackup report processing here
-                    email_header = 'IntegralSTOR backup status report'
+                    if org_str:
+                        email_header = 'IntegralSTOR backup status report from %s' % org_str
+                    else:
+                        email_header = 'IntegralSTOR backup status report'
                     email_body = 'Please find the latest IntegralSTOR backup status report'
                     all_files = glob.glob('%s/*' % urb_reports_dir)
                     latest_file = max(all_files, key=os.path.getctime)
@@ -75,7 +97,10 @@ def main():
                     ret, err = remote_replication.generate_pdf_report()
                     if err:
                         raise exception(err)
-                    email_header = 'IntegralSTOR remote replication status report'
+                    if org_str:
+                        email_header = 'IntegralSTOR remote replication status report from %s' % org_str
+                    else:
+                        email_header = 'IntegralSTOR remote replication status report'
                     email_body = 'Please find the latest IntegralSTOR remote replication status report'
                     all_files = glob.glob('%s/*' % rr_reports_dir)
                     latest_file = max(all_files, key=os.path.getctime)
