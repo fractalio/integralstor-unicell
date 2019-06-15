@@ -14,7 +14,10 @@ def get_enclosure_devices():
                     encl = re.findall('ENCL', sg_dev, re.IGNORECASE)
                     if encl:
                         res = re.findall(r'^\/\w+\/\w+', sg_dev)
-                        enclosures += res
+                        if res:
+                            enclosures += res
+                    else:
+                        raise Exception("No enclosures found")
     except Exception, e:
         return None, "Error retrieving enclosures : %s" % str(e)
     else:
@@ -30,12 +33,12 @@ def get_psu_status():
         if encls:
             for encl in encls:
                 for psu in range(2):
-                    tmp, err = command.get_command_output('sg_ses --index=ps,%d %s' % (psu, encl))
+                    tmp_cmd_output, err = command.get_command_output('sg_ses --index=ps,%d %s' % (psu, encl))
                     if err:
                         raise Exception(err)
-                    if tmp:
-                        for status in tmp:
-                            result = re.findall(r'status: \w+', status)
+                    if tmp_cmd_output:
+                        for status_line in tmp_cmd_output:
+                            result = re.findall(r'status: \w+', status_line)
                             if result:
                                 psu_status['PSU-%d' % psu] = result[0]
     except Exception, e:
@@ -59,17 +62,17 @@ def main():
                 if err:
                     raise Exception(err)
                 for encl in encls:
-                    tmp, err = command.get_command_output('sginfo %s' % encl)
+                    tmp_cmd_output, err = command.get_command_output('sginfo %s' % encl)
                     if err:
                         raise Exception(err)
-                    for strg in tmp:
-                        v = re.findall(r'(^Vendor: *)(\w+)', strg)
-                        if v:
-                            vendor = v[0][1]
-                        p = re.findall(r'(^Product: *)(\w+)', strg)
-                        if p:
-                            product = p[0][1]
-                alert_str = '%s has gone down on %s %s' % (faulty_psu, vendor, product)
+                    for line in tmp_cmd_output:
+                        vendor = re.findall(r'(^Vendor: *)(\w+)', line)
+                        if vendor:
+                            vendor_info = vendor[0][1]
+                        product = re.findall(r'(^Product: *)(\w+)', strg)
+                        if product:
+                            product_info = product[0][1]
+                alert_str = '%s has gone down on %s %s' % (faulty_psu, vendor_info, product_info)
                 alert_list.append({'subsystem_type_id': 5, 'severity_type_id': 3,
                                     'component': 'Power Supply', 'alert_str': alert_str})
                 ret, err = alerts.record_alerts(alert_list)
@@ -85,3 +88,5 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         sys.exit(0)
+
+#vim: tabstop=8 softtabstop=0 expandtab ai shiftwidth=4 smarttab
