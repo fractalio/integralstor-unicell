@@ -48,6 +48,8 @@ def get_psu_status():
 
 def main():
     try:
+        vendor_info = 'N.A'
+        product_info = 'N.A'
         psu_status, err = get_psu_status()
         if err:
             raise Exception(err)
@@ -69,7 +71,7 @@ def main():
                         vendor = re.findall(r'(^Vendor: *)(\w+)', line)
                         if vendor:
                             vendor_info = vendor[0][1]
-                        product = re.findall(r'(^Product: *)(\w+)', strg)
+                        product = re.findall(r'(^Product: *)(\w+)', line)
                         if product:
                             product_info = product[0][1]
                 alert_str = '%s has gone down on %s %s' % (faulty_psu, vendor_info, product_info)
