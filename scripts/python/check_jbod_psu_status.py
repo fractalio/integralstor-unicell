@@ -28,7 +28,7 @@ def main():
                     product = re.findall(r'(^Product: *)(\w+)', line)
                     if product:
                         product_info = product[0][1]
-            alert_str = '%s has gone down on %s %s' % (faulty_psu, vendor_info, product_info)
+            alert_str = 'PSU - %s has gone down on %s %s' % (faulty_psu, vendor_info, product_info)
             alert_list.append({'subsystem_type_id': 5, 'severity_type_id': 3,
                                 'component': 'Power Supply', 'alert_str': alert_str})
             ret, err = alerts.record_alerts(alert_list)
@@ -36,6 +36,8 @@ def main():
                 raise Exception(err)
     except Exception, e:
         return None, "Error recording PSU alert : %s" % str(e)
+    else:
+	return True, None
 
 if __name__ == "__main__":
     ret = main()
