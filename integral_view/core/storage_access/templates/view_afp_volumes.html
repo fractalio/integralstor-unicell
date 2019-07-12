@@ -1,0 +1,58 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  AFP volumes
+{%endblock%}
+
+{%block global_actions %}
+    <a class="btn btn-default btn-sm pull-right"  href="/storage_access/create_afp_volume" title="Create a new AFP volume" style="color:#000"> <i class="fa fa-plus-square-o fa-fw "></i>&nbsp;Create new AFP volume </a>
+{%endblock%}
+
+{%block inside_content %}
+
+  {% if not volumes_dict %}
+    No AFP volumes appear to have been created. 
+  {%else %}
+    <div class="table-responsive" style="clear:both;width:100%;padding:0px 5px 0px 5px;margin-left:00px;margin-right:20px;border:1px solid #f4f4f4;height:350px;-webkit-overflow-scrolling: touch;">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th> Volume Name </th>
+            <th> Path </th>
+            <th> Actions </th>
+        </thead>
+        {%for name, d in volumes_dict.items %}
+          <tr>
+            <td> {{name}} </td>
+            <td> {{d.path}} </td>
+            <td>
+              <div class="btn-group btn-group-xs" >
+                <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-cog fa-fw">&nbsp; </i>Actions <span class="fa fa-caret-down" title="Toggle dropdown menu"></span> </a>
+                <ul class="dropdown-menu">
+                  <li><a class="action-dropdown" href="/storage_access/rename_afp_volume?current_name={{name}}"  title="Rename this volume" class="cover-page"> <i class="fa fa-cog fa-fw"></i>Rename this volume</a> 
+                  <li class="divider"></li>
+                  <li><a class="action-dropdown" href="/storage_access/delete_afp_volume?name={{name}}"  title="Remove this volume" style="color:red"> <i class="fa fa-trash fa-fw"></i>Remove this volume </a> 
+                </ul>
+              </div>
+            </td>
+          </tr>
+        {%endfor%}
+      </table>
+    </div>
+  {%endif%}
+
+{%endblock%}
+
+{%block help_header%}
+  View all AFP volumes
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen provides the list of all the AFP volumes that have been created on this IntegralStor system. To view details about a particular AFP volume, please select the the desired volume from the list.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_afp_volumes_tab")
+  </script>
+{% endblock %}

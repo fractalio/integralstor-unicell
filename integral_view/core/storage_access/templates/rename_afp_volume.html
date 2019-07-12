@@ -1,0 +1,60 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  Rename an AFP volume
+{%endblock%}
+
+{%block inside_content %}
+
+  {% if not current_name %}
+      Invalid request. Please use the menus.
+  {%else %}
+  <form id="create_form" name="create_form" action="" method="post">
+    {{form.current_name}}
+    {{form.path}}
+    {%csrf_token%}
+    <table class="table" style="width:100%">
+      <tr>
+        <th > Current volume name:</th>
+        <td>
+            {{form.current_name.value}}
+        </td>
+        <td> &nbsp; </td>
+      </tr>
+      <tr>
+        <th > Volume path:</th>
+        <td>
+            {{form.path.value}}
+        </td>
+        <td> &nbsp; </td>
+      </tr>
+      <tr>
+        <th title="Enter the name name for the volume" > New volume name:</th>
+        <td>
+          <input type="text"  name="new_name" class="form-control" id="id_new_name" title="Enter the new name for the volume" placeholder="Enter new volume name" />
+        </td>
+        <td> {{ form.new_name.errors }} </td>
+      </tr>
+    </table>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage_access/view_afp_volumes" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary" >Save</button>
+    </div>
+  </form>
+  {%endif%}
+
+{%endblock%}
+
+{%block help_header%}
+  View all AFP volumes
+{%endblock%}
+
+{%block help_body%}
+  <p> This screen provides the list of all the AFP volumes that have been created on this IntegralStor system. To view details about a particular AFP volume, please select the the desired volume from the list.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_afp_volumes_tab")
+  </script>
+{% endblock %}

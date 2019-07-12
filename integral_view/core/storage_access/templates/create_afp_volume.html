@@ -1,0 +1,146 @@
+{% extends 'storage_access_base.html' %}
+
+{%block tab_header %}
+  Create an AFP volume
+{%endblock%}
+
+{% block inside_content %}
+
+  <form id="create_form" name="create_form" action="" method="post">
+    {%csrf_token%}
+    <table class="table" style="width:100%">
+      <tr>
+        <th title="Enter the name name for the volume" > Volume name:</th>
+        <td>
+          <input type="text"  name="name" class="form-control" id="id_name" title="Enter the name for the volume" placeholder="Enter volume name" />
+        </td>
+        <td> {{ form.name.errors }} </td>
+      </tr>
+      <tr>
+        <th> Underlying ZFS Dataset :</th>
+        <td>
+          <select id = "id_dataset" name="dataset" class="form-control" onchange="change_dataset(this);this.form.submit()">
+            {% for choice in form.dataset.field.choices %}
+      		    <option value="{{choice.0}}" onclick="option_selected(this)" {%if form.initial.dataset == choice.0%} selected="selected" {%endif%}>{{choice.1}}</option>
+            {%endfor%}
+          </select>
+        </td>
+        <td> {{ form.dataset.errors }} </td>
+        <td> &nbsp;</td>
+      </tr>
+      <tr>
+        <th> Selected volume path:</th>
+        <td>
+          <input type="text" name="path" class="form-control" id="id_path" placeholder="Click button to browse.." readonly value="{{form.path.value|default_if_none:""}}"> <br>
+        </td>
+        <td> {{ form.path.errors }} </td>
+        <td rowspan=7>
+          <a href="#" role="button" class="btn btn-primary btn-xs" onClick="displayTree();return false;"> Browse...</a>
+          <div id="pathdiv" style="min-height:200px;height:200px;min-width:200px;width:300px;overflow:auto;display:block;border:0px solid"> </div>
+        </td>
+      </tr>
+      <tr>
+        <th>Create a directory under the selected path:</th>
+        <td>
+          <input type="text"  name="new_folder" class="form-control" id="id_new_folder" onkeyup="copyText();" placeholder="Enter new directory name" value={{form.new_folder.value|default_if_none:""}}> 
+        </td>
+        <td> {{ form.new_folder.errors }} </td>
+        <td> &nbsp;</td>
+      </tr>
+      <tr>
+        <th> Final volume path</th>
+        <td>
+          <input type="text" name="final_path" class="form-control" id="id_final_path" readonly value="{{form.path.value|default_if_none:""}}"> <br>
+        </td>
+        <td> &nbsp;</td>
+        <td> &nbsp; </td>
+      </tr>
+    </table>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <a href="/storage_access/view_afp_volumes" role="button" class="btn btn-default"> Cancel</a>&nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary" >Save</button>
+    </div>
+  </form>
+
+  <script src="/static/jstree/dist/jstree.js"></script>
+
+  <script>
+    var selected_path = '';
+    var e = document.getElementById("id_dataset")
+    if (document.forms["create_form"].elements["path"].value == '') {
+      document.forms["create_form"].elements["path"].value = e.options[e.selectedIndex].value;
+      document.forms["create_form"].elements["final_path"].value = e.options[e.selectedIndex].value;
+    }
+
+
+    function change_dataset(sel){
+      if (sel.value[0] != '/')
+        document.getElementById('id_path').value = '/' + sel.value;
+      else
+        document.getElementById('id_path').value = sel.value;
+      $('.lightbox').show();
+      $("#create_form").attr("method", "get");
+    };
+    function displayTree() {
+      document.getElementById("pathdiv").style.display = "block";
+      $('#pathdiv').jstree({ 'core' : {
+        'multiple':false,
+        'data' : {
+          'url' : function (node) {
+            return node.id === '#' ? 
+              '/storage/view_dir_contents?first=1' : 
+              '/storage/view_dir_contents'; 
+          },
+          'data' : function (node) {
+            var e = document.getElementById("id_dataset");
+            var ds_name = e.options[e.selectedIndex].text;
+            if (node.data) {
+              return {'dir' : node.data['dir'] , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
+            }
+            else
+              return { 'dir' : node.text , 'id':node.id, "from": "dataset", "dataset_name": ds_name};
+            }
+            
+          }
+          
+        }
+      });
+      $(function () {
+        $('#pathdiv').on('changed.jstree', function (e, data) {
+          var i, j, r = [];
+          var ds_elem = document.getElementById("id_dataset");
+          var ds_name = ds_elem.options[ds_elem.selectedIndex].value;
+          r = data.instance.get_node(data.selected[0]).text;
+          rfp = data.instance.get_node(data.selected[0]).data["dir"];
+          $('.lightbox').show();
+          location.href = location.pathname+"?path="+rfp+"&dataset="+ds_name
+        })
+        .jstree();
+      });
+    }
+    function copyText() {
+      if (selected_path == '') {
+        selected_path = document.forms["create_form"].elements["path"].value;
+      }
+      folder_val = $("#id_new_folder").val();
+      document.forms["create_form"].elements["final_path"].value = selected_path+'/'+folder_val;
+    }
+    
+  </script>
+
+{%endblock%}
+
+{%block help_header%}
+  Create an AFP volume
+{%endblock%}
+
+{%block help_body%}
+  <p>Use this screen to create an AFP volume. The settings will take effect upon saving this information.</p>
+{%endblock%}
+
+{% block tab_active %}
+  <script>
+    make_tab_active("view_afp_volumes_tab")
+  </script>
+{% endblock %}
