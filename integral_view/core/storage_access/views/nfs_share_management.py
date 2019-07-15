@@ -113,18 +113,15 @@ def update_nfs_share(request):
                 client_list = []
                 for client in d['clients']:
                     client_list.append(client['name'])
+                    if 'options' in client:
+                        for option in client['options']:
+                            if option == 'ro':
+                                initial['readonly'] = True
+                            elif option == 'root_squash':
+                                initial['root_squash'] = True
+                            elif option == 'all_squash':
+                                initial['all_squash'] = True
                 initial['clients'] = ','.join(client_list)
-            initial['readonly'] = False
-            initial['root_squash'] = False
-            initial['all_squash'] = False
-            if 'options' in d:
-                for option in d['options']:
-                    if option == 'ro':
-                        initial['readonly'] = True
-                    elif option == 'root_squash':
-                        initial['root_squash'] = True
-                    elif option == 'all_squash':
-                        initial['all_squash'] = True
             form = nfs_shares_forms.ShareForm(initial=initial)
             return_dict['form'] = form
             return django.shortcuts.render_to_response("update_nfs_share.html", return_dict, context_instance=django.template.context.RequestContext(request))
