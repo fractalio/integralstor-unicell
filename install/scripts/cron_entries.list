@@ -64,4 +64,4 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/opt/dell/srva
 
 @reboot /usr/sbin/modprobe ipmi_devintf &> /tmp/logs-ipmi_devinfo_modprobe
 @reboot /usr/sbin/modprobe zfs &> /tmp/logs-zfs_modprobe
-
+@reboot /usr/bin/python /opt/integralstor/integralstor/scripts/python/record_alert.py 8 3 "IntegralStor System" "System rebooted"
