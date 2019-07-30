@@ -246,14 +246,14 @@ def update_scan_schedule(request):
         if 'scan_configuration_id' not in req_ret:
             raise Exception('Malformed request. Please use the menus.')
         scan_configuration_id = int(req_ret['scan_configuration_id'])
+        configurations, err = scan_utils.get_scan_configurations(scan_configuration_id=scan_configuration_id)
+        if err:
+            raise Exception(err)
+        if not configurations:
+            raise Exception('Invalid configuration specified. Please us the menus.')
+
         if request.method == "GET":
             # Return the conf page
-            configurations, err = scan_utils.get_scan_configurations(scan_configuration_id=scan_configuration_id)
-            if err:
-                raise Exception(err)
-            if not configurations:
-                raise Exception('Invalid configuration specified. Please us the menus.')
-
             return_dict['configuration'] = configurations[0]
             return_dict['scan_configuration_id'] = req_ret['scan_configuration_id']
             return django.shortcuts.render_to_response("schedule_scan.html", return_dict, context_instance=django.template.context.RequestContext(request))
@@ -262,22 +262,10 @@ def update_scan_schedule(request):
                 raise Exception("Invalid request, please use the menus.")
             scheduler = req_ret['scheduler']
             schedule = scheduler.split()
-            app_root, err = config.get_application_root(app_tag='storage_insights')
-            if err:
-                raise Exception(err)
-            cmd = 'python %s/scripts/python/storage_insights_scanner.py -d -s %d'%(app_root, scan_configuration_id)
+            result, err = scheduler_utils.update_cron_schedule(configurations[0]['cron_task_id'], 'root',
+                schedule[0], schedule[1], schedule[2], schedule[3], schedule[4])
 
-            cron_description = 'Storage Insights scanner'
-    
-            cron_task_id, err = scheduler_utils.create_cron_task(
-                cmd, cron_description, schedule[0], schedule[1], schedule[2], schedule[3], schedule[4], task_type_id=6)
-            if err:
-                raise Exception(err)
-            ret, err = scan_utils.update_cron_schedule(scan_configuration_id, cron_task_id)
-            if err:
-                raise Exception(err)
-
-            cron_task_list, err = scheduler_utils.get_cron_tasks(cron_task_id, task_type_id=6)
+            cron_task_list, err = scheduler_utils.get_cron_tasks(configurations[0]['cron_task_id'], task_type_id=6)
             if err:
                 raise Exception(err)
 
